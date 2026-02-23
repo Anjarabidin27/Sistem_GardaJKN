@@ -1,0 +1,171 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Member;
+use App\Repositories\MemberRepository;
+use App\DTO\MemberDTO;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+
+class MemberService
+{
+    public function __construct(
+        protected MemberRepository $memberRepo,
+        protected AuditService $auditService
+    ) {}
+
+    public function registerMember(MemberDTO $dto): Member
+    {
+        return DB::transaction(function () use ($dto) {
+            $data = $dto->toArray();
+            $data['password'] = Hash::make($dto->password);
+            
+            $member = $this->memberRepo->create($data);
+
+            $this->auditService->log(
+                'create_member',
+                'member',
+                $member->id,
+                ['name' => $member->name, 'nik' => $member->nik]
+            );
+
+            return $member;
+        });
+    }
+
+    public function updateMember(int $id, MemberDTO $dto, string $actorType = 'admin'): Member
+    {
+        return DB::transaction(function () use ($id, $dto, $actorType) {
+            $member = $this->memberRepo->findById($id);
+            $original = $member->getAttributes();
+            
+            $member->update($dto->toArray());
+            
+            if ($member->wasChanged()) {
+                $changes = $this->getChanges($original, $member->getChanges());
+                
+                $this->auditService->log(
+                    $actorType === 'admin' ? 'update_member_by_admin' : 'update_profile',
+                    'member',
+                    $member->id,
+                    $changes
+                );
+            }
+
+            return $member;
+        });
+    }
+
+    public function deleteMember(int $id): bool
+    {
+        return DB::transaction(function () use ($id) {
+            $member = $this->memberRepo->findById($id);
+            
+            $this->auditService->log(
+                'delete_member',
+                'member',
+                $member->id,
+                ['name' => $member->name, 'nik' => $member->nik, 'deleted_at' => now()]
+            );
+
+            return $member->delete();
+        });
+    }
+
+    public function resetMemberPassword(int $id, string $newPassword = 'GardaJKN2026!'): Member
+    {
+        return DB::transaction(function () use ($id, $newPassword) {
+            $member = $this->memberRepo->findById($id);
+            $member->password = Hash::make($newPassword);
+            $member->save();
+
+            $this->auditService->log(
+                'reset_password_by_admin',
+                'member',
+                $member->id,
+                ['name' => $member->name, 'nik' => $member->nik, 'reason' => 'Admin reset to default password']
+            );
+
+            return $member;
+        });
+    }
+
+    public function restoreMember(int $id): bool
+    {
+        return DB::transaction(function () use ($id) {
+            // Find in trashed records
+            $member = \App\Models\Member::onlyTrashed()->findOrFail($id);
+            $res = $member->restore();
+
+            if ($res) {
+                $this->auditService->log(
+                    'restore_member',
+                    'member',
+                    $member->id,
+                    ['name' => $member->name, 'nik' => $member->nik, 'restored_at' => now()]
+                );
+            }
+
+            return $res;
+        });
+    }
+
+    protected function getChanges(array $original, array $dirty): array
+    {
+        $changes = [];
+        foreach ($dirty as $key => $newValue) {
+            if ($key === 'updated_at') continue;
+            
+            $oldValue = $original[$key] ?? null;
+
+            // Resolve Region IDs to Names
+            if (in_array($key, ['province_id', 'city_id', 'district_id'])) {
+                $oldValue = $this->resolveRegionName($key, $oldValue);
+                $newValue = $this->resolveRegionName($key, $newValue);
+            }
+
+            // Standardize Casing for professional looks (Title Case)
+            // Skip for NIK, status, or complex IDs
+            $skipCasing = ['nik', 'status', 'password'];
+            if (!in_array($key, $skipCasing)) {
+                if (is_string($oldValue)) $oldValue = ucwords(strtolower($oldValue));
+                if (is_string($newValue)) $newValue = ucwords(strtolower($newValue));
+            }
+
+            $changes[$key] = [
+                'old' => $oldValue,
+                'new' => $newValue,
+            ];
+        }
+        return $changes;
+    }
+
+    protected function resolveRegionName(string $key, $id): ?string
+    {
+        if (!$id || !is_numeric($id)) return $id;
+        try {
+            if ($key === 'province_id') return \App\Models\Province::find($id)?->name;
+            if ($key === 'city_id') {
+                $city = \App\Models\City::find($id);
+                if (!$city) return null;
+                
+                $name = strtoupper($city->name);
+                $type = strtoupper($city->type);
+                
+                // Bersihkan nama dari kata KABUPATEN atau KOTA di awal agar tidak dobel
+                $cleanName = preg_replace('/^(KABUPATEN|KOTA|KAB\.?)\s+/i', '', $name);
+                
+                if ($type === 'KOTA') {
+                    return 'Kota ' . ucwords(strtolower($cleanName));
+                } else {
+                    return 'Kab. ' . ucwords(strtolower($cleanName));
+                }
+            }
+            if ($key === 'district_id') return \App\Models\District::find($id)?->name;
+        } catch (\Exception $e) {
+            return $id;
+        }
+        return $id;
+    }
+}
