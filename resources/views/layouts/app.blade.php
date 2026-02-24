@@ -12,6 +12,12 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Design System CSS (Inline for Performance/MVP) -->
     <style>
@@ -64,10 +70,10 @@
             box-shadow: var(--shadow);
         }
         .btn-secondary { 
-            background: white; border-color: var(--border); 
-            color: var(--text-body); 
+            background: white !important; border-color: #e2e8f0 !important; 
+            color: #475569 !important; 
         }
-        .btn-secondary:hover { background: #f8fafc; border-color: var(--text-muted); }
+        .btn-secondary:hover { background: #f8fafc !important; border-color: #cbd5e1 !important; color: #1e293b !important; }
 
         .card { 
             background: var(--bg-surface); 

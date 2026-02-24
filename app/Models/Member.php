@@ -24,7 +24,19 @@ class Member extends Authenticatable
         'province_id',
         'city_id',
         'district_id',
+        'photo_path',
     ];
+
+    protected $appends = ['photo_url'];
+
+    public function getPhotoUrlAttribute()
+    {
+        if ($this->photo_path) {
+            return asset('storage/' . $this->photo_path);
+        }
+        // Identicon or Default Avatar
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=004aad&color=fff&size=200';
+    }
 
     protected $hidden = [
         'password',

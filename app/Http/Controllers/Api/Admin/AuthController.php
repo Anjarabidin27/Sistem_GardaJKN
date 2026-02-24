@@ -30,7 +30,7 @@ class AuthController extends Controller
         $token = $admin->createToken('admin-token')->plainTextToken;
 
         try {
-            $this->auditService->record('admin', $admin->id, 'login_admin', 'admin', $admin->id, [
+            $this->auditService->log('login_admin', 'admin', $admin->id, [
                 'ip' => request()->ip(),
                 'user_agent' => request()->userAgent()
             ]);

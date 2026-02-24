@@ -20,17 +20,29 @@ class UpdateProfileRequest extends FormRequest
             'education' => 'required|in:SD,SMP,SMA,Diploma,S1/D4,S2',
             'occupation' => 'required|in:Petani,Pedagang,Nelayan,Wiraswasta,Karyawan,PNS,TNI/POLRI,Lainnya',
             'address_detail' => 'required|string',
-            'province_id' => 'required|exists:provinces,id',
+            'address_detail' => 'required|string',
+            'province_id' => 'nullable|exists:provinces,id',
             'city_id' => [
-                'required', 
+                'nullable', 
                 'exists:cities,id', 
-                new \App\Rules\ValidRegionHierarchy($this->province_id, 'city')
+                function ($attribute, $value, $fail) {
+                    if ($this->province_id && $value) {
+                        $rule = new \App\Rules\ValidRegionHierarchy($this->province_id, 'city');
+                        $rule->validate($attribute, $value, $fail);
+                    }
+                }
             ],
             'district_id' => [
-                'required', 
+                'nullable', 
                 'exists:districts,id', 
-                new \App\Rules\ValidRegionHierarchy($this->city_id, 'district')
+                function ($attribute, $value, $fail) {
+                    if ($this->city_id && $value) {
+                        $rule = new \App\Rules\ValidRegionHierarchy($this->city_id, 'district');
+                        $rule->validate($attribute, $value, $fail);
+                    }
+                }
             ],
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
         ];
     }
 }

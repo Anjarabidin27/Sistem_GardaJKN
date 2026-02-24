@@ -35,9 +35,13 @@
     <div class="profile-card" style="max-width: 900px; margin: 0 auto; overflow: hidden;">
         <!-- Header Section -->
         <div style="height: 120px; background: #004aad; position: relative;">
-            <div style="position: absolute; bottom: -40px; left: 32px; width: 96px; height: 96px; background: #f8fafc; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 4px solid #fff;" id="avatarContainer">
+            <div style="position: absolute; bottom: -45px; left: 32px; width: 100px; height: 100px; background: #fff; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border: 4px solid #fff; overflow: hidden; transition: transform 0.2s;" id="avatarContainer">
                 <i data-lucide="user" style="width: 40px; height: 40px; color: #64748b;"></i>
             </div>
+            
+            <a href="/member/informations" class="btn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(8px); text-decoration: none; padding: 6px 14px; font-size: 0.75rem; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="megaphone" style="width: 14px; height: 14px;"></i> Pusat Informasi
+            </a>
         </div>
 
         <div style="padding: 56px 32px 32px 32px;">
@@ -98,7 +102,7 @@
                         <div class="data-label">Status Anggota</div>
                         <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
                             <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
-                            <span style="font-weight: 600; color: #1e293b; font-size: 0.875rem;">Aktif Bertugas</span>
+                            <span style="font-weight: 600; color: #1e293b; font-size: 0.875rem;">Aktif</span>
                         </div>
                     </div>
                 </div>
@@ -110,10 +114,21 @@
 <!-- Modal Edit Profil (Modern) -->
 <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
     <div style="background: white; width:600px; padding:0; overflow:hidden; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-        <div style="padding:20px 32px; border-bottom:1px solid #e2e8f0; background:#fff;">
-            <h3 style="font-size:1rem; font-weight:700; color: #1e293b;">Pemutakhiran Profil Anggota</h3>
+        <div style="padding:20px 32px; border-bottom:1px solid #e2e8f0; background:#fff; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size:1rem; font-weight:700; color: #1e293b; margin: 0;">Edit Profil Anggota</h3>
+            <button onclick="closeEditModal()" style="background: none; border: none; font-size: 1.25rem; color: #64748b; cursor: pointer;">&times;</button>
         </div>
         <div style="padding:32px; max-height: 75vh; overflow-y: auto;">
+            <div style="margin-bottom: 24px;">
+                <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 8px; display: block;">Foto Profil</label>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <img id="editPhotoPreview" src="" style="width: 72px; height: 72px; border-radius: 12px; object-fit: cover; object-position: top; background: #f1f5f9; border: 2px solid #e2e8f0; padding: 2px;">
+                    <div style="flex: 1;">
+                        <input type="file" id="editPhoto" accept="image/*" class="form-input" style="width: 100%; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.75rem;">
+                        <small style="color: #94a3b8; font-size: 0.7rem; margin-top: 4px; display: block;">Rekomendasi: 400x400px, JPG/PNG. Max 10MB.</small>
+                    </div>
+                </div>
+            </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
                 <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Nama Lengkap</label>
@@ -209,6 +224,12 @@
             lucide.createIcons();
         } catch (e) {
             console.error(e);
+            if (e.response?.status === 403) {
+                showToast('Akses ditolak. Halaman ini hanya untuk Anggota.', 'error');
+                setTimeout(() => window.location.href = '/login', 2000);
+            } else {
+                showToast('Gagal memuat profil. Silakan coba lagi.', 'error');
+            }
         }
     }
 
@@ -222,9 +243,13 @@
         document.getElementById('addressDetail').innerText = d.address_detail;
         document.getElementById('regionDisplay').innerText = `${d.district.name}, ${d.city.name}, ${d.province.name}`;
         
-        // Professional Initials Avatar
-        const initials = d.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-        document.getElementById('avatarContainer').innerHTML = `<span style="font-weight: 700; color: #64748b; font-size: 1.5rem;">${initials}</span>`;
+        // Photo or Initials
+        if (d.photo_path) {
+            document.getElementById('avatarContainer').innerHTML = `<img src="${d.photo_url}" style="width: 100%; height: 100%; object-fit: cover; object-position: top;" alt="${d.name}">`;
+        } else {
+            const initials = d.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            document.getElementById('avatarContainer').innerHTML = `<span style="font-weight: 700; color: #64748b; font-size: 1.5rem;">${initials}</span>`;
+        }
     }
 
     // --- Modal Logic ---
@@ -237,6 +262,8 @@
         document.getElementById('editEducation').value = currentData.education;
         document.getElementById('editOccupation').value = currentData.occupation;
         document.getElementById('editAddress').value = currentData.address_detail;
+        document.getElementById('editPhotoPreview').src = currentData.photo_url;
+        document.getElementById('editPhoto').value = '';
         
         document.getElementById('editModal').style.display = 'flex';
         
@@ -287,25 +314,46 @@
     }
 
     async function submitUpdate() {
-        const payload = {
-            name: document.getElementById('editName').value,
-            phone: document.getElementById('editPhone').value,
-            gender: document.getElementById('editGender').value,
-            education: document.getElementById('editEducation').value,
-            occupation: document.getElementById('editOccupation').value,
-            province_id: document.getElementById('editProvince').value,
-            city_id: document.getElementById('editCity').value,
-            district_id: document.getElementById('editDistrict').value,
-            address_detail: document.getElementById('editAddress').value,
-        };
+        const formData = new FormData();
+        formData.append('_method', 'PUT'); // Spofing method for multipart data
+        formData.append('name', document.getElementById('editName').value);
+        formData.append('phone', document.getElementById('editPhone').value);
+        formData.append('gender', document.getElementById('editGender').value);
+        formData.append('education', document.getElementById('editEducation').value);
+        formData.append('occupation', document.getElementById('editOccupation').value);
+        const provId = document.getElementById('editProvince').value;
+        const cityId = document.getElementById('editCity').value;
+        const distId = document.getElementById('editDistrict').value;
+
+        if (provId) formData.append('province_id', provId);
+        if (cityId) formData.append('city_id', cityId);
+        if (distId) formData.append('district_id', distId);
+
+        formData.append('address_detail', document.getElementById('editAddress').value);
+
+        const photoInput = document.getElementById('editPhoto');
+        if (photoInput.files[0]) {
+            formData.append('photo', photoInput.files[0]);
+        }
+
+        const btn = event.currentTarget;
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = 'Menyimpan...';
 
         try {
-            await axios.put('member/profile', payload);
+            await axios.post('member/profile', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             showToast('Profil berhasil diperbarui!', 'success');
             closeEditModal();
             fetchProfile(); // Refresh UI
         } catch (e) {
+            console.error(e);
             showToast(e.response?.data?.message || 'Gagal memperbarui profil.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
         }
     }
 

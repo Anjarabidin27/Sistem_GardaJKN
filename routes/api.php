@@ -29,16 +29,23 @@ Route::prefix('master')->controller(RegionController::class)->group(function () 
 
 // --- Member Portal ---
 Route::prefix('member')->group(function () {
+    Route::post('register', [MemberAuthController::class, 'register']);
     Route::post('login', [MemberAuthController::class, 'login']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('logout', [MemberAuthController::class, 'logout']);
         Route::controller(ProfileController::class)->group(function () {
             Route::get('profile', 'show');
-            Route::put('profile', 'update');
+            Route::match(['put', 'post'], 'profile', 'update');
+        });
+
+        Route::prefix('informations')->controller(\App\Http\Controllers\Api\Member\InformationController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('{id}', 'show');
         });
     });
 });
+
 
 // --- Admin Panel ---
 Route::prefix('admin')->group(function () {
@@ -59,5 +66,15 @@ Route::prefix('admin')->group(function () {
             Route::post('{id}/reset-password', 'resetPassword');
             Route::post('{id}/restore', 'restore');
         });
+
+        Route::prefix('informations')->controller(\App\Http\Controllers\Api\Admin\InformationController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('{id}', 'show');
+            Route::match(['put', 'post'], '{id}', 'update'); // Handle file upload with spoofing or direct post
+            Route::delete('{id}', 'destroy');
+            Route::patch('{id}/toggle-status', 'toggleStatus');
+        });
     });
 });
+

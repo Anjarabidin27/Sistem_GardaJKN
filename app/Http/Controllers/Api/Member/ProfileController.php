@@ -18,13 +18,19 @@ class ProfileController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        return $this->successResponse('Profil Member', $request->user()->load(['province', 'city', 'district']));
+        $user = $request->user();
+        
+        if (!$user instanceof \App\Models\Member) {
+            return $this->errorResponse('Unauthorized. User is not a member.', null, 403);
+        }
+
+        return $this->successResponse('Profil Member', $user->load(['province', 'city', 'district']));
     }
 
     public function update(UpdateProfileRequest $request): JsonResponse
     {
         $dto = MemberDTO::fromRequest($request->validated());
-        $member = $this->memberService->updateMember($request->user()->id, $dto, 'member');
+        $member = $this->memberService->updateMember($request->user()->id, $dto);
 
         return $this->successResponse('Profil berhasil diperbarui.', $member);
     }

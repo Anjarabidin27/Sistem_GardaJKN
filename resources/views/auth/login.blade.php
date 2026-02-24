@@ -120,7 +120,7 @@
             <form id="loginForm">
                 <div class="input-group">
                     <label class="label" id="identityLabel">NIK Anggota (16 Digit)</label>
-                    <input type="text" id="identity" class="form-input" placeholder="Contoh: 3171..." required>
+                    <input type="text" id="identity" class="form-input" placeholder="Contoh: 3171************" required>
                 </div>
                 
                 <div class="input-group">
@@ -139,7 +139,10 @@
                     Masuk ke Sistem
                 </button>
 
-
+                <div style="margin-top: 24px; text-align: center; font-size: 0.875rem;">
+                    <span style="color: var(--text-muted);">Belum punya akun?</span>
+                    <a href="{{ route('register') }}" style="color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px;">Daftar di sini</a>
+                </div>
             </form>
 
             <div style="margin-top: 40px; text-align: center; font-size: 0.75rem; color: var(--text-muted);">
@@ -164,7 +167,7 @@
         
         if(role === 'member') {
             label.innerText = 'NIK Anggota (16 Digit)';
-            input.placeholder = 'Contoh: 3171...';
+            input.placeholder = 'Contoh: 3171************';
         } else {
             label.innerText = 'Username Admin';
             input.placeholder = 'Masukkan username';

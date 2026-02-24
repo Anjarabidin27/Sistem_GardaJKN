@@ -18,6 +18,10 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
+Route::get('/register', function () {
+    return view('auth.register');
+})->name('register');
+
 // Redirect root ke login
 Route::get('/', function () {
     return redirect()->route('login');
@@ -36,12 +40,20 @@ Route::prefix('admin')->group(function () {
     Route::get('/audit-logs', function () {
         return view('admin.audit_logs.index'); // New Web Route
     });
+
+    Route::get('/informations', function () {
+        return view('admin.informations.index');
+    });
 });
 
 // Halaman Member (Protected by JS Check)
 Route::prefix('member')->group(function () {
     Route::get('/profile', function () {
         return view('member.profile'); // Nanti kita buat file ini
+    });
+
+    Route::get('/informations', function () {
+        return view('member.informations.index');
     });
 });
 

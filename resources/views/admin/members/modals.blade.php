@@ -18,7 +18,7 @@
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
                 <div>
-                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">WhatsApp</label>
+                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">sApp</label>
                     <input type="text" id="addPhone" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.875rem;" placeholder="0812...">
                 </div>
                 <div>
@@ -95,7 +95,7 @@
 <div id="editModal" class="modal-overlay">
     <div class="modal-content">
         <div style="padding:20px 32px; border-bottom:1px solid #e2e8f0; background:#fff; display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="font-size:1rem; font-weight:700; color: #1e293b;">Pemutakhiran Data Anggota</h3>
+            <h3 style="font-size:1rem; font-weight:700; color: #1e293b;">Edit Data Anggota</h3>
             <button onclick="closeEditModal()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:1.5rem;">&times;</button>
         </div>
         <div style="padding:32px; max-height: 75vh; overflow-y: auto;">

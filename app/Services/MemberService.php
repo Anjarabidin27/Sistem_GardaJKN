@@ -7,6 +7,7 @@ use App\Repositories\MemberRepository;
 use App\DTO\MemberDTO;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class MemberService
 {
@@ -34,19 +35,29 @@ class MemberService
         });
     }
 
-    public function updateMember(int $id, MemberDTO $dto, string $actorType = 'admin'): Member
+    public function updateMember(int $id, MemberDTO $dto): Member
     {
-        return DB::transaction(function () use ($id, $dto, $actorType) {
+        return DB::transaction(function () use ($id, $dto) {
             $member = $this->memberRepo->findById($id);
             $original = $member->getAttributes();
             
-            $member->update($dto->toArray());
+            $data = $dto->toArray();
+
+            // Handle Photo Upload
+            if ($dto->photo instanceof \Illuminate\Http\UploadedFile) {
+                if ($member->photo_path) {
+                    Storage::disk('public')->delete($member->photo_path);
+                }
+                $data['photo_path'] = $dto->photo->store('profiles', 'public');
+            }
+            
+            $member->update($data);
             
             if ($member->wasChanged()) {
                 $changes = $this->getChanges($original, $member->getChanges());
                 
                 $this->auditService->log(
-                    $actorType === 'admin' ? 'update_member_by_admin' : 'update_profile',
+                    'update_member',
                     'member',
                     $member->id,
                     $changes

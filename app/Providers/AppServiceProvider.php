@@ -19,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Database\Eloquent\Relations\Relation::enforceMorphMap([
             'admin' => 'App\Models\AdminUser',
             'member' => 'App\Models\Member',
+            'information' => 'App\Models\Information',
+            'system' => 'App\Models\AuditLog', // Placeholder to avoid "Class system not found" error
         ]);
     }
 }

@@ -16,6 +16,7 @@ class MemberDTO
         public readonly ?string $address_detail = null,
         public readonly ?string $nik = null,
         public readonly ?string $password = null,
+        public readonly mixed $photo = null,
     ) {}
 
     public static function fromRequest(array $data): self
@@ -32,6 +33,7 @@ class MemberDTO
             address_detail: $data['address_detail'] ?? null,
             nik: $data['nik'] ?? null,
             password: $data['password'] ?? null,
+            photo: $data['photo'] ?? null,
         );
     }
 

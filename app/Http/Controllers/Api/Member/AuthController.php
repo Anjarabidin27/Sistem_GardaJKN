@@ -9,11 +9,26 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+use App\Http\Requests\Member\RegisterRequest;
+use App\DTO\MemberDTO;
+use App\Services\MemberService;
+
 class AuthController extends Controller
 {
     use ApiResponse;
 
-    public function __construct(protected \App\Services\AuditService $auditService) {}
+    public function __construct(
+        protected \App\Services\AuditService $auditService,
+        protected MemberService $memberService
+    ) {}
+
+    public function register(RegisterRequest $request)
+    {
+        $dto = MemberDTO::fromRequest($request->validated());
+        $member = $this->memberService->registerMember($dto);
+
+        return $this->successResponse('Pendaftaran berhasil! Silakan login.', $member, 201);
+    }
 
     public function login(LoginRequest $request)
     {
@@ -26,7 +41,7 @@ class AuthController extends Controller
         $token = $member->createToken('member-token')->plainTextToken;
 
         try {
-            $this->auditService->record('member', $member->id, 'login_member', 'member', $member->id, [
+            $this->auditService->log('login_member', 'member', $member->id, [
                 'ip' => request()->ip(),
                 'user_agent' => request()->userAgent()
             ]);

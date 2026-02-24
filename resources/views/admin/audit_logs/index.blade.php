@@ -35,13 +35,13 @@
     }
     .bg-delete { border-color: #fee2e2; color: #004aad; } /* Tetap bedakan border sedikit jika perlu, tapi teks seragam */
     
-    .change-item { display: grid; grid-template-columns: 100px 15px 1fr 40px 1fr; gap: 0; margin-bottom: 4px; align-items: center; }
+    .change-item { display: grid; grid-template-columns: 100px 15px 1fr; gap: 0; margin-bottom: 4px; align-items: center; }
     .change-label { font-size: 0.875rem; font-weight: 700; color: #1e293b; }
     .change-separator { font-size: 0.875rem; color: #1e293b; }
-    .change-value { display: contents; }
-    .value-old { color: #475569; font-size: 0.875rem; padding-right: 10px; }
-    .value-new { font-weight: 700; color: #000; font-size: 0.875rem; }
-    .change-arrow { color: #1e293b; font-size: 1rem; display: flex; justify-content: center; }
+    .change-values { display: flex; align-items: center; gap: 8px; }
+    .value-old { color: #64748b; font-size: 0.875rem; text-decoration: line-through; opacity: 0.7; }
+    .value-new { font-weight: 700; color: #004aad; font-size: 0.875rem; }
+    .change-arrow { color: #94a3b8; font-size: 1rem; display: flex; align-items: center; }
     .metadata-empty { font-style: italic; color: #cbd5e1; font-size: 0.8125rem; }
 </style>
 @endpush
@@ -53,6 +53,7 @@
         <nav class="sb-menu">
             <a href="/admin/dashboard" class="sb-link"><i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i> Dashboard</a>
             <a href="/admin/members" class="sb-link"><i data-lucide="users" style="width: 16px; height: 16px;"></i> Manajemen Anggota</a>
+            <a href="/admin/informations" class="sb-link"><i data-lucide="megaphone" style="width: 16px; height: 16px;"></i> Informasi</a>
             <a href="/admin/audit-logs" class="sb-link active"><i data-lucide="file-clock" style="width: 16px; height: 16px;"></i> Log Audit</a>
             <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
                 <a href="#" class="sb-link" onclick="logout()"><i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Logout</a>
@@ -139,7 +140,7 @@
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <div style="width: 24px; height: 24px; background: #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;"><i data-lucide="user" style="width: 12px; height: 12px; color: #64748b;"></i></div>
                             <div>
-                                <div style="font-weight:700; color:#334155;">${log.actor?.name || 'Unknown'}</div>
+                                <div style="font-weight:700; color:#334155;">${log.actor?.name || (log.actor_type === 'system' ? 'Sistem' : 'Unknown')}</div>
                                 <div style="font-size:0.7rem; color:#64748b; font-weight:600; text-transform: uppercase;">ID: ${log.actor_id} | ${log.actor_type.split('\\').pop()}</div>
                             </div>
                         </div>
@@ -224,9 +225,11 @@
                     <div class="change-item">
                         <span class="change-label">${label}</span>
                         <span class="change-separator">:</span>
-                        <span class="value-old">${formatValue(value.old)}</span>
-                        <span class="change-arrow">→</span>
-                        <span class="value-new">${formatValue(value.new)}</span>
+                        <div class="change-values">
+                            <span class="value-old">${formatValue(value.old)}</span>
+                            <span class="change-arrow">→</span>
+                            <span class="value-new">${formatValue(value.new)}</span>
+                        </div>
                     </div>
                 `;
             } else {
@@ -235,7 +238,7 @@
                     <div class="change-item">
                         <span class="change-label">${label}</span>
                         <span class="change-separator">:</span>
-                        <span class="value-new" style="grid-column: 3 / span 3;">${formatValue(value)}</span>
+                        <span class="value-new">${formatValue(value)}</span>
                     </div>
                 `;
             }
