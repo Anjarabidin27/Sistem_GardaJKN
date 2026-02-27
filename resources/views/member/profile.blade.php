@@ -31,115 +31,110 @@
 @endpush
 
 @section('content')
-<div class="page-wrapper">
-    <div class="profile-card" style="max-width: 900px; margin: 0 auto; overflow: hidden;">
-        <!-- Header Section -->
-        <div style="height: 120px; background: #004aad; position: relative;">
-            <div style="position: absolute; bottom: -45px; left: 32px; width: 100px; height: 100px; background: #fff; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border: 4px solid #fff; overflow: hidden; transition: transform 0.2s;" id="avatarContainer">
-                <i data-lucide="user" style="width: 40px; height: 40px; color: #64748b;"></i>
+<div class="page-wrapper" style="padding: 60px 20px;">
+    <div class="profile-card" style="max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; border: none; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02); overflow: hidden;">
+        <!-- Premium Header Context -->
+        <div style="height: 140px; background: linear-gradient(135deg, #004aad 0%, #002d6a 100%); position: relative;">
+            <div style="position: absolute; bottom: -40px; left: 32px; width: 100px; height: 100px; background: white; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 5px solid #fff; overflow: hidden;" id="avatarContainer">
+                <i data-lucide="user" style="width: 40px; height: 40px; color: #cbd5e1;"></i>
             </div>
-            
-            <a href="/member/informations" class="btn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(8px); text-decoration: none; padding: 6px 14px; font-size: 0.75rem; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
-                <i data-lucide="megaphone" style="width: 14px; height: 14px;"></i> Pusat Informasi
-            </a>
+            <div style="position: absolute; top: 20px; right: 24px;">
+                <a href="/member/informations" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(8px); text-decoration: none; padding: 6px 14px; font-size: 0.75rem; border-radius: 50px; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                    <i data-lucide="megaphone" style="width: 14px; height: 14px;"></i> Pusat Informasi
+                </a>
+            </div>
         </div>
 
-        <div style="padding: 56px 32px 32px 32px;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #f1f5f9;">
+        <div style="padding: 60px 40px 40px 40px;">
+            <!-- Header Identity -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid #f1f5f9;">
                 <div>
-                    <h1 class="p-name" id="nameDisplay" style="margin-bottom: 4px;">...</h1>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span id="nikDisplay" style="color: #64748b; font-size: 0.875rem;">NIK: ...</span>
-                        <span class="status-badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #d1fae5;">Terverifikasi</span>
+                    <h1 id="nameDisplay" style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin: 0 0 8px 0; letter-spacing: -0.025em;">...</h1>
+                    <div style="display: flex; align-items: center; gap: 16px; font-size: 0.9rem;">
+                        <span style="color: #64748b; font-weight: 500;">NIK: <span id="nikDisplay" style="color: #1e293b; font-weight: 700;">...</span></span>
+                        <div style="width: 1px; height: 16px; background: #e2e8f0;"></div>
+                        <span style="color: #64748b; font-weight: 500;">No. Kartu JKN: <span id="jknDisplay" style="color: #1e293b; font-weight: 700;">-</span></span>
                     </div>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <a href="/settings" class="btn" style="padding: 8px 16px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; text-decoration: none; display: flex; align-items: center; gap: 8px;">
-                        <i data-lucide="settings" style="width: 16px; height: 16px;"></i> Pengaturan
-                    </a>
-                    <button class="btn btn-primary" onclick="openEditModal()" style="padding: 8px 16px; background: #004aad; border: none; color: white;">Edit Profil</button>
-                    <button class="btn btn-secondary" onclick="logout()" style="padding: 8px 16px; background: white; border: 1px solid #e2e8f0; color: #64748b;">Keluar Sesi</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" onclick="openEditModal()" style="padding: 10px 24px; background: #004aad; color: white; border: none; border-radius: 12px; font-weight: 700; box-shadow: 0 4px 14px rgba(0, 74, 173, 0.25);">Edit Profil</button>
+                    <a href="/settings" class="btn" style="padding: 10px; background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i data-lucide="settings" style="width: 20px; height: 20px;"></i></a>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px;">
-                <div class="data-section">
-                    <h2 style="font-size: 0.875rem; font-weight: 600; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                        <i data-lucide="contact" style="width: 16px; height: 16px; color: #004aad;"></i> Informasi Kontak
-                    </h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px;">
+                <!-- Left Details -->
+                <div style="display: flex; flex-direction: column; gap: 32px;">
+                    <h3 style="font-size: 0.8rem; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <i data-lucide="contact" style="width: 18px; height: 18px; color: #64748b;"></i> Informasi Pribadi
+                    </h3>
                     
-                    <div class="data-row" style="margin-bottom: 20px;">
-                        <div class="data-label">WhatsApp</div>
-                        <div class="data-value" id="phoneDisplay">...</div>
-                    </div>
-                    
-                    <div class="data-row" style="margin-bottom: 20px;">
-                        <div class="data-label">Tanggal Lahir</div>
-                        <div class="data-value" id="birthDateDisplay">...</div>
-                    </div>
-                    
-                    <div class="data-row">
-                        <div class="data-label">Alamat Domisili</div>
-                        <div class="data-value" id="regionDisplay" style="margin-bottom: 4px;">...</div>
-                        <div style="font-size: 0.8125rem; color: #64748b; line-height: 1.5;" id="addressDetail">...</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+                        <div class="data-row" style="grid-column: span 2;">
+                            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">WhatsApp</div>
+                            <div id="phoneDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b; letter-spacing: 0.02em;">...</div>
+                        </div>
+                        <div class="data-row">
+                            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Tanggal Lahir</div>
+                            <div id="birthDateDisplay" style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">...</div>
+                        </div>
+                        <div class="data-row">
+                            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Jenis Kelamin</div>
+                            <div id="genderDisplay" style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">...</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="data-section">
-                    <h2 style="font-size: 0.875rem; font-weight: 600; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                        <i data-lucide="id-card" style="width: 16px; height: 16px; color: #004aad;"></i> Status & Pekerjaan
-                    </h2>
-
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:24px;">
+                <!-- Right Details -->
+                <div style="display: flex; flex-direction: column; gap: 32px;">
+                    <h3 style="font-size: 0.8rem; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <i data-lucide="id-card" style="width: 18px; height: 18px; color: #64748b;"></i> Pekerjaan & Alamat
+                    </h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
                         <div class="data-row">
-                            <div class="data-label">Jenis Kelamin</div>
-                            <div class="data-value" id="genderDisplay">...</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Pekerjaan</div>
+                            <div id="occupationDisplay" style="font-size: 1.05rem; font-weight: 800; color: #1e293b;">...</div>
                         </div>
                         <div class="data-row">
-                            <div class="data-label">Pendidikan</div>
-                            <div class="data-value" id="educationDisplay">...</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Pendidikan</div>
+                            <div id="educationDisplay" style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">...</div>
                         </div>
-                    </div>
-
-                    <div class="data-row" style="margin-bottom: 24px;">
-                        <div class="data-label">Pekerjaan</div>
-                        <div class="data-value" id="occupationDisplay">...</div>
-                    </div>
-
-                    <div class="data-row" style="padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
-                        <div class="data-label">Status Anggota</div>
-                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                            <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
-                            <span style="font-weight: 600; color: #1e293b; font-size: 0.875rem;">Aktif</span>
+                        <div class="data-row" style="grid-column: span 2; background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #f1f5f9;">
+                            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Wilayah Domisili</div>
+                            <div id="regionDisplay" style="font-weight: 800; color: #1e293b; font-size: 1rem; line-height: 1.4; margin-bottom: 6px;">...</div>
+                            <div id="addressDetail" style="font-size: 0.85rem; color: #64748b; font-weight: 500; line-height: 1.6;">...</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Pengurus Application Section -->
-            <div id="pengurus-section" style="margin-top: 32px; padding: 24px; background: #eff6ff; border: 1px dashed #3b82f6; border-radius: 12px; display: none;">
+            <!-- Footer Status Section -->
+            <div style="margin-top: 48px; padding-top: 32px; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px; background: #f0fdf4; padding: 8px 16px; border-radius: 50px; border: 1px solid #bbf7d0;">
+                    <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);"></div>
+                    <span style="font-size: 0.85rem; color: #166534; font-weight: 800; text-transform: uppercase; letter-spacing: 0.025em;">Anggota Aktif</span>
+                </div>
+                <button onclick="logout()" style="background: none; border: none; color: #1e293b; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> Keluar Sesi
+                </button>
+            </div>
+
+            <!-- Advanced Info (Neutral Colors) -->
+            <div id="pengurus-section" style="display:none; margin-top: 32px; padding: 24px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h3 style="font-size: 1rem; font-weight: 700; color: #1e3a8a; margin-bottom: 4px;">Pendaftaran Pengurus</h3>
-                        <p style="font-size: 0.8125rem; color: #1e40af; opacity: 0.8;">Bantu kembangkan Garda JKN dengan menjadi bagian dari kepengurusan kami.</p>
-                    </div>
-                    <button class="btn btn-primary" onclick="openPengurusModal()" style="background: #1e3a8a; border: none; padding: 10px 20px;">Daftar Sekarang</button>
+                    <div style="font-size: 0.95rem; color: #1e293b; font-weight: 600;">Bergabung menjadi <span style="font-weight: 800;">Pengurus Garda JKN</span>?</div>
+                    <button onclick="openPengurusModal()" style="padding: 10px 20px; background: #1e293b; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">Daftar Sekarang</button>
                 </div>
             </div>
 
-            <div id="pengurus-status-section" style="margin-top: 32px; padding: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; display: none;">
-                <h3 style="font-size: 0.875rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="shield-check" style="width: 18px; height: 18px; color: #1e3a8a;"></i> Informasi Kepengurusan
-                </h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <div class="data-label">Status Pendaftaran</div>
-                        <div id="statusPengurusBadge" style="margin-top: 6px;"></div>
+            <div id="pengurus-status-section" style="display:none; margin-top: 32px; padding: 24px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Peran Organisasi</span>
+                        <div id="memberRoleDisplay" style="font-size: 1.1rem; color: #1e293b; font-weight: 800;">...</div>
                     </div>
-                    <div>
-                        <div class="data-label">Perolehan Peran</div>
-                        <div class="data-value" id="memberRoleDisplay">Anggota Biasa</div>
-                    </div>
+                    <div id="statusPengurusBadge"></div>
                 </div>
             </div>
         </div>
@@ -201,11 +196,16 @@
 </div>
 
 <!-- Modal Edit Profil (Modern) -->
-<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
-    <div style="background: white; width:600px; padding:0; overflow:hidden; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-        <div style="padding:20px 32px; border-bottom:1px solid #e2e8f0; background:#fff; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="font-size:1rem; font-weight:700; color: #1e293b; margin: 0;">Edit Profil Anggota</h3>
-            <button onclick="closeEditModal()" style="background: none; border: none; font-size: 1.25rem; color: #64748b; cursor: pointer;">&times;</button>
+<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(8px);">
+    <div style="background: white; width:640px; padding:0; overflow:hidden; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <div style="padding:24px 32px; border-bottom:1px solid #f1f5f9; background:#fff; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; background: #eff6ff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #004aad;">
+                    <i data-lucide="user-plus" style="width: 20px; height: 20px;"></i>
+                </div>
+                <h3 style="font-size:1.1rem; font-weight:800; color: #1e293b; margin: 0;">Pembaruan Profil</h3>
+            </div>
+            <button onclick="closeEditModal()" style="background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;">&times;</button>
         </div>
         <div style="padding:32px; max-height: 75vh; overflow-y: auto;">
             <div style="margin-bottom: 24px;">
@@ -224,16 +224,19 @@
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
                 <div>
+                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Nomor Kartu JKN</label>
+                    <input type="text" id="editJknNumber" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.875rem;" placeholder="Opsional (13 digit)">
+                </div>
+                <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">No. WhatsApp</label>
                     <input type="text" id="editPhone" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.875rem;">
                 </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; margin-bottom:20px;">
                 <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Tanggal Lahir</label>
                     <input type="date" id="editBirthDate" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.875rem;">
                 </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
                 <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Jenis Kelamin</label>
                     <select id="editGender" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.875rem;">
@@ -242,7 +245,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Tingkat Pendidikan</label>
+                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Pendidikan</label>
                     <select id="editEducation" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.875rem;">
                         <option value="SD">SD</option>
                         <option value="SMP">SMP</option>
@@ -255,16 +258,24 @@
             </div>
 
             <div style="margin-bottom:20px;">
-                <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Sektor Pekerjaan</label>
+                <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Jenis Pekerjaan (Sesuai Dukcapil)</label>
                 <select id="editOccupation" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.875rem;">
-                    <option value="Petani">Petani</option>
-                    <option value="Pedagang">Pedagang</option>
-                    <option value="Nelayan">Nelayan</option>
-                    <option value="Wiraswasta">Wiraswasta</option>
-                    <option value="Karyawan">Karyawan</option>
-                    <option value="PNS">PNS</option>
+                    <option value="BELUM/TIDAK BEKERJA">BELUM/TIDAK BEKERJA</option>
+                    <option value="MENGURUS RUMAH TANGGA">MENGURUS RUMAH TANGGA</option>
+                    <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                    <option value="PENSIUNAN">PENSIUNAN</option>
+                    <option value="PEGAWAI NEGERI SIPIL">PEGAWAI NEGERI SIPIL</option>
                     <option value="TNI/POLRI">TNI / POLRI</option>
-                    <option value="Lainnya">Lainnya</option>
+                    <option value="KARYAWAN SWASTA">KARYAWAN SWASTA</option>
+                    <option value="KARYAWAN BUMN/BUMD">KARYAWAN BUMN/BUMD</option>
+                    <option value="WIRASWASTA">WIRASWASTA</option>
+                    <option value="PETANI/PEKEBUN">PETANI/PEKEBUN</option>
+                    <option value="NELAYAN/PERIKANAN">NELAYAN/PERIKANAN</option>
+                    <option value="BURUH HARIAN LEPAS">BURUH HARIAN LEPAS</option>
+                    <option value="PEDAGANG">PEDAGANG</option>
+                    <option value="PERANGKAT DESA">PERANGKAT DESA</option>
+                    <option value="TENAGA MEDIS">TENAGA MEDIS (DOKTER/PERAWAT)</option>
+                    <option value="LAINNYA">LAINNYA</option>
                 </select>
             </div>
 
@@ -328,7 +339,8 @@
 
     function updateUI(d) {
         document.getElementById('nameDisplay').innerText = d.name;
-        document.getElementById('nikDisplay').innerText = `NIK: ${d.nik}`;
+        document.getElementById('nikDisplay').innerText = d.nik;
+        document.getElementById('jknDisplay').innerText = d.jkn_number || '-';
         document.getElementById('phoneDisplay').innerText = d.phone;
         document.getElementById('birthDateDisplay').innerText = d.birth_date ? d.birth_date : '-';
         document.getElementById('genderDisplay').innerText = d.gender === 'L' ? 'Laki-laki' : 'Perempuan';
@@ -342,7 +354,7 @@
             document.getElementById('avatarContainer').innerHTML = `<img src="${d.photo_url}" style="width: 100%; height: 100%; object-fit: cover; object-position: top;" alt="${d.name}">`;
         } else {
             const initials = d.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-            document.getElementById('avatarContainer').innerHTML = `<span style="font-weight: 700; color: #64748b; font-size: 1.5rem;">${initials}</span>`;
+            document.getElementById('avatarContainer').innerHTML = `<span style="font-weight: 800; color: #004aad; font-size: 2.5rem;">${initials}</span>`;
         }
 
         // Pengurus Logic
@@ -357,15 +369,15 @@
         } else {
             pSection.style.display = 'none';
             psSection.style.display = 'block';
-            roleDisplay.innerText = d.role === 'pengurus' ? 'Pengurus Garda JKN' : 'Anggota Biasa';
+            roleDisplay.innerText = d.role === 'pengurus' ? 'PENGURUS GARDA JKN' : 'Anggota Biasa';
             
             let badgeHtml = '';
             if (d.status_pengurus === 'pendaftaran_diterima') {
-                badgeHtml = '<span class="status-badge" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a;">Menunggu Verifikasi</span>';
+                badgeHtml = '<span class="status-badge" style="background:#fffbeb; color:#92400e; border:1px solid #fde68a; border-radius: 50px; padding: 4px 14px; font-weight: 700; font-size: 0.75rem;">MENUNGGU VERIFIKASI</span>';
             } else if (d.status_pengurus === 'aktif') {
-                badgeHtml = '<span class="status-badge" style="background:#ecfdf5; color:#065f46; border:1px solid #d1fae5;">Kepengurusan Aktif</span>';
+                badgeHtml = '<span class="status-badge" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; border-radius: 50px; padding: 4px 14px; font-weight: 700; font-size: 0.75rem;">KEPENGURUSAN AKTIF</span>';
             } else {
-                badgeHtml = `<span class="status-badge">${d.status_pengurus}</span>`;
+                badgeHtml = `<span class="status-badge" style="border-radius: 50px; padding: 4px 14px; font-weight: 700; font-size: 0.75rem; background: #f1f5f9; color: #475569;">${d.status_pengurus.toUpperCase()}</span>`;
             }
             statusBadge.innerHTML = badgeHtml;
         }
@@ -439,6 +451,7 @@
         if(!currentData) return;
         
         document.getElementById('editName').value = currentData.name;
+        document.getElementById('editJknNumber').value = currentData.jkn_number || '';
         document.getElementById('editPhone').value = currentData.phone;
         document.getElementById('editBirthDate').value = currentData.birth_date;
         document.getElementById('editGender').value = currentData.gender;
@@ -500,6 +513,7 @@
         const formData = new FormData();
         formData.append('_method', 'PUT'); // Spofing method for multipart data
         formData.append('name', document.getElementById('editName').value);
+        formData.append('jkn_number', document.getElementById('editJknNumber').value);
         formData.append('phone', document.getElementById('editPhone').value);
         formData.append('birth_date', document.getElementById('editBirthDate').value);
         formData.append('gender', document.getElementById('editGender').value);

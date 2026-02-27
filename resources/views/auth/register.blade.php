@@ -27,8 +27,8 @@
         content: '';
         position: absolute;
         top: -10%; right: -10%;
-        width: 400px; height: 400px;
-        background: rgba(255,255,255,0.03);
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
         border-radius: 50%;
     }
 
@@ -46,11 +46,11 @@
         overflow-y: auto;
     }
 
-    .form-container { width: 100%; max-width: 540px; margin: 0 auto; }
+    .form-container { width: 100%; max-width: 580px; margin: 0 auto; }
 
     .welcome-text { margin-bottom: 32px; }
-    .welcome-text h2 { font-size: 1.5rem; font-weight: 700; color: var(--text-title); margin-bottom: 8px; }
-    .welcome-text p { color: var(--text-muted); font-size: 0.875rem; }
+    .welcome-text h2 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; letter-spacing: -0.025em; }
+    .welcome-text p { color: #64748b; font-size: 0.95rem; font-weight: 500; }
 
     .input-grid {
         display: grid;
@@ -71,66 +71,84 @@
     }
 </style>
 
-<div class="split-layout">
-    <!-- Left Section -->
-    <div class="brand-side">
-        <div class="brand-title">Garda JKN</div>
-        <p class="brand-subtitle">Bergabunglah dengan ribuan anggota lainnya dalam Sistem Informasi Pengelolaan Database dan Keanggotaan Nasional.</p>
-        
-        <div style="margin-top: 60px; display: flex; gap: 40px;">
-            <div>
-                <div style="font-size: 1.5rem; font-weight: 700;">34</div>
-                <div style="font-size: 0.875rem; opacity: 0.7;">Provinsi</div>
-            </div>
-            <div>
-                <div style="font-size: 1.5rem; font-weight: 700;">Data</div>
-                <div style="font-size: 0.875rem; opacity: 0.7;">Terverifikasi</div>
-            </div>
+@section('content')
+<style>
+    .page-wrapper { min-height: 100vh; background: #f1f5f9; padding: 60px 20px; display: flex; align-items: center; justify-content: center; }
+    .auth-card { background: white; width: 100%; max-width: 640px; border-radius: 20px; border: none; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); overflow: hidden; }
+    
+    .auth-header { 
+        padding: 40px; 
+        background: linear-gradient(135deg, #004aad 0%, #002d6a 100%); 
+        color: white; 
+        text-align: center;
+        position: relative;
+    }
+    .auth-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 40px;
+        background: white;
+        clip-path: ellipse(50% 100% at 50% 100%);
+    }
+    
+    .auth-header h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.025em; }
+    .auth-header p { opacity: 0.8; font-size: 0.95rem; font-weight: 500; }
+    
+    .auth-body { padding: 40px; }
+    
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .label { display: block; font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+</style>
+
+<div class="page-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Registrasi Anggota</h2>
+            <p>Database Keanggotaan Nasional Garda JKN</p>
         </div>
-    </div>
 
-    <!-- Right Section -->
-    <div class="form-side">
-        <div class="form-container">
-            <div class="welcome-text">
-                <h2>Registrasi Anggota</h2>
-                <p>Lengkapi formulir di bawah untuk mendaftar sebagai anggota baru.</p>
-            </div>
-
+        <div class="auth-body">
             <form id="registerForm">
-                <div class="input-grid">
+                <div class="form-grid">
                     <div>
                         <label class="label">NIK (16 Digit)</label>
-                        <input type="text" id="nik" class="form-input" placeholder="Wajib 16 digit sesuai KTP" required>
+                        <input type="text" id="nik" class="form-input" placeholder="Sesuai KTP" required style="border-radius: 10px;">
                     </div>
                     <div>
-                        <label class="label">Nama Lengkap</label>
-                        <input type="text" id="name" class="form-input" placeholder="Nama sesuai KTP" required>
+                        <label class="label">Nomor Kartu JKN</label>
+                        <input type="text" id="jkn_number" class="form-input" placeholder="Opsional" style="border-radius: 10px;">
                     </div>
                 </div>
 
-                <div class="input-grid">
+                <div class="form-group">
+                    <label class="label">Nama Lengkap</label>
+                    <input type="text" id="name" class="form-input" placeholder="Nama lengkap sesuai KTP" required style="border-radius: 10px;">
+                </div>
+
+                <div class="form-grid">
                     <div>
                         <label class="label">WhatsApp</label>
-                        <input type="text" id="phone" class="form-input" placeholder="0812..." required>
+                        <input type="text" id="phone" class="form-input" placeholder="0812..." required style="border-radius: 10px;">
                     </div>
                     <div>
                         <label class="label">Tanggal Lahir</label>
-                        <input type="date" id="birth_date" class="form-input" required>
+                        <input type="date" id="birth_date" class="form-input" required style="border-radius: 10px;">
                     </div>
                 </div>
 
-                <div class="input-grid">
+                <div class="form-grid">
                     <div>
                         <label class="label">Jenis Kelamin</label>
-                        <select id="gender" class="form-input" required>
+                        <select id="gender" class="form-input" required style="border-radius: 10px;">
                             <option value="L">Laki-laki</option>
                             <option value="P">Perempuan</option>
                         </select>
                     </div>
                     <div>
-                        <label class="label">Pendidikan Terakhir</label>
-                        <select id="education" class="form-input" required>
+                        <label class="label">Pendidikan</label>
+                        <select id="education" class="form-input" required style="border-radius: 10px;">
                             <option value="SD">SD</option>
                             <option value="SMP">SMP</option>
                             <option value="SMA">SMA</option>
@@ -141,72 +159,68 @@
                     </div>
                 </div>
 
-                <div class="input-grid">
-                    <div>
-                        <label class="label">Sektor Pekerjaan</label>
-                        <select id="occupation" class="form-input" required>
-                            <option value="Petani">Petani</option>
-                            <option value="Pedagang">Pedagang</option>
-                            <option value="Nelayan">Nelayan</option>
-                            <option value="Wiraswasta">Wiraswasta</option>
-                            <option value="Karyawan">Karyawan</option>
-                            <option value="PNS">PNS</option>
-                            <option value="TNI/POLRI">TNI / POLRI</option>
-                            <option value="Lainnya">Lainnya</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="label">Kata Sandi</label>
-                        <div class="input-group-password">
-                            <input type="password" id="password" class="form-input" placeholder="Min. 6 Karakter" required>
-                            <button type="button" class="password-toggle-btn" onclick="togglePassword('password')" tabindex="-1">
-                                <span id="icon-password" style="display: flex;">
-                                    <i data-lucide="eye" style="width: 18px; height: 18px; color: #64748b;"></i>
-                                </span>
-                            </button>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label class="label">Jenis Pekerjaan</label>
+                    <select id="occupation" class="form-input" required style="border-radius: 10px;">
+                        <option value="BELUM/TIDAK BEKERJA">BELUM/TIDAK BEKERJA</option>
+                        <option value="MENGURUS RUMAH TANGGA">MENGURUS RUMAH TANGGA</option>
+                        <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                        <option value="PENSIUNAN">PENSIUNAN</option>
+                        <option value="PEGAWAI NEGERI SIPIL">PEGAWAI NEGERI SIPIL</option>
+                        <option value="TNI/POLRI">TNI / POLRI</option>
+                        <option value="KARYAWAN SWASTA">KARYAWAN SWASTA</option>
+                        <option value="KARYAWAN BUMN/BUMD">KARYAWAN BUMN/BUMD</option>
+                        <option value="WIRASWASTA">WIRASWASTA</option>
+                        <option value="PETANI/PEKEBUN">PETANI/PEKEBUN</option>
+                        <option value="NELAYAN/PERIKANAN">NELAYAN/PERIKANAN</option>
+                        <option value="BURUH HARIAN LEPAS">BURUH HARIAN LEPAS</option>
+                        <option value="PEDAGANG">PEDAGANG</option>
+                        <option value="PERANGKAT DESA">PERANGKAT DESA</option>
+                        <option value="TENAGA MEDIS">TENAGA MEDIS</option>
+                        <option value="LAINNYA">LAINNYA</option>
+                    </select>
                 </div>
 
-                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px; margin-bottom:20px;">
+                <div class="form-group">
+                    <label class="label">Kata Sandi</label>
+                    <input type="password" id="password" class="form-input" placeholder="Minimal 6 karakter" required style="border-radius: 10px;">
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom:20px;">
                     <div>
                         <label class="label">Provinsi</label>
-                        <select id="province" class="form-input" onchange="loadCities(this.value)" required>
+                        <select id="province" class="form-input" onchange="loadCities(this.value)" required style="border-radius: 10px;">
                             <option value="">Pilih...</option>
                         </select>
                     </div>
                     <div>
-                        <label class="label">Kab/Kota</label>
-                        <select id="city" class="form-input" onchange="loadDistricts(this.value)" required>
+                        <label class="label">Kota</label>
+                        <select id="city" class="form-input" onchange="loadDistricts(this.value)" required style="border-radius: 10px;">
                             <option value="">Pilih...</option>
                         </select>
                     </div>
                     <div>
                         <label class="label">Kecamatan</label>
-                        <select id="district" class="form-input" required>
+                        <select id="district" class="form-input" required style="border-radius: 10px;">
                             <option value="">Pilih...</option>
                         </select>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 24px;">
-                    <label class="label">Alamat Lengkap</label>
-                    <textarea id="address" class="form-input" rows="2" style="resize: none;" placeholder="Jl. Contoh No. 123..." required></textarea>
+                <div class="form-group" style="margin-bottom: 32px;">
+                    <label class="label">Alamat Lengkap (Domisili)</label>
+                    <textarea id="address" class="form-input" rows="2" style="resize: none; border-radius: 10px;" placeholder="Contoh: Dk. Dermayu Ds. Bumiharjo" required></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <button type="submit" class="btn" style="width: 100%; background: linear-gradient(135deg, #004aad 0%, #002d6a 100%); color: white; padding: 14px; border-radius: 10px; border: none; font-weight: 800; font-size: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 74, 173, 0.3); transition: 0.3s;">
                     Daftar Sekarang
                 </button>
 
-                <div style="margin-top: 24px; text-align: center; font-size: 0.875rem;">
-                    <span style="color: var(--text-muted);">Sudah punya akun?</span>
-                    <a href="{{ route('login') }}" style="color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px;">Masuk di sini</a>
+                <div style="margin-top: 32px; text-align: center; font-size: 0.9rem;">
+                    <span style="color: #64748b; font-weight: 500;">Sudah punya akun?</span>
+                    <a href="{{ route('login') }}" style="color: #1e293b; font-weight: 800; text-decoration: underline; margin-left: 6px;">Masuk Sekarang</a>
                 </div>
             </form>
-
-            <div style="margin-top: 40px; text-align: center; font-size: 0.75rem; color: var(--text-muted);">
-                &copy; 2026 BPJS Kesehatan Garda JKN. Seluruh Hak Cipta Dilindungi.
-            </div>
         </div>
     </div>
 </div>
@@ -266,6 +280,7 @@
         
         const payload = {
             nik: document.getElementById('nik').value,
+            jkn_number: document.getElementById('jkn_number').value,
             name: document.getElementById('name').value,
             phone: document.getElementById('phone').value,
             birth_date: document.getElementById('birth_date').value,

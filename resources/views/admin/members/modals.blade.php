@@ -12,15 +12,21 @@
                     <input type="text" id="addNik" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;" placeholder="Wajib 16 digit sesuai KTP">
                 </div>
                 <div>
+                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Nomor Kartu JKN</label>
+                    <input type="text" id="addJknNumber" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;" placeholder="Opsional (13 digit)">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px; margin-bottom:20px;">
+                <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Nama Lengkap</label>
                     <input type="text" id="addName" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
                 </div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; margin-bottom:20px;">
                 <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">WhatsApp</label>
                     <input type="text" id="addPhone" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;" placeholder="0812...">
                 </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
                 <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Tanggal Lahir</label>
                     <input type="date" id="addBirthDate" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
@@ -37,7 +43,7 @@
                     </div>
                 </div>
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; margin-bottom:20px;">
                 <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Jenis Kelamin</label>
                     <select id="addGender" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
@@ -46,7 +52,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Pendidikan Terakhir</label>
+                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Pendidikan</label>
                     <select id="addEducation" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
                         <option value="SD">SD</option>
                         <option value="SMP">SMP</option>
@@ -56,19 +62,27 @@
                         <option value="S2">S2</option>
                     </select>
                 </div>
-            </div>
-            <div style="margin-bottom:20px;">
-                <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Sektor Pekerjaan</label>
-                <select id="addOccupation" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
-                    <option value="Petani">Petani</option>
-                    <option value="Pedagang">Pedagang</option>
-                    <option value="Nelayan">Nelayan</option>
-                    <option value="Wiraswasta">Wiraswasta</option>
-                    <option value="Karyawan">Karyawan</option>
-                    <option value="PNS">PNS</option>
-                    <option value="TNI/POLRI">TNI / POLRI</option>
-                    <option value="Lainnya">Lainnya</option>
-                </select>
+                <div>
+                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Jenis Pekerjaan</label>
+                    <select id="addOccupation" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
+                        <option value="BELUM/TIDAK BEKERJA">BELUM/TIDAK BEKERJA</option>
+                        <option value="MENGURUS RUMAH TANGGA">MENGURUS RUMAH TANGGA</option>
+                        <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                        <option value="PENSIUNAN">PENSIUNAN</option>
+                        <option value="PEGAWAI NEGERI SIPIL">PEGAWAI NEGERI SIPIL</option>
+                        <option value="TNI/POLRI">TNI / POLRI</option>
+                        <option value="KARYAWAN SWASTA">KARYAWAN SWASTA</option>
+                        <option value="KARYAWAN BUMN/BUMD">KARYAWAN BUMN/BUMD</option>
+                        <option value="WIRASWASTA">WIRASWASTA</option>
+                        <option value="PETANI/PEKEBUN">PETANI/PEKEBUN</option>
+                        <option value="NELAYAN/PERIKANAN">NELAYAN/PERIKANAN</option>
+                        <option value="BURUH HARIAN LEPAS">BURUH HARIAN LEPAS</option>
+                        <option value="PEDAGANG">PEDAGANG</option>
+                        <option value="PERANGKAT DESA">PERANGKAT DESA</option>
+                        <option value="TENAGA MEDIS">TENAGA MEDIS (DOKTER/PERAWAT)</option>
+                        <option value="LAINNYA">LAINNYA</option>
+                    </select>
+                </div>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px; margin-bottom:20px;">
                 <div>
@@ -116,18 +130,18 @@
                     <input type="text" id="editNik" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;" readonly title="NIK tidak dapat diubah">
                 </div>
                 <div>
+                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Nomor Kartu JKN</label>
+                    <input type="text" id="editJknNumber" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;" placeholder="Opsional">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:20px; margin-bottom:20px;">
+                <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Nama Lengkap</label>
                     <input type="text" id="editName" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
                 </div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; margin-bottom:20px;">
                 <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">WhatsApp</label>
                     <input type="text" id="editPhone" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
-                </div>
-                <div>
-                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Tanggal Lahir</label>
-                    <input type="date" id="editBirthDate" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
                 </div>
                 <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Jenis Kelamin</label>
@@ -139,6 +153,10 @@
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
                 <div>
+                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Tanggal Lahir</label>
+                    <input type="date" id="editBirthDate" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
+                </div>
+                <div>
                     <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Pendidikan</label>
                     <select id="editEducation" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
                         <option value="SD">SD</option>
@@ -149,19 +167,27 @@
                         <option value="S2">S2</option>
                     </select>
                 </div>
-                <div>
-                    <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Pekerjaan</label>
-                    <select id="editOccupation" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
-                        <option value="Petani">Petani</option>
-                        <option value="Pedagang">Pedagang</option>
-                        <option value="Nelayan">Nelayan</option>
-                        <option value="Wiraswasta">Wiraswasta</option>
-                        <option value="Karyawan">Karyawan</option>
-                        <option value="PNS">PNS</option>
-                        <option value="TNI/POLRI">TNI / POLRI</option>
-                        <option value="Lainnya">Lainnya</option>
-                    </select>
-                </div>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label class="label" style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 6px; display: block;">Jenis Pekerjaan</label>
+                <select id="editOccupation" class="form-input" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; font-size: 0.875rem;">
+                    <option value="BELUM/TIDAK BEKERJA">BELUM/TIDAK BEKERJA</option>
+                    <option value="MENGURUS RUMAH TANGGA">MENGURUS RUMAH TANGGA</option>
+                    <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                    <option value="PENSIUNAN">PENSIUNAN</option>
+                    <option value="PEGAWAI NEGERI SIPIL">PEGAWAI NEGERI SIPIL</option>
+                    <option value="TNI/POLRI">TNI / POLRI</option>
+                    <option value="KARYAWAN SWASTA">KARYAWAN SWASTA</option>
+                    <option value="KARYAWAN BUMN/BUMD">KARYAWAN BUMN/BUMD</option>
+                    <option value="WIRASWASTA">WIRASWASTA</option>
+                    <option value="PETANI/PEKEBUN">PETANI/PEKEBUN</option>
+                    <option value="NELAYAN/PERIKANAN">NELAYAN/PERIKANAN</option>
+                    <option value="BURUH HARIAN LEPAS">BURUH HARIAN LEPAS</option>
+                    <option value="PEDAGANG">PEDAGANG</option>
+                    <option value="PERANGKAT DESA">PERANGKAT DESA</option>
+                    <option value="TENAGA MEDIS">TENAGA MEDIS (DOKTER/PERAWAT)</option>
+                    <option value="LAINNYA">LAINNYA</option>
+                </select>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px; margin-bottom:20px;">
                 <div>

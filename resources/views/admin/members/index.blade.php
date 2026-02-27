@@ -238,6 +238,7 @@
         const m = res.data.data;
         
         document.getElementById('editNik').value = m.nik;
+        document.getElementById('editJknNumber').value = m.jkn_number || '';
         document.getElementById('editName').value = m.name;
         document.getElementById('editPhone').value = m.phone;
         document.getElementById('editBirthDate').value = m.birth_date || '';
@@ -305,6 +306,7 @@
         const payload = {
             name: document.getElementById('editName').value,
             phone: document.getElementById('editPhone').value,
+            jkn_number: document.getElementById('editJknNumber').value,
             birth_date: document.getElementById('editBirthDate').value,
             gender: document.getElementById('editGender').value,
             education: document.getElementById('editEducation').value,
@@ -373,6 +375,7 @@
     async function submitAdd() {
         const payload = {
             nik: document.getElementById('addNik').value,
+            jkn_number: document.getElementById('addJknNumber').value,
             name: document.getElementById('addName').value,
             phone: document.getElementById('addPhone').value,
             birth_date: document.getElementById('addBirthDate').value,

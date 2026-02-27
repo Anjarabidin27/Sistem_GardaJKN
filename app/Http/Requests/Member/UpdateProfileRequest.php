@@ -15,11 +15,12 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'jkn_number' => 'nullable|numeric|digits:13',
             'phone' => ['required', 'string', 'regex:/^(\+62|08)[0-9]{8,15}$/'],
             'birth_date' => 'required|date',
             'gender' => 'required|in:L,P',
             'education' => 'required|in:SD,SMP,SMA,Diploma,S1/D4,S2',
-            'occupation' => 'required|in:Petani,Pedagang,Nelayan,Wiraswasta,Karyawan,PNS,TNI/POLRI,Lainnya',
+            'occupation' => 'required|string',
             'address_detail' => 'required|string',
             'address_detail' => 'required|string',
             'province_id' => 'nullable|exists:provinces,id',

@@ -16,6 +16,7 @@ class MemberDTO
         public readonly ?int $district_id = null,
         public readonly ?string $address_detail = null,
         public readonly ?string $nik = null,
+        public readonly ?string $jkn_number = null,
         public readonly ?string $password = null,
         public readonly mixed $photo = null,
         public readonly ?string $role = null,
@@ -45,6 +46,7 @@ class MemberDTO
             district_id: $data['district_id'] ?? null,
             address_detail: $data['address_detail'] ?? null,
             nik: $data['nik'] ?? null,
+            jkn_number: $data['jkn_number'] ?? null,
             password: $data['password'] ?? null,
             photo: $data['photo'] ?? null,
             role: $data['role'] ?? null,
@@ -70,6 +72,7 @@ class MemberDTO
 
         return array_filter([
             'nik' => $nik,
+            'jkn_number' => $this->jkn_number,
             'name' => $this->name,
             'phone' => $this->phone,
             'birth_date' => $this->birth_date,
