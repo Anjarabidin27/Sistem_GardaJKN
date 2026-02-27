@@ -1,75 +1,74 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Audit Logs - Garda JKN')
 
-@push('styles')
-<style>
-    .admin-layout { display: flex; min-height: 100vh; background: #f8fafc; }
-    .sidebar { 
-        width: 260px; background: #004aad; color: white; display: flex; flex-direction: column; 
-        position: fixed; height: 100vh; z-index: 100;
-    }
-    .sb-brand { padding: 24px 32px; font-size: 1.1rem; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .sb-menu { padding: 20px 12px; flex: 1; }
-    .sb-link { 
-        display: flex; align-items: center; padding: 10px 16px; 
-        color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 6px; 
-        font-weight: 500; font-size: 0.875rem; margin-bottom: 4px; transition: 0.15s; gap: 12px;
-    }
-    .sb-link:hover, .sb-link.active { background: rgba(255,255,255,0.1); color: white; }
-    
-    .main-body { margin-left: 260px; flex: 1; }
-    .top-header { height: 64px; background: white; border-bottom: 1px solid #e2e8f0; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
-    .view-container { padding: 32px; max-width: 1400px; }
 
-    .log-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .data-table { width: 100%; border-collapse: collapse; }
-    .data-table th { background: #f8fafc; padding: 12px 32px; text-align: left; font-size: 0.65rem; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
-    .data-table td { padding: 16px 32px; font-size: 0.875rem; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
-    
-    .action-badge { padding: 4px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
-    .bg-update, .bg-reset, .bg-delete, .bg-login, .bg-logout { 
-        background: #ffffff; 
-        color: #004aad; 
-        border: 1px solid #e2e8f0; 
-    }
-    .bg-delete { border-color: #fee2e2; color: #004aad; } /* Tetap bedakan border sedikit jika perlu, tapi teks seragam */
-    
-    .change-item { display: grid; grid-template-columns: 100px 15px 1fr; gap: 0; margin-bottom: 4px; align-items: center; }
-    .change-label { font-size: 0.875rem; font-weight: 700; color: #1e293b; }
-    .change-separator { font-size: 0.875rem; color: #1e293b; }
-    .change-values { display: flex; align-items: center; gap: 8px; }
-    .value-old { color: #64748b; font-size: 0.875rem; text-decoration: line-through; opacity: 0.7; }
-    .value-new { font-weight: 700; color: #004aad; font-size: 0.875rem; }
-    .change-arrow { color: #94a3b8; font-size: 1rem; display: flex; align-items: center; }
-    .metadata-empty { font-style: italic; color: #cbd5e1; font-size: 0.8125rem; }
-</style>
-@endpush
 
 @section('content')
+<style>
+    /* Force Layout Bases */
+    .admin-layout { display: flex !important; min-height: 100vh !important; background: #f8fafc !important; }
+    .sidebar { width: 280px !important; background: #004aad !important; color: white !important; display: flex !important; flex-direction: column !important; position: fixed !important; height: 100vh !important; z-index: 100 !important; overflow: hidden !important; border: none !important; }
+    .sb-brand { padding: 28px 28px 10px; flex-shrink: 0; }
+    .sb-brand-name { font-size: 1.1rem !important; font-weight: 800 !important; color: white !important; letter-spacing: 0.02em; }
+    .sb-brand-sub { font-size: 0.75rem !important; color: rgba(255,255,255,0.6) !important; font-weight: 500; margin-top: 4px; }
+    .sb-user-card { padding: 10px 28px 20px; flex-shrink: 0; }
+    .sb-avatar { width: 52px !important; height: 52px !important; border-radius: 14px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.2); display: flex !important; align-items: center !important; justify-content: center !important; margin-bottom: 12px; overflow: hidden; }
+    .sb-user-name { font-size: 0.95rem !important; font-weight: 800 !important; color: white !important; margin-bottom: 4px; }
+    .sb-user-role { font-size: 0.7rem !important; color: rgba(255,255,255,0.5) !important; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sb-menu { padding: 16px 12px !important; flex: 1; overflow-y: auto !important; }
+    .sb-link { display: flex !important; align-items: center !important; gap: 12px; padding: 12px 16px; border-radius: 10px; color: rgba(255,255,255,0.7) !important; text-decoration: none !important; font-weight: 600; font-size: 0.875rem; transition: 0.2s; }
+    .sb-link:hover { background: rgba(255,255,255,0.1); color: white !important; }
+    .sb-link.active { background: #ffffff15; color: white !important; }
+    .sb-footer { padding: 20px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+
+    .main-body { margin-left: 280px !important; flex: 1 !important; min-width: 0 !important; }
+    .top-header { height: 64px !important; background: white !important; border-bottom: 1px solid #e2e8f0 !important; padding: 0 32px !important; display: flex !important; align-items: center !important; justify-content: space-between !important; position: sticky; top: 0; z-index: 50; }
+    .view-container { padding: 32px !important; }
+
+    /* Component Styles */
+    .table-card, .log-card, .info-card, .approvals-card { background: white !important; border: 1px solid #e2e8f0 !important; border-radius: 16px !important; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 24px; }
+    .table-header { padding: 24px 32px; border-bottom: 1px solid #f1f5f9; display: flex !important; align-items: center !important; justify-content: space-between !important; }
+    .data-table { width: 100% !important; border-collapse: collapse !important; }
+    .data-table th { background: #f8fafc !important; padding: 16px 32px !important; text-align: left !important; font-size: 0.75rem !important; font-weight: 700 !important; color: #64748b !important; text-transform: uppercase !important; border-bottom: 1px solid #e2e8f0 !important; }
+    .data-table td { padding: 16px 32px !important; border-bottom: 1px solid #f1f5f9 !important; font-size: 0.875rem !important; color: #334155 !important; vertical-align: middle !important; background: white !important; }
+    .data-table tr:hover td { background: #f8fafc !important; }
+    
+    .badge { padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+    .badge-success { background: #ecfdf5; color: #10b981; }
+    .badge-primary { background: #eff6ff; color: #3b82f6; }
+    .sb-section-label { font-size:0.6rem; font-weight:800; color:rgba(255,255,255,0.3); text-transform:uppercase; padding:0 16px; margin:16px 0 8px; }
+</style>
 <div class="admin-layout">
     <aside class="sidebar">
-        <div class="sb-brand">Garda JKN</div>
+        <div class="sb-brand">
+            <div class="sb-brand-name">Garda JKN</div>
+        </div>
+        <div class="sb-user-card">
+            <div class="sb-avatar" id="sb-avatar-wrap"><span id="sb-initials">A</span></div>
+            <div class="sb-user-name" id="sb-user-name">Administrator</div>
+        </div>
         <nav class="sb-menu">
-            <a href="/admin/dashboard" class="sb-link"><i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i> Dashboard</a>
-            <a href="/admin/members" class="sb-link"><i data-lucide="users" style="width: 16px; height: 16px;"></i> Manajemen Anggota</a>
-            <a href="{{ route('admin.approvals.pengurus.index') }}" class="sb-link"><i data-lucide="user-check" style="width: 16px; height: 16px;"></i> Persetujuan Pengurus</a>
-            <a href="/admin/informations" class="sb-link"><i data-lucide="megaphone" style="width: 16px; height: 16px;"></i> Informasi</a>
-            <a href="/admin/audit-logs" class="sb-link active"><i data-lucide="file-clock" style="width: 16px; height: 16px;"></i> Log Audit</a>
-            <div style="margin-top: auto; padding-top: 20px;">
-                <div style="height: 1px; background: rgba(255,255,255,0.1); margin-bottom: 20px;"></div>
-                <a href="/settings" class="sb-link"><i data-lucide="settings" style="width: 16px; height: 16px;"></i> Pengaturan Akun</a>
-                <a href="#" class="sb-link" onclick="logout()"><i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Logout</a>
-            </div>
+            <div class="sb-section-label">Menu</div>
+            <a href="/admin/dashboard" class="sb-link"><i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard</a>
+            <a href="/admin/members" class="sb-link"><i data-lucide="users" style="width:16px;height:16px;"></i> Manajemen Anggota</a>
+            <a href="/admin/approvals" class="sb-link"><i data-lucide="user-check" style="width:16px;height:16px;"></i> Persetujuan Pengurus</a>
+            <a href="/admin/informations" class="sb-link"><i data-lucide="megaphone" style="width:16px;height:16px;"></i> Informasi</a>
+            <a href="/admin/audit-logs" class="sb-link"><i data-lucide="file-clock" style="width:16px;height:16px;"></i> Log Audit</a>
         </nav>
+        <div class="sb-footer">
+            <div class="sb-section-label" style="margin-top:0;margin-bottom:8px;">Pengaturan</div>
+            <a href="/settings" class="sb-link"><i data-lucide="settings" style="width:16px;height:16px;"></i> Pengaturan Akun</a>
+            <a href="#" class="sb-link" onclick="logout()" style="color:#fca5a5;margin-top:4px;"><i data-lucide="log-out" style="width:16px;height:16px;color:#fca5a5;"></i> Keluar Sesi</a>
+        </div>
     </aside>
 
     <main class="main-body">
         <header class="top-header">
             <div style="font-weight: 600; color: #1e293b; font-size: 1rem;">Rekam Jejak Aktivitas Sistem</div>
-            <div style="display: flex; align-items: center; gap: 12px;">
+            <div id="user-info-header" style="display: flex; align-items: center; gap: 12px;">
                 <span id="date-now" style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;"></span>
-                <div style="width: 32px; height: 32px; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">AD</div>
+                <div id="user-initials" style="width: 32px; height: 32px; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">...</div>
             </div>
         </header>
 
@@ -104,6 +103,8 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('date-now').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    
         fetchLogs();
     });
 
@@ -174,7 +175,8 @@
             'delete_member': 'HAPUS ANGGOTA',
             'reset_password_by_admin': 'RESET PASSWORD',
             'update_profile': 'UPDATE PROFIL',
-            'restore_member': 'PULIHKAN ANGGOTA'
+            'restore_member': 'PULIHKAN ANGGOTA',
+            'verify_pengurus': 'VERIFIKASI PENGURUS'
         };
         return map[action] || action.replace('_', ' ').toUpperCase();
     }
@@ -230,7 +232,7 @@
                         <span class="change-separator">:</span>
                         <div class="change-values">
                             <span class="value-old">${formatValue(value.old)}</span>
-                            <span class="change-arrow">→</span>
+                            <span class="change-arrow">â†’</span>
                             <span class="value-new">${formatValue(value.new)}</span>
                         </div>
                     </div>
@@ -249,6 +251,7 @@
         return html;
     }
 
-    function logout() { localStorage.clear(); window.location.href = '/login'; }
+    // Global functions will handle initGlobalSidebar and logout from app.blade.php
 </script>
 @endpush
+

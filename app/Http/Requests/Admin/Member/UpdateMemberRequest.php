@@ -18,16 +18,16 @@ class UpdateMemberRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|string|max:255',
-            'jkn_number' => 'nullable|numeric|digits:13',
-            'phone' => ['sometimes', 'string', 'regex:/^(\+62|08)[0-9]{8,15}$/'],
-            'birth_date' => 'sometimes|date',
-            'gender' => 'sometimes|in:L,P',
-            'education' => 'sometimes|in:SD,SMP,SMA,Diploma,S1/D4,S2',
-            'occupation' => 'sometimes|string',
-            'province_id' => 'sometimes|exists:provinces,id',
-            'city_id' => 'sometimes|exists:cities,id',
-            'district_id' => 'sometimes|exists:districts,id',
-            'address_detail' => 'sometimes|string',
+            'jkn_number' => 'nullable|numeric|digits_between:10,15',
+            'phone' => ['sometimes', 'string', 'regex:/^(\+?62|08)[0-9]{8,15}$/'],
+            'birth_date' => 'sometimes|nullable|date',
+            'gender' => 'sometimes|nullable|in:L,P',
+            'education' => 'sometimes|nullable|in:SD,SMP,SMA,Diploma,S1/D4,S2',
+            'occupation' => 'sometimes|nullable|string',
+            'province_id' => 'sometimes|nullable|exists:provinces,id',
+            'city_id' => 'sometimes|nullable|exists:cities,id',
+            'district_id' => 'sometimes|nullable|exists:districts,id',
+            'address_detail' => 'sometimes|nullable|string',
             'status' => 'sometimes|string', 
         ];
     }

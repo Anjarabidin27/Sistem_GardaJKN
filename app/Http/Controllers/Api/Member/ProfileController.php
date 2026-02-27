@@ -15,7 +15,10 @@ class ProfileController extends Controller
 {
     use ApiResponse;
 
-    public function __construct(protected MemberService $memberService) {}
+    public function __construct(
+        protected MemberService $memberService,
+        protected \App\Services\AuditService $auditService
+    ) {}
 
     public function show(Request $request): JsonResponse
     {

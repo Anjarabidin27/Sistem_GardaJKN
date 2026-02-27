@@ -55,8 +55,8 @@ Route::prefix('admin')->group(function () {
         return view('admin.informations.index');
     });
 
-    // Approval Pengurus Section
-    Route::prefix('approvals/pengurus')->name('admin.approvals.pengurus.')->controller(\App\Http\Controllers\Web\AdminApprovalController::class)->group(function () {
+    // Approval Section
+    Route::prefix('approvals')->name('admin.approvals.')->controller(\App\Http\Controllers\Web\AdminApprovalController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/{id}/approve', 'approve')->name('approve');
         Route::post('/{id}/reject', 'reject')->name('reject');

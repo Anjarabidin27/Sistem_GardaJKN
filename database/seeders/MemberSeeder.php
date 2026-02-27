@@ -12,11 +12,13 @@ class MemberSeeder extends Seeder
 {
     public function run(): void
     {
-        $jkt = Province::where('name', 'LIKE', '%JAKARTA%')->first() ?? Province::first();
-        if (!$jkt) return;
+        $p = Province::where('name', 'LIKE', '%JAKARTA%')->first() ?? Province::first();
+        if (!$p) return;
 
-        $city = City::where('province_id', $jkt->id)->first();
-        $dist = District::where('city_id', $city->id)->first();
+        $city = City::where('province_id', $p->id)->first() ?? City::where('province_id', $p->id)->first();
+        $dist = District::where('city_id', $city->id)->first() ?? District::where('city_id', $city->id)->first();
+
+        if (!$city || !$dist) return;
 
         $members = [
             ['nik' => '3171010101900000', 'name' => 'Vini Jr'],
@@ -38,7 +40,7 @@ class MemberSeeder extends Seeder
                     'education' => 'S1/D4',
                     'occupation' => 'Karyawan',
                     'address_detail' => 'Jl. Tebet No. ' . rand(1, 100),
-                    'province_id' => $jkt->id,
+                    'province_id' => $p->id,
                     'city_id' => $city->id,
                     'district_id' => $dist->id,
                 ]

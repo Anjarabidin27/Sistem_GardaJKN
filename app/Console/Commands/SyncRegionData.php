@@ -25,7 +25,15 @@ class SyncRegionData extends Command
             $provinces = $pResponse->json();
             
             $this->warn('TRUNCATING REGION TABLES...');
-            \Illuminate\Support\Facades\DB::statement('TRUNCATE provinces, cities, districts RESTART IDENTITY CASCADE');
+            if (config('database.default') === 'mysql') {
+                \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+                \Illuminate\Support\Facades\DB::table('districts')->truncate();
+                \Illuminate\Support\Facades\DB::table('cities')->truncate();
+                \Illuminate\Support\Facades\DB::table('provinces')->truncate();
+                \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            } else {
+                \Illuminate\Support\Facades\DB::statement('TRUNCATE provinces, cities, districts RESTART IDENTITY CASCADE');
+            }
 
             $bar = $this->output->createProgressBar(count($provinces));
             $bar->start();

@@ -242,6 +242,19 @@
             z-index: 9999; display: none; 
             box-shadow: 0 0 10px rgba(0, 74, 173, 0.3);
         }
+
+        /* Responsive Utilities */
+        @media (max-width: 768px) {
+            :root {
+                --radius-lg: 20px;
+                --radius-md: 16px;
+            }
+            .stack-mobile { grid-template-columns: 1fr !important; gap: 24px !important; }
+            .hide-mobile { display: none !important; }
+            .p-mobile-0 { padding: 0 !important; }
+            .p-mobile-20 { padding: 20px !important; }
+            .m-mobile-0 { margin: 0 !important; }
+        }
     </style>
     @stack('styles')
 </head>
@@ -411,19 +424,66 @@
             lucide.createIcons();
         }
 
-        // Initialize Lucide Icons
+        // 8. Global Sidebar Identity
+        async function initGlobalSidebar() {
+            let sbName = localStorage.getItem('user_name') || 'User';
+            
+            // Legacy Clean up: Force 'Super Admin' to 'Administrator'
+            if (sbName.toLowerCase().includes('super') || sbName === 'User') {
+                sbName = 'Administrator';
+                localStorage.setItem('user_name', 'Administrator');
+            }
+            
+            const sbEl = document.getElementById('sb-user-name');
+            const sbInit = document.getElementById('sb-initials');
+            const topInit = document.getElementById('user-initials');
+            
+            const initial = (sbName || 'A').substring(0, 1).toUpperCase();
+            
+            if (sbEl) sbEl.innerText = sbName;
+            if (sbInit) sbInit.innerText = initial;
+            if (topInit) topInit.innerText = initial;
+            
+            try {
+                const res = await axios.get('settings/profile');
+                const d = res.data.data;
+                const name = d.name || d.username || 'Administrator';
+                
+                const finalInitial = name.substring(0, 1).toUpperCase();
+                
+                if (sbEl) sbEl.innerText = name;
+                if (sbInit) sbInit.innerText = finalInitial;
+                if (topInit) topInit.innerText = finalInitial;
+
+                const photoUrl = d.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=ffffff20&color=fff&size=200&length=1`;
+                const wrap = document.getElementById('sb-avatar-wrap');
+                if (wrap) wrap.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;object-position:top;" alt="Avatar">`;
+            } catch (e) {
+                // Not a member or not logged in, quiet fail
+            }
+        }
+
+        // 9. Global Logout
+        function logout() {
+            const role = localStorage.getItem('user_role');
+            localStorage.clear();
+            window.location.href = (role === 'admin' ? '/login/admin' : '/login');
+        }
+
+        // Initialize Lucide Icons & Global Logic
         (function() {
-            function initIcons() {
-                if (typeof lucide !== 'undefined') {
+            function initApp() {
+                if (typeof lucide !== 'undefined' && typeof axios !== 'undefined') {
                     lucide.createIcons();
+                    initGlobalSidebar();
                 } else {
-                    setTimeout(initIcons, 50);
+                    setTimeout(initApp, 50);
                 }
             }
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initIcons);
+                document.addEventListener('DOMContentLoaded', initApp);
             } else {
-                initIcons();
+                initApp();
             }
         })();
     </script>

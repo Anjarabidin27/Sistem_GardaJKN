@@ -4,75 +4,6 @@
 
 @section('content')
 <style>
-    .split-layout {
-        display: flex;
-        min-height: 100vh;
-        background: white;
-    }
-
-    /* Left Side: Brand/Visual */
-    .brand-side {
-        flex: 1;
-        background: linear-gradient(135deg, #004aad 0%, #002d6a 100%);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 80px;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .brand-side::before {
-        content: '';
-        position: absolute;
-        top: -10%; right: -10%;
-        width: 600px; height: 600px;
-        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
-        border-radius: 50%;
-    }
-
-    .brand-title { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
-    .brand-subtitle { font-size: 1.125rem; opacity: 0.8; line-height: 1.6; max-width: 480px; }
-
-    /* Right Side: Form (Made wider for the registration form) */
-    .form-side {
-        width: 700px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 60px 80px;
-        background: #fdfdfd;
-        overflow-y: auto;
-    }
-
-    .form-container { width: 100%; max-width: 580px; margin: 0 auto; }
-
-    .welcome-text { margin-bottom: 32px; }
-    .welcome-text h2 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; letter-spacing: -0.025em; }
-    .welcome-text p { color: #64748b; font-size: 0.95rem; font-weight: 500; }
-
-    .input-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    .label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 6px; color: #64748b; }
-
-    @media (max-width: 1200px) {
-        .form-side { width: 600px; padding: 40px; }
-    }
-
-    @media (max-width: 1024px) {
-        .brand-side { display: none; }
-        .form-side { width: 100%; padding: 40px; }
-    }
-</style>
-
-@section('content')
-<style>
     .page-wrapper { min-height: 100vh; background: #f1f5f9; padding: 60px 20px; display: flex; align-items: center; justify-content: center; }
     .auth-card { background: white; width: 100%; max-width: 640px; border-radius: 20px; border: none; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); overflow: hidden; }
     
@@ -100,6 +31,14 @@
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
     .form-group { margin-bottom: 20px; }
     .label { display: block; font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+
+    @media (max-width: 640px) {
+        .page-wrapper { padding: 0; background: white; }
+        .auth-card { border-radius: 0; box-shadow: none; }
+        .auth-body { padding: 32px 24px; }
+        .form-grid { grid-template-columns: 1fr; }
+        .auth-header { padding: 40px 24px; }
+    }
 </style>
 
 <div class="page-wrapper">
@@ -234,7 +173,7 @@
 
     async function loadProvinces() {
         try {
-            const res = await axios.get('/master/provinces');
+            const res = await axios.get('master/provinces');
             const sel = document.getElementById('province');
             sel.innerHTML = '<option value="">Pilih...</option>';
             res.data.data.forEach(p => { 
@@ -252,7 +191,7 @@
         distSel.innerHTML = '<option value="">Pilih...</option>';
         if(!provId) return;
         try {
-            const res = await axios.get(`/master/cities?province_id=${provId}`);
+            const res = await axios.get(`master/cities?province_id=${provId}`);
             res.data.data.forEach(c => { 
                 sel.innerHTML += `<option value="${c.id}">${c.type === 'KOTA' ? 'KOTA ' : 'KAB. '}${c.name}</option>`; 
             });
@@ -266,7 +205,7 @@
         sel.innerHTML = '<option value="">Pilih...</option>';
         if(!cityId) return;
         try {
-            const res = await axios.get(`/master/districts?city_id=${cityId}`);
+            const res = await axios.get(`master/districts?city_id=${cityId}`);
             res.data.data.forEach(d => { 
                 sel.innerHTML += `<option value="${d.id}">${d.name}</option>`; 
             });

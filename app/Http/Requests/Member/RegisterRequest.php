@@ -18,9 +18,9 @@ class RegisterRequest extends FormRequest
     {
         return [
             'nik' => 'required|numeric|digits:16|unique:members,nik',
-            'jkn_number' => 'nullable|numeric|digits:13',
+            'jkn_number' => 'nullable|numeric|digits_between:10,15',
             'name' => 'required|string|max:255',
-            'phone' => ['required', 'string', 'regex:/^(\+62|08)[0-9]{8,15}$/'],
+            'phone' => ['required', 'string', 'regex:/^(\+?62|08)[0-9]{8,15}$/'],
             'birth_date' => 'required|date',
             'gender' => 'required|in:L,P',
             'education' => 'required|in:SD,SMP,SMA,Diploma,S1/D4,S2',
