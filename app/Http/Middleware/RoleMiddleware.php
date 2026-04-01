@@ -16,25 +16,36 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
+        $user = $request->user();
+
         if ($role === 'admin') {
-            if (!Auth::guard('admin')->check()) {
-                return redirect()->route('admin.login');
+            if (Auth::guard('admin')->check() || ($user && $user instanceof \App\Models\AdminUser)) {
+                return $next($request);
             }
-            return $next($request);
+            return $request->expectsJson() 
+                ? response()->json(['message' => 'Unauthenticated.'], 401)
+                : redirect()->route('admin.login');
         }
 
         if ($role === 'pengurus') {
-            if (!Auth::guard('member')->check() || Auth::guard('member')->user()->role !== 'pengurus') {
-                return redirect()->route('login')->withErrors(['role' => 'Akses khusus Pengurus.']);
+            if (Auth::guard('member')->check() && Auth::guard('member')->user()->role === 'pengurus') {
+                return $next($request);
             }
-            return $next($request);
+            if ($user && $user instanceof \App\Models\Member && $user->role === 'pengurus') {
+                return $next($request);
+            }
+            return $request->expectsJson()
+                ? response()->json(['message' => 'Akses khusus Pengurus.'], 403)
+                : redirect()->route('login')->withErrors(['role' => 'Akses khusus Pengurus.']);
         }
 
         if ($role === 'anggota') {
-            if (!Auth::guard('member')->check()) {
-                return redirect()->route('login');
+            if (Auth::guard('member')->check() || ($user && $user instanceof \App\Models\Member)) {
+                return $next($request);
             }
-            return $next($request);
+            return $request->expectsJson()
+                ? response()->json(['message' => 'Unauthenticated.'], 401)
+                : redirect()->route('login');
         }
 
         return $next($request);

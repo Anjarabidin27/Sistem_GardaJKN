@@ -4,16 +4,15 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\BpjsKeliling;
+use App\Models\PilKegiatan;
 use Illuminate\Support\Facades\Auth;
 
-class BpjsKelilingController extends Controller
+class PilController extends Controller
 {
     public function index(Request $request)
     {
-        $query = BpjsKeliling::with(['provinsi', 'kota'])
+        $query = PilKegiatan::with(['provinsi', 'kota'])
             ->when($request->status, fn($q) => $q->where('status', $request->status))
-            ->when($request->jenis, fn($q) => $q->where('jenis_kegiatan', $request->jenis))
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
             ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai))
             ->orderByDesc('tanggal');
@@ -27,7 +26,6 @@ class BpjsKelilingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'jenis_kegiatan' => 'required|in:goes_to_village,around_city,goes_to_office,institusi,pameran,other',
             'judul' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'jam_mulai' => 'nullable',
@@ -43,18 +41,18 @@ class BpjsKelilingController extends Controller
 
         $validated['created_by'] = Auth::guard('admin')->id() ?? 1;
 
-        $item = BpjsKeliling::create($validated);
+        $item = PilKegiatan::create($validated);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Jadwal berhasil ditambahkan',
+            'message' => 'Kegiatan PIL berhasil ditambahkan',
             'data' => $item
         ]);
     }
 
     public function show($id)
     {
-        $item = BpjsKeliling::findOrFail($id);
+        $item = PilKegiatan::findOrFail($id);
         return response()->json([
             'status' => 'success',
             'data' => $item
@@ -63,10 +61,9 @@ class BpjsKelilingController extends Controller
 
     public function update(Request $request, $id)
     {
-        $item = BpjsKeliling::findOrFail($id);
+        $item = PilKegiatan::findOrFail($id);
 
         $validated = $request->validate([
-            'jenis_kegiatan' => 'required|in:goes_to_village,around_city,goes_to_office,institusi,pameran,other',
             'judul' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'jam_mulai' => 'nullable',
@@ -84,35 +81,32 @@ class BpjsKelilingController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Jadwal berhasil diupdate',
+            'message' => 'Kegiatan PIL berhasil diupdate',
             'data' => $item
         ]);
     }
 
     public function destroy($id)
     {
-        $item = BpjsKeliling::findOrFail($id);
+        $item = PilKegiatan::findOrFail($id);
         $item->delete();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Jadwal berhasil dihapus'
+            'message' => 'Kegiatan PIL berhasil dihapus'
         ]);
     }
 
     public function storeLaporan(Request $request, $id)
     {
-        $kegiatan = BpjsKeliling::findOrFail($id);
+        $kegiatan = PilKegiatan::findOrFail($id);
 
         $validated = $request->validate([
-            'layanan_informasi' => 'required|integer|min:0',
-            'layanan_administrasi' => 'required|integer|min:0',
-            'layanan_pengaduan' => 'required|integer|min:0',
-            'transaksi_berhasil' => 'required|integer|min:0',
-            'transaksi_gagal' => 'required|integer|min:0',
             'jumlah_peserta' => 'required|integer|min:0',
-            'kepuasan_puas' => 'required|integer|min:0',
-            'kepuasan_tidak_puas' => 'required|integer|min:0',
+            'rata_uji_pemahaman' => 'required|numeric|min:0|max:100',
+            'efek_ketertarikan_jkn' => 'required|integer|min:1|max:10',
+            'efek_rekomendasi_jkn' => 'required|integer|min:1|max:10',
+            'efek_rekomendasi_bpjs' => 'required|integer|min:1|max:10',
             'catatan' => 'nullable|string',
         ]);
 
@@ -120,14 +114,14 @@ class BpjsKelilingController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Laporan berhasil disimpan',
+            'message' => 'Laporan PIL berhasil disimpan',
             'data' => $kegiatan
         ]);
     }
 
     public function dashboard(Request $request)
     {
-        $query = BpjsKeliling::query()
+        $query = PilKegiatan::query()
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
             ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai));
 
@@ -138,17 +132,10 @@ class BpjsKelilingController extends Controller
             'data' => [
                 'total_kegiatan'          => $kegiatan->count(),
                 'total_peserta'           => $kegiatan->sum('jumlah_peserta'),
-                'total_informasi'         => $kegiatan->sum('layanan_informasi'),
-                'total_administrasi'      => $kegiatan->sum('layanan_administrasi'),
-                'total_pengaduan'         => $kegiatan->sum('layanan_pengaduan'),
-                'total_transaksi_berhasil'=> $kegiatan->sum('transaksi_berhasil'),
-                'total_transaksi_gagal'   => $kegiatan->sum('transaksi_gagal'),
-                'rata_kepuasan_persen'    => (float)$kegiatan->avg('su_pel') ?: 0,
-                'per_jenis_kegiatan'      => $kegiatan->groupBy('jenis_kegiatan')->map(fn($g) => [
-                    'label'           => \App\Models\BpjsKeliling::JENIS_KEGIATAN[$g->first()->jenis_kegiatan] ?? $g->first()->jenis_kegiatan,
-                    'jumlah_kegiatan' => $g->count(),
-                    'total_peserta'   => $g->sum('jumlah_peserta'),
-                ]),
+                'rata_pemahaman'          => (float)$kegiatan->avg('rata_uji_pemahaman') ?: 0,
+                'rata_efek_ketertarikan'  => (float)$kegiatan->avg('efek_ketertarikan_jkn') ?: 0,
+                'rata_efek_rekomendasi_jkn' => (float)$kegiatan->avg('efek_rekomendasi_jkn') ?: 0,
+                'rata_efek_rekomendasi_bpjs' => (float)$kegiatan->avg('efek_rekomendasi_bpjs') ?: 0,
             ]
         ]);
     }

@@ -18,6 +18,7 @@
     
     <!-- MAIN CSS -->
     @vite(['resources/css/variables.css', 'resources/css/components.css', 'resources/css/layout.css'])
+    
     @stack('styles')
 </head>
 <body>
@@ -37,7 +38,7 @@
     </div>
 
     <div class="app-layout">
-        <aside class="sidebar">
+        <aside class="sidebar" id="garda-sidebar">
             <div class="sb-brand">
                 <div class="sb-brand-name">Garda JKN</div>
                 <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight: 600; margin-top: 2px;">PANEL ADMINISTRASI</div>
@@ -72,8 +73,22 @@
                     <i data-lucide="megaphone" class="sb-link-icon"></i> <span>Informasi</span>
                 </a>
                 
-                <a href="/admin/bpjs-keliling" class="sb-link @if(Request::is('admin/bpjs-keliling*')) active @endif">
-                    <i data-lucide="map-pin" class="sb-link-icon"></i> <span>BPJS Keliling</span>
+                <div class="sb-section-label" style="margin-top: 24px;">Layanan Lapangan</div>
+                
+                <a href="/admin/bpjs-keliling" class="sb-link @if(Request::is('admin/bpjs-keliling') && !Request::is('admin/bpjs-keliling/dashboard')) active @endif">
+                    <i data-lucide="map-pin" class="sb-link-icon"></i> <span>Jadwal BPJS Keliling</span>
+                </a>
+                
+                <a href="/admin/bpjs-keliling/dashboard" class="sb-link @if(Request::is('admin/bpjs-keliling/dashboard')) active @endif">
+                    <i data-lucide="bar-chart-2" class="sb-link-icon"></i> <span>Dashboard BPJS</span>
+                </a>
+                
+                <a href="/admin/pil" class="sb-link @if(Request::is('admin/pil') && !Request::is('admin/pil/dashboard')) active @endif">
+                    <i data-lucide="mic" class="sb-link-icon"></i> <span>Agenda PIL</span>
+                </a>
+
+                <a href="/admin/pil/dashboard" class="sb-link @if(Request::is('admin/pil/dashboard')) active @endif">
+                    <i data-lucide="pie-chart" class="sb-link-icon"></i> <span>Dashboard PIL</span>
                 </a>
  
                 <a href="/admin/audit-logs" class="sb-link @if(Request::is('admin/audit-logs*')) active @endif">
@@ -84,7 +99,7 @@
             <div class="sb-footer">
                 <div class="sb-section-label">Settings</div>
                 <a href="/admin/settings" class="sb-link @if(Request::is('admin/settings')) active @endif">
-                    <i data-lucide="settings" class="sb-link-icon"></i> <span>Akun Saya</span>
+                    <i data-lucide="settings" class="sb-link-icon"></i> <span>Pengaturan Akun</span>
                 </a>
                 <button class="sb-link" onclick="window.logout()" style="color: #fca5a5; background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
                     <i data-lucide="log-out" class="sb-link-icon" style="color: #fca5a5;"></i> <span>Keluar</span>

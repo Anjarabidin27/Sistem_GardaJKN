@@ -71,7 +71,7 @@
         box-shadow: var(--shadow-sm);
     }
 
-    .input-group { margin-bottom: 20px; }
+    .auth-group { margin-bottom: 28px; width: 100%; }
     .label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px; color: var(--text-title); }
 
     @media (max-width: 1024px) {

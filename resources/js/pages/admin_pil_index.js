@@ -1,4 +1,4 @@
-// resources/js/pages/admin_bpjs_keliling_index.js
+// resources/js/pages/admin_pil_index.js
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('auth_token');
@@ -11,10 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterStatus = document.getElementById('filter-status');
     const btnAdd = document.getElementById('btn-add');
     
-    // BPJS Modal (Kegiatan)
-    const bpjsModal = document.getElementById('bpjsModal');
-    const bpjsForm = document.getElementById('bpjsForm');
-    const bpjsId = document.getElementById('bpjs_id');
+    // PIL Modal (Kegiatan)
+    const pilModal = document.getElementById('pilModal');
+    const pilForm = document.getElementById('pilForm');
+    const pilId = document.getElementById('pil_id');
     const modalTitle = document.getElementById('modal-title');
 
     // Laporan Modal
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let eventsData = [];
 
-    // --- Master Data wilayah (sama spt Member) ---
+    // --- Master Data wilayah ---
     function loadProvinces() {
         window.axios.get('master/provinces')
             .then(res => {
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Load Data Jadwal ---
     function loadData() {
         let qs = filterStatus.value ? `?status=${filterStatus.value}` : '';
-        window.axios.get('admin/bpjs-keliling' + qs)
+        window.axios.get('admin/pil' + qs)
             .then(res => {
                 eventsData = res.data.data;
                 renderTable();
@@ -79,23 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTable() {
         tableBody.innerHTML = '';
         if (eventsData.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-muted">Belum ada agenda kegiatan.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-muted">Belum ada agenda kegiatan PIL.</td></tr>';
             return;
         }
 
-        const mapJenis = {
-            'goes_to_village': 'Goes To Village',
-            'around_city': 'Around City',
-            'goes_to_office': 'Goes To Office',
-            'institusi': 'Institusi',
-            'pameran': 'Pameran',
-            'other': 'Lainnya'
-        };
-
         eventsData.forEach(event => {
-            const hasLaporan = event.jumlah_peserta > 0 || event.layanan_informasi > 0;
+            const hasLaporan = event.jumlah_peserta > 0;
             const isCompleted = event.status === 'completed';
-            const jns = mapJenis[event.jenis_kegiatan] || event.jenis_kegiatan;
             
             // Lokasi string
             let locParts = [];
@@ -111,17 +101,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let lapInfo = '';
             if (hasLaporan) {
-                lapInfo = `<div style="font-size: 0.70rem; margin-top: 6px; color:#10b981; font-weight:700;"><i data-lucide="check-circle" style="width:12px; height:12px; display:inline"></i> Laporan Masuk: ${event.jumlah_peserta} Peserta</div>`;
+                lapInfo = `<div style="font-size: 0.70rem; margin-top: 6px; color:#10b981; font-weight:700;"><i data-lucide="check-circle" style="width:12px; height:12px; display:inline"></i> Evaluasi Selesai (${event.jumlah_peserta} psrt)</div>`;
             } else if (isCompleted) {
-                lapInfo = `<div style="font-size: 0.70rem; margin-top: 6px; color:#f59e0b; font-weight:700;"><i data-lucide="alert-circle" style="width:12px; height:12px; display:inline"></i> Menunggu Laporan</div>`;
+                lapInfo = `<div style="font-size: 0.70rem; margin-top: 6px; color:#f59e0b; font-weight:700;"><i data-lucide="alert-circle" style="width:12px; height:12px; display:inline"></i> Menunggu Evaluasi</div>`;
             }
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>
                     <div class="font-bold text-dark" style="font-size:1rem;">${event.judul}</div>
-                    <div class="text-muted" style="font-size:0.8rem;">${event.tanggal} ${event.jam_mulai ? '| '+event.jam_mulai : ''}</div>
-                    <div style="font-size:0.75rem; font-weight:700; color:var(--primary); margin-top:4px;">${jns}</div>
+                    <div class="text-muted" style="font-size:0.8rem;">${event.tanggal} ${event.jam_mulai ? '| '+event.jam_mulai.slice(0,5) : ''}</div>
                 </td>
                 <td>
                     <div style="font-size:0.85rem; font-weight:600;">${locStr}</div>
@@ -135,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="flex gap-2 justify-end">
                         <button class="btn btn-secondary" onclick="editEvent(${event.id})" style="padding: 6px 10px; font-size: 0.75rem;">Edit</button>
                         <button class="btn ${hasLaporan ? 'btn-secondary' : 'btn-primary'}" onclick="handleLaporan(${event.id})" style="padding: 6px 10px; font-size: 0.75rem;">
-                            ${hasLaporan ? 'Lihat/Edit Laporan' : '+ Input Laporan'}
+                            ${hasLaporan ? 'Lihat/Edit Hasil' : '+ Input Laporan'}
                         </button>
                         <button class="btn btn-danger" onclick="deleteEvent(${event.id})" style="padding: 6px 10px; font-size: 0.75rem;"><i data-lucide="trash-2" style="width:14px; height:14px"></i></button>
                     </div>
@@ -151,21 +140,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Modal Kegiatan ---
     btnAdd.addEventListener('click', () => {
-        bpjsForm.reset();
-        bpjsId.value = '';
+        pilForm.reset();
+        pilId.value = '';
         komaSelectReset();
         kecSelectReset();
-        modalTitle.innerText = "Tambah Jadwal Kegiatan";
-        bpjsModal.style.display = 'flex';
+        modalTitle.innerText = "Tambah Agenda Penyuluhan";
+        pilModal.style.display = 'flex';
     });
 
     window.editEvent = (id) => {
         const ev = eventsData.find(e => e.id === id);
         if(!ev) return;
-        bpjsForm.reset();
+        pilForm.reset();
         
-        bpjsId.value = ev.id;
-        document.getElementById('jenis_kegiatan').value = ev.jenis_kegiatan;
+        pilId.value = ev.id;
         document.getElementById('judul').value = ev.judul;
         document.getElementById('tanggal').value = ev.tanggal ? ev.tanggal.split('T')[0] : '';
         document.getElementById('jam_mulai').value = ev.jam_mulai ? ev.jam_mulai.slice(0,5) : '';
@@ -194,25 +182,25 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        modalTitle.innerText = "Edit Jadwal Kegiatan";
-        bpjsModal.style.display = 'flex';
+        modalTitle.innerText = "Edit Jadwal PIL";
+        pilModal.style.display = 'flex';
     };
 
-    bpjsForm.addEventListener('submit', (e) => {
+    pilForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const id = bpjsId.value;
-        const formData = new FormData(bpjsForm);
+        const id = pilId.value;
+        const formData = new FormData(pilForm);
         const data = Object.fromEntries(formData.entries());
 
         const saveBtn = document.getElementById('btn-save');
         saveBtn.disabled = true; saveBtn.innerText = 'Menyimpan...';
 
-        let req = id ? window.axios.put(`admin/bpjs-keliling/${id}`, data) 
-                     : window.axios.post(`admin/bpjs-keliling`, data);
+        let req = id ? window.axios.put(`admin/pil/${id}`, data) 
+                     : window.axios.post(`admin/pil`, data);
 
         req.then(res => {
             window.showToast(res.data.message, 'success');
-            bpjsModal.style.display = 'none';
+            pilModal.style.display = 'none';
             loadData();
         }).catch(err => {
             window.showToast("Validasi gagal, cek isian Anda.", "error");
@@ -223,11 +211,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.deleteEvent = (id) => {
-        window.showConfirm("Hapus kegiatan?", "Data laporan (jika ada) juga akan terhapus.", {type:'danger'})
+        window.showConfirm("Hapus kegiatan PIL?", "Data laporan (jika ada) juga akan terhapus secara permanen.", {type:'danger'})
             .then(res => {
                 if(res) {
-                    window.axios.delete(`admin/bpjs-keliling/${id}`)
-                        .then(r => { window.showToast('Dihapus', 'success'); loadData(); });
+                    window.axios.delete(`admin/pil/${id}`)
+                        .then(r => { window.showToast('Berhasil dihapus', 'success'); loadData(); });
                 }
             });
     }
@@ -240,15 +228,12 @@ document.addEventListener('DOMContentLoaded', () => {
         laporanForm.reset();
         lapKegiatanId.value = ev.id;
 
-        if(ev.jumlah_peserta > 0 || ev.layanan_informasi > 0) {
-            document.getElementById('layanan_informasi').value = ev.layanan_informasi;
-            document.getElementById('layanan_administrasi').value = ev.layanan_administrasi;
-            document.getElementById('layanan_pengaduan').value = ev.layanan_pengaduan;
-            document.getElementById('transaksi_berhasil').value = ev.transaksi_berhasil || 0;
-            document.getElementById('transaksi_gagal').value = ev.transaksi_gagal || 0;
+        if(ev.jumlah_peserta > 0) {
             document.getElementById('jumlah_peserta').value = ev.jumlah_peserta;
-            document.getElementById('kepuasan_puas').value = ev.kepuasan_puas;
-            document.getElementById('kepuasan_tidak_puas').value = ev.kepuasan_tidak_puas;
+            document.getElementById('rata_uji_pemahaman').value = ev.rata_uji_pemahaman || 0;
+            document.getElementById('efek_ketertarikan_jkn').value = ev.efek_ketertarikan_jkn || 1;
+            document.getElementById('efek_rekomendasi_jkn').value = ev.efek_rekomendasi_jkn || 1;
+            document.getElementById('efek_rekomendasi_bpjs').value = ev.efek_rekomendasi_bpjs || 1;
             document.getElementById('catatan').value = ev.catatan || '';
         }
 
@@ -263,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('btn-save-laporan');
         btn.disabled = true; btn.innerText = 'Menyimpan...';
 
-        window.axios.post(`admin/bpjs-keliling/${id}/laporan`, data)
+        window.axios.post(`admin/pil/${id}/laporan`, data)
             .then(res => {
                 window.showToast(res.data.message, 'success');
                 laporanModal.style.display = 'none';
@@ -272,10 +257,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // auto update status ke completed
                 const ev = eventsData.find(e => e.id == id);
                 if(ev && ev.status !== 'completed') {
-                    window.axios.put(`admin/bpjs-keliling/${id}`, {...ev, status: 'completed'}).then(console.log).finally(loadData);
+                    window.axios.put(`admin/pil/${id}`, {...ev, status: 'completed'}).then(console.log).finally(loadData);
                 }
             })
-            .catch(err => window.showToast("Gagal simpan laporan", 'error'))
+            .catch(err => window.showToast("Penilaian gagal, pastikan angka valid", 'error'))
             .finally(() => { btn.disabled = false; btn.innerText = 'Simpan Laporan'; });
     });
 

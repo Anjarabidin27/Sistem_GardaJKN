@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\Master\RegionController;
 use App\Http\Controllers\Api\Member\AuthController as MemberAuthController;
 use App\Http\Controllers\Api\Member\ProfileController;
 use App\Http\Controllers\Api\Common\SettingsController;
+use App\Http\Controllers\Api\Admin\BpjsKelilingController as AdminBpjsController;
+use App\Http\Controllers\Api\Admin\PilController as AdminPilController;
+use App\Http\Controllers\Api\Member\BpjsKelilingController as MemberBpjsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -40,7 +43,7 @@ Route::prefix('member')->group(function () {
     Route::post('register', [MemberAuthController::class, 'register']);
     Route::post('login', [MemberAuthController::class, 'login']);
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:anggota'])->group(function () {
         Route::post('logout', [MemberAuthController::class, 'logout']);
         Route::controller(ProfileController::class)->group(function () {
             Route::get('profile', 'show');
@@ -52,6 +55,12 @@ Route::prefix('member')->group(function () {
             Route::get('/', 'index');
             Route::get('{id}', 'show');
         });
+
+        // BPJS Keliling (Member, Read-Only)
+        Route::prefix('bpjs-keliling')->controller(MemberBpjsController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('{id}', 'show');
+        });
     });
 });
 
@@ -60,7 +69,7 @@ Route::prefix('member')->group(function () {
 Route::prefix('admin')->group(function () {
     Route::post('login', [AdminAuthController::class, 'login']);
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('logout', [AdminAuthController::class, 'logout']);
         
         Route::get('dashboard', [DashboardController::class, 'index']);
@@ -82,18 +91,29 @@ Route::prefix('admin')->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::get('{id}', 'show');
-            Route::match(['put', 'post'], '{id}', 'update'); // Handle file upload with spoofing or direct post
+            Route::match(['put', 'post'], '{id}', 'update');
             Route::delete('{id}', 'destroy');
             Route::patch('{id}/toggle-status', 'toggleStatus');
         });
 
-        Route::prefix('bpjs-keliling')->controller(\App\Http\Controllers\Api\Admin\BpjsKelilingController::class)->group(function () {
+        Route::prefix('bpjs-keliling')->controller(AdminBpjsController::class)->group(function () {
+            Route::get('dashboard', 'dashboard');
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::get('{id}', 'show');
             Route::put('{id}', 'update');
             Route::delete('{id}', 'destroy');
+            Route::post('{id}/laporan', 'storeLaporan');
+        });
+
+        Route::prefix('pil')->controller(AdminPilController::class)->group(function () {
+            Route::get('dashboard', 'dashboard');
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('{id}', 'show');
+            Route::put('{id}', 'update');
+            Route::delete('{id}', 'destroy');
+            Route::post('{id}/laporan', 'storeLaporan');
         });
     });
 });
-

@@ -48,7 +48,7 @@ Route::get('/settings', function () {
     </script>";
 });
 
-// Halaman Admin (Protected by JS Check)
+// Halaman Admin (Protected by JS Check / Token)
 Route::prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard'); // Nanti kita buat file ini
@@ -62,8 +62,14 @@ Route::prefix('admin')->group(function () {
         return view('admin.audit_logs.index'); // New Web Route
     });
 
-    Route::get('/bpjs-keliling', function () {
-        return view('admin.bpjs_keliling.index');
+    Route::prefix('bpjs-keliling')->group(function () {
+        Route::get('/', function () { return view('admin.bpjs_keliling.index'); });
+        Route::get('/dashboard', function () { return view('admin.bpjs_keliling.dashboard'); });
+    });
+
+    Route::prefix('pil')->group(function () {
+        Route::get('/', function () { return view('admin.pil.index'); });
+        Route::get('/dashboard', function () { return view('admin.pil.dashboard'); });
     });
 
     Route::get('/informations', function () {
@@ -78,7 +84,7 @@ Route::prefix('admin')->group(function () {
     });
 });
 
-// Halaman Member (Protected by JS Check)
+// Halaman Member (Protected by JS Check / Token)
 Route::prefix('member')->group(function () {
     Route::get('/profile', function () {
         return view('member.profile'); // Nanti kita buat file ini
@@ -87,9 +93,13 @@ Route::prefix('member')->group(function () {
     Route::get('/informations', function () {
         return view('member.informations.index');
     });
+
+    Route::get('/bpjs-keliling', function () {
+        return view('member.bpjs_keliling.index');
+    });
 });
 
-// Halaman Pengurus (Protected by JS Check)
+// Halaman Pengurus (Protected by JS Check / Token)
 Route::prefix('pengurus')->group(function () {
     Route::get('/dashboard', function () {
         return view('pengurus.dashboard');

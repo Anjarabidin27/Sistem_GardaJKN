@@ -36,6 +36,18 @@ class RegisterRequest extends FormRequest
                 'exists:districts,id', 
                 new \App\Rules\ValidRegionHierarchy($this->city_id, 'district')
             ],
+            'dom_province_id' => 'required|exists:provinces,id',
+            'dom_city_id' => [
+                'required', 
+                'exists:cities,id', 
+                new \App\Rules\ValidRegionHierarchy($this->dom_province_id, 'city')
+            ],
+            'dom_district_id' => [
+                'required', 
+                'exists:districts,id', 
+                new \App\Rules\ValidRegionHierarchy($this->dom_city_id, 'district')
+            ],
+            'dom_address_detail' => 'required|string',
             'address_detail' => 'required|string',
             'password' => 'required|string|min:6',
         ];

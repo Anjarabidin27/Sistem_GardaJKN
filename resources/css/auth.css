@@ -228,8 +228,14 @@
 }
 
 .feature-icon i {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
+    color: white;
+}
+
+.feature-item div {
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
 .welcome-text {

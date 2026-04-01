@@ -37,24 +37,24 @@
             </div>
 
             <form id="loginForm">
-                <div class="input-group">
+                <div class="auth-group" style="margin-bottom: 24px;">
                     <label class="label" id="identityLabel">NIK Anggota (16 Digit)</label>
-                    <input type="text" id="identity" class="form-input" placeholder="Contoh: 3171************" required>
+                    <input type="text" id="identity" class="form-input" placeholder="3324560004677870" required>
                 </div>
                 
-                <div class="input-group">
+                <div class="auth-group" style="margin-bottom: 32px;">
                     <label class="label">Kata Sandi</label>
-                    <div class="input-group-password">
+                    <div class="input-group-password" style="position: relative; width: 100%;">
                         <input type="password" id="password" class="form-input" placeholder="Masukkan password" required>
                         <button type="button" class="password-toggle-btn" onclick="togglePassword('password')" tabindex="-1">
                             <span id="icon-password" style="display: flex;">
-                                <i data-lucide="eye" style="width: 18px; height: 18px; color: #64748b;"></i>
+                                <i data-lucide="eye"></i>
                             </span>
                         </button>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <label style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; cursor: pointer;">
                         <input type="checkbox"> Ingat saya
                     </label>
@@ -78,7 +78,18 @@
     </div>
 </div>
 @endsection
-
+<style>
+    .input-group-password { position: relative !important; width: 100% !important; display: block !important; }
+    .password-toggle-btn { 
+        position: absolute !important; 
+        right: 4px !important; 
+        top: 50% !important; 
+        transform: translateY(-50%) !important; 
+        background: transparent !important; 
+        border: none !important; 
+        z-index: 100 !important; cursor: pointer;
+    }
+</style>
 @push('scripts')
 @vite(['resources/css/pages/auth_login.css', 'resources/js/pages/auth_login.js'])
 

@@ -1,12 +1,12 @@
-<x-admin-layout title="Manajemen Jadwal - BPJS Keliling">
+<x-admin-layout title="Manajemen Jadwal - PIL">
     <div class="justify-between items-end mb-4 flex">
         <div>
-            <h1 class="topbar-title" style="font-size: 1.75rem;">Jadwal BPJS Keliling</h1>
-            <p class="text-muted" style="margin-top: 4px;">Manajemen pelaksanaan kegiatan BPJS Keliling di lapangan.</p>
+            <h1 class="topbar-title" style="font-size: 1.75rem;">Jadwal Penyuluhan / PIL</h1>
+            <p class="text-muted" style="margin-top: 4px;">Manajemen pelaksanaan kegiatan Program Informasi Langsung (PIL).</p>
         </div>
         <div class="flex gap-2">
-            <a href="/admin/bpjs-keliling/dashboard" class="btn btn-secondary">Lihat Dashboard</a>
-            <button class="btn btn-primary" id="btn-add" style="padding: 12px 24px;">+ Jadwal Baru</button>
+            <a href="/admin/pil/dashboard" class="btn btn-secondary">Lihat Dashboard</a>
+            <button class="btn btn-primary" id="btn-add" style="padding: 12px 24px;">+ Agenda PIL Baru</button>
         </div>
     </div>
 
@@ -41,9 +41,9 @@
         </div>
     </div>
 
-    @include('admin.bpjs_keliling.modals')
+    @include('admin.pil.modals')
 
     @push('scripts')
-        @vite(['resources/js/pages/admin_bpjs_keliling_index.js'])
+        @vite(['resources/js/pages/admin_pil_index.js'])
     @endpush
 </x-admin-layout>

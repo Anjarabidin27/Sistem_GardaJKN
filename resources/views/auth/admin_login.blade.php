@@ -32,15 +32,20 @@
             </div>
 
             <form id="adminLoginForm">
-                <div class="input-group">
+                <div class="auth-group" style="margin-bottom: 24px;">
                     <label class="label">Username Admin</label>
                     <input type="text" id="username" class="form-input" placeholder="Masukkan username" required autofocus>
                 </div>
                 
-                <div class="input-group">
+                <div class="auth-group" style="margin-bottom: 32px;">
                     <label class="label">Kata Sandi</label>
-                    <div class="input-group-password">
+                    <div class="input-group-password" style="position: relative; width: 100%;">
                         <input type="password" id="password" class="form-input" placeholder="Masukkan password" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePassword('password')" tabindex="-1">
+                            <span id="icon-password" style="display: flex;">
+                                <i data-lucide="eye"></i>
+                            </span>
+                        </button>
                     </div>
                 </div>
 
@@ -60,7 +65,18 @@
     </div>
 </div>
 @endsection
-
+<style>
+    .input-group-password { position: relative !important; width: 100% !important; display: block !important; }
+    .password-toggle-btn { 
+        position: absolute !important; 
+        right: 4px !important; 
+        top: 50% !important; 
+        transform: translateY(-50%) !important; 
+        background: transparent !important; 
+        border: none !important; 
+        z-index: 100 !important; cursor: pointer;
+    }
+</style>
 @push('scripts')
 @vite(['resources/css/pages/auth_admin_login.css', 'resources/js/pages/auth_admin_login.js'])
 

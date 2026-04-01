@@ -19,25 +19,28 @@ class AdminSeeder extends Seeder
         );
 
         \App\Models\BpjsKeliling::firstOrCreate(
-            ['title' => 'Layanan Desa Bumiharjo'],
+            ['judul' => 'Layanan Desa Bumiharjo'],
             [
-                'description' => 'Kecamatan Keling, Jepara. Fokus pendaftaran peserta baru.',
-                'event_date' => '2026-04-12',
-                'location' => 'Balai Desa Bumiharjo',
-                'staff_count' => 2,
+                'jenis_kegiatan' => 'goes_to_village',
+                'tanggal' => '2026-04-12',
+                'lokasi_detail' => 'Balai Desa Bumiharjo',
+                'jumlah_petugas' => 2,
                 'status' => 'scheduled',
+                'catatan' => 'Kecamatan Keling, Jepara. Fokus pendaftaran peserta baru.',
             ]
         );
 
         \App\Models\BpjsKeliling::firstOrCreate(
-            ['title' => 'Sosialisasi JKN Mobile'],
+            ['judul' => 'Sosialisasi JKN Mobile'],
             [
-                'description' => 'Pasar Bangsri. Edukasi penggunaan aplikasi JKN Mobile.',
-                'event_date' => '2026-04-15',
-                'location' => 'Pasar Bangsri, Jepara',
-                'staff_count' => 3,
+                'jenis_kegiatan' => 'around_city',
+                'tanggal' => '2026-04-15',
+                'lokasi_detail' => 'Pasar Bangsri, Jepara',
+                'jumlah_petugas' => 3,
                 'status' => 'scheduled',
+                'catatan' => 'Pasar Bangsri. Edukasi penggunaan aplikasi JKN Mobile.',
             ]
         );
     }
 }
+

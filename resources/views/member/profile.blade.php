@@ -52,16 +52,18 @@
         </div>
 
         <!-- Pengurus Banner -->
-        <div id="pengurus-section" style="display:none;" class="table-card" style="margin-bottom: 24px; border: 1px solid #e5eaf2; background: white; padding: 20px 24px; border-radius: 16px;">
-            <div class="flex justify-between items-center">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i data-lucide="award" style="color: var(--primary);"></i>
+        <div id="pengurus-section" style="display:none; margin-bottom: 32px; border: 1px solid rgba(0, 74, 173, 0.1); background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); padding: 24px 32px; border-radius: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.02); border-left: 5px solid var(--primary);">
+            <div class="flex justify-between items-center gap-6">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="width: 52px; height: 52px; background: rgba(0, 74, 173, 0.08); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
+                        <i data-lucide="award" style="width: 26px; height: 26px;"></i>
+                    </div>
                     <div>
-                        <div style="font-weight: 800; font-size: 0.9rem;">Ingin jadi Pengurus Garda JKN?</div>
-                        <div style="font-size: 0.75rem; color: #64748b;">Berkontribusi lebih bagi anggota.</div>
+                        <div style="font-weight: 800; font-size: 1.1rem; color: #1e293b; letter-spacing: -0.01em;">Ingin jadi Pengurus Garda JKN?</div>
+                        <div style="font-size: 0.875rem; color: #64748b; margin-top: 4px; line-height: 1.5;">Berkontribusi lebih bagi anggota dengan menjadi bagian dari kepengurusan formal kami.</div>
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="window.openPengurusModal()" style="padding: 8px 20px; font-size: 0.8rem; border-radius: 8px;">Daftar</button>
+                <button class="btn btn-primary" onclick="window.openPengurusModal()" style="padding: 12px 32px; font-size: 0.9rem; border-radius: 14px; box-shadow: 0 4px 12px rgba(0, 74, 173, 0.2); flex-shrink: 0;">Daftar Sekarang</button>
             </div>
         </div>
 
