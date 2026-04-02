@@ -359,9 +359,19 @@
 
     @push('styles')
     <style>
-        .tab-content { display: none; width: 100%; animation: fadeIn 0.3s ease; }
+        .tab-content { display: none; width: 100%; animation: fadeIn 0.4s ease-out; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(16px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(32px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
         .border-top { border-top: 1px solid var(--border); }
         .px-8 { padding-left: 2rem; padding-right: 2rem; }
         .btn-pill:has(input:checked) {

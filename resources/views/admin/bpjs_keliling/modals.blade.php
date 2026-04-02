@@ -2,7 +2,7 @@
 <div id="bpjsModal" class="modal-overlay" style="display:none;">
     <div class="modal-content" style="max-width: 600px;">
         <div class="modal-header">
-            <h3 class="modal-title" id="modal-title">Jadwal BPJS Keliling</h3>
+            <h3 class="modal-title" id="modal-title">BPJS Keliling</h3>
             <button class="modal-close" id="btn-close-modal">&times;</button>
         </div>
         <div class="modal-body">

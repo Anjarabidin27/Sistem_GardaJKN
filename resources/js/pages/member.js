@@ -48,29 +48,76 @@
 
     function renderInformations(items) {
         const container = document.getElementById('infoList');
+        if (!container) return;
+        
         if (items.length === 0) {
-            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b;">Belum ada informasi terbaru.</div>';
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 80px 40px; background: white; border-radius: 24px; border: 1px dashed #e2e8f0;">
+                    <div style="margin-bottom: 20px; color: #cbd5e1;"><i data-lucide="info" style="width: 48px; height: 48px; margin: 0 auto;"></i></div>
+                    <h3 style="font-weight: 800; color: #1e293b; margin-bottom: 8px;">Belum Ada Informasi</h3>
+                    <p style="color: #94a3b8; font-size: 0.9rem;">Dapatkan pembaruan terkini seputar program Garda JKN di sini.</p>
+                </div>`;
+            if(typeof lucide !== 'undefined') lucide.createIcons();
             return;
         }
 
         container.innerHTML = '';
         items.forEach(item => {
-            let preview = '';
+            let visual = '';
+            const dateStr = new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            
             if (item.type === 'image' && item.attachment_url) {
-                preview = `<img src="${item.attachment_url}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 12px; margin-bottom: 12px;">`;
+                visual = `
+                    <div style="position: relative; height: 180px; overflow: hidden; border-radius: 14px; margin-bottom: 16px;">
+                        <img src="${item.attachment_url}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
+                        <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); color: white; padding: 4px 12px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">FOTO</div>
+                    </div>`;
             } else if (item.type === 'pdf') {
-                preview = `<div style="width: 100%; height: 140px; background: #fee2e2; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; color: #b91c1c;"><i data-lucide="file-text" style="width: 48px; height: 48px;"></i></div>`;
+                visual = `
+                    <div style="height: 180px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-radius: 14px; margin-bottom: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #b91c1c; gap: 12px;">
+                        <i data-lucide="file-text" style="width: 48px; height: 48px;"></i>
+                        <div style="background: white; color: #b91c1c; padding: 4px 12px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">DOKUMEN PDF</div>
+                    </div>`;
+            } else {
+                visual = `
+                    <div style="height: 180px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 14px; margin-bottom: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #1d4ed8; gap: 12px;">
+                        <i data-lucide="bell" style="width: 48px; height: 48px; opacity: 0.5;"></i>
+                        <div style="background: white; color: #1d4ed8; padding: 4px 12px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">PENGUMUMAN</div>
+                    </div>`;
             }
 
             container.innerHTML += `
-                <div class="info-card" onclick="showInfoDetail(${item.id})" style="background: white; border: 1px solid #f1f5f9; border-radius: 16px; padding: 16px; cursor: pointer; transition: 0.2s;">
-                    ${preview}
-                    <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">${new Date(item.created_at).toLocaleDateString('id-ID')}</div>
-                    <div style="font-weight: 800; color: #1e293b; font-size: 0.95rem; margin-bottom: 6px; line-height: 1.4;">${item.title}</div>
-                    <div style="font-size: 0.8rem; color: #64748b; line-height: 1.5; height: 3.6em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${item.content || ''}</div>
+                <div class="info-card-premium" onclick="showInfoDetail(${item.id})" style="background: white; border: 1px solid #f1f5f9; border-radius: 24px; padding: 20px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); height: 100%; display: flex; flex-direction: column;">
+                    ${visual}
+                    <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="calendar" style="width: 14px; height: 14px;"></i> ${dateStr}
+                    </div>
+                    <div style="font-weight: 800; color: #1e293b; font-size: 1.1rem; margin-bottom: 10px; line-height: 1.3; letter-spacing: -0.01em;">${item.title}</div>
+                    <div style="font-size: 0.9rem; color: #64748b; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 20px; flex: 1;">${item.content || ''}</div>
+                    <div style="margin-top: auto; display: flex; align-items: center; color: var(--primary); font-size: 0.85rem; font-weight: 800; gap: 6px;">
+                        Selengkapnya <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                    </div>
                 </div>
             `;
         });
+
+        // Add Hover styles to the document if not present
+        if (!document.getElementById('info-card-styles')) {
+            const style = document.createElement('style');
+            style.id = 'info-card-styles';
+            style.innerHTML = `
+                .info-card-premium:hover {
+                    transform: translateY(-8px);
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+                    border-color: var(--primary-light, #e0e7ff);
+                }
+                .info-card-premium:hover img {
+                    transform: scale(1.05);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
         if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
@@ -95,16 +142,24 @@
             }
 
             const modalHtml = `
-                <div id="infoDetailModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:1001; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(4px); padding: 20px;">
-                    <div style="background: white; width:100%; max-width: 600px; padding:0; border-radius: 20px; overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
-                        <div style="padding:20px 24px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
-                            <h3 style="font-size:1rem; font-weight:800; color:#1e293b; margin:0;">Detail Informasi</h3>
-                            <button onclick="document.getElementById('infoDetailModal').remove()" style="background: #f1f5f9; border:none; width: 32px; height: 32px; border-radius: 50%; color:#64748b; font-size:1rem; cursor:pointer;">&times;</button>
+                <div id="infoDetailModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.65); z-index:1100; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(12px); padding: 20px; animation: fadeIn 0.3s ease;">
+                    <div style="background: white; width:100%; max-width: 700px; padding:0; border-radius: 32px; overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                        <div style="padding:24px 32px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background: #fff;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 40px; height: 40px; background: rgba(0, 74, 173, 0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                                    <i data-lucide="info" style="width: 20px; height: 20px;"></i>
+                                </div>
+                                <h3 style="font-size:1.15rem; font-weight:800; color:#1e293b; margin:0; letter-spacing: -0.01em;">Detail Informasi</h3>
+                            </div>
+                            <button onclick="const m=document.getElementById('infoDetailModal'); m.style.opacity='0'; setTimeout(()=>m.remove(), 300)" style="background: #f1f5f9; border:none; width: 44px; height: 44px; border-radius: 14px; color:#64748b; font-size:1.5rem; cursor:pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;">&times;</button>
                         </div>
-                        <div style="padding:32px; max-height: 70vh; overflow-y: auto;">
-                            <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Diterbitkan pada: ${new Date(item.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
-                            <h2 style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 16px; line-height: 1.4;">${item.title}</h2>
-                            <div style="font-size: 1rem; color: #475569; line-height: 1.7; white-space: pre-wrap;">${item.content || ''}</div>
+                        <div style="padding:40px; max-height: 80vh; overflow-y: auto;">
+                            <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; background: #f8fafc; padding: 6px 16px; border-radius: 50px;">
+                                <i data-lucide="calendar" style="width: 14px; height: 14px;"></i> 
+                                Diterbitkan: ${new Date(item.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}
+                            </div>
+                            <h2 style="font-size: 1.75rem; font-weight: 800; color: #1e293b; margin-bottom: 24px; line-height: 1.3; letter-spacing: -0.02em;">${item.title}</h2>
+                            <div style="font-size: 1.05rem; color: #475569; line-height: 1.8; white-space: pre-wrap; margin-bottom: 32px;">${item.content || ''}</div>
                             ${attachmentHtml}
                         </div>
                     </div>

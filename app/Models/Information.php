@@ -29,7 +29,8 @@ class Information extends Model
     public function getAttachmentUrlAttribute()
     {
         if ($this->attachment_path) {
-            return asset('storage/' . $this->attachment_path);
+            $path = str_replace('\\', '/', $this->attachment_path);
+            return asset('storage/' . $path);
         }
         return null;
     }

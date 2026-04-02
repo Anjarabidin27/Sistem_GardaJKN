@@ -76,7 +76,7 @@
                 <div class="sb-section-label" style="margin-top: 24px;">Layanan Lapangan</div>
                 
                 <a href="/admin/bpjs-keliling" class="sb-link @if(Request::is('admin/bpjs-keliling') && !Request::is('admin/bpjs-keliling/dashboard')) active @endif">
-                    <i data-lucide="map-pin" class="sb-link-icon"></i> <span>Jadwal BPJS Keliling</span>
+                    <i data-lucide="map-pin" class="sb-link-icon"></i> <span>BPJS Keliling</span>
                 </a>
                 
                 <a href="/admin/bpjs-keliling/dashboard" class="sb-link @if(Request::is('admin/bpjs-keliling/dashboard')) active @endif">

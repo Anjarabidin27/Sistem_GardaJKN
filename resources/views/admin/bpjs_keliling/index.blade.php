@@ -1,7 +1,7 @@
 <x-admin-layout title="Manajemen Jadwal - BPJS Keliling">
     <div class="justify-between items-end mb-4 flex">
         <div>
-            <h1 class="topbar-title" style="font-size: 1.75rem;">Jadwal BPJS Keliling</h1>
+            <h1 class="topbar-title" style="font-size: 1.75rem;">BPJS Keliling</h1>
             <p class="text-muted" style="margin-top: 4px;">Manajemen pelaksanaan kegiatan BPJS Keliling di lapangan.</p>
         </div>
         <div class="flex gap-2">
