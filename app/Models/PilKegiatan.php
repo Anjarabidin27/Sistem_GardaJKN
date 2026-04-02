@@ -36,7 +36,7 @@ class PilKegiatan extends Model
         return $this->belongsTo(AdminUser::class, 'created_by');
     }
 
-    public function getLokasLengkapAttribute(): string
+    public function getLokasILengkapAttribute(): string
     {
         return implode(', ', array_filter([
             $this->nama_desa,

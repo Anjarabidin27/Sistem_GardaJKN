@@ -6,6 +6,9 @@ console.log('Admin Members JS Loaded');
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Admin Members DOM Ready');
     
+    // Load initial state from URL
+    loadParamsFromUrl();
+
     // Attach listeners
     const btnOpenAdd = document.getElementById('btnOpenAddMemberModal');
     if (btnOpenAdd) btnOpenAdd.addEventListener('click', () => window.openAddModal());
@@ -51,6 +54,37 @@ document.addEventListener('DOMContentLoaded', () => {
     window.fetchData();
 });
 
+function loadParamsFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    currentPage = parseInt(params.get('page')) || 1;
+    
+    if (params.has('search')) {
+        const el = document.getElementById('searchInput');
+        if (el) el.value = params.get('search');
+    }
+    
+    if (params.has('province_id')) {
+        const el = document.getElementById('provinceFilter');
+        if (el) el.dataset.pendingValue = params.get('province_id'); // Set temp for loadProvinces to use
+    }
+    
+    if (params.has('only_deleted')) {
+        const el = document.getElementById('statusFilter');
+        if (el) el.value = params.get('only_deleted');
+    }
+}
+
+function syncUrlWithParams(search, province, status) {
+    const params = new URLSearchParams(window.location.search);
+    if (currentPage > 1) params.set('page', currentPage); else params.delete('page');
+    if (search) params.set('search', search); else params.delete('search');
+    if (province) params.set('province_id', province); else params.delete('province_id');
+    if (status !== 'false') params.set('only_deleted', status); else params.delete('only_deleted');
+    
+    const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+    window.history.replaceState({}, '', newUrl);
+}
+
 window.fetchData = async function() {
     const searchInput = document.getElementById('searchInput');
     const provinceFilter = document.getElementById('provinceFilter');
@@ -59,6 +93,9 @@ window.fetchData = async function() {
     const search = searchInput ? searchInput.value : '';
     const province = provinceFilter ? provinceFilter.value : '';
     const status = statusFilter ? statusFilter.value : 'false';
+    
+    // Sync URL
+    syncUrlWithParams(search, province, status);
     
     try {
         const res = await window.axios.get(`admin/members?page=${currentPage}&search=${search}&province_id=${province}&only_deleted=${status}`);
@@ -432,8 +469,16 @@ async function loadProvinces() {
         const res = await window.axios.get('master/provinces');
         const sel = document.getElementById('provinceFilter');
         if (!sel) return;
+        
+        const pendingValue = sel.dataset.pendingValue;
+        
         sel.innerHTML = '<option value="">Seluruh Wilayah</option>';
-        res.data.data.forEach(p => { sel.innerHTML += `<option value="${p.id}">${p.name}</option>`; });
+        res.data.data.forEach(p => { 
+            const selected = p.id == pendingValue ? 'selected' : '';
+            sel.innerHTML += `<option value="${p.id}" ${selected}>${p.name}</option>`; 
+        });
+        
+        delete sel.dataset.pendingValue;
     } catch (e) {
         console.error('Failed to load provinces:', e);
     }

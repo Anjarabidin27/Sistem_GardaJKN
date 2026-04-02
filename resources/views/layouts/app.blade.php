@@ -100,9 +100,13 @@
         }
 
         // 4. Utils: Toast Notification Premium
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
+        window.showToast = function(message, type = 'success') {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             
@@ -129,7 +133,7 @@
 
         // 5. Utils: Custom Confirm Modal
         let confirmResolve;
-        function showConfirm(title, message, options = {}) {
+        window.showConfirm = function(title, message, options = {}) {
             const modal = document.getElementById('confirm-modal');
             const titleEl = document.getElementById('confirmTitle');
             const msgEl = document.getElementById('confirmMsg');

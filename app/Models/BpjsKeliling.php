@@ -13,30 +13,43 @@ class BpjsKeliling extends Model
     ];
 
     const JENIS_KEGIATAN = [
-        'goes_to_village' => 'Goes To Village',
-        'around_city'     => 'Around City',
-        'goes_to_office'  => 'Goes To Office',
-        'institusi'       => 'Kunjungan Institusi',
-        'pameran'         => 'Pameran / Event',
-        'other'           => 'Lainnya',
+        'goes_to_village'     => 'Goes To Village',
+        'around_city'         => 'Around City',
+        'hi_customer'         => 'Hi Customer',
+        'corporate_gathering' => 'Corporate Gathering',
+        'cfd'                 => 'CFD',
+        'other'               => 'Lainnya',
     ];
 
-    const STATUS = [
-        'scheduled' => 'Terjadwal',
-        'ongoing'   => 'Berlangsung',
-        'completed' => 'Selesai',
-        'cancelled' => 'Dibatalkan',
+    const KUADRAN = [
+        '1- Engagement'       => 'Engagement',
+        '2- Rekrutmen'       => 'Rekrutmen',
+        '3- Pembaharuan Data' => 'Pembaharuan Data',
+        '4- Iuran'            => 'Iuran',
     ];
 
-    public function getTotalLayananAttribute()
+    public function participants()
     {
-        return $this->layanan_informasi + $this->layanan_administrasi + $this->layanan_pengaduan;
+        return $this->hasMany(BpjsKelilingParticipant::class, 'bpjs_keliling_id');
     }
 
-    public function getSuPelAttribute()
+    /**
+     * Otomatis hitung ulang rekapitulasi dari tabel detail peserta
+     */
+    public function recalculateSummaries()
     {
-        $totalInput = $this->kepuasan_puas + $this->kepuasan_tidak_puas;
-        return $totalInput > 0 ? round(($this->kepuasan_puas / $totalInput) * 100, 2) : 0;
+        $participants = $this->participants;
+        
+        $this->update([
+            'jumlah_peserta'       => $participants->count(),
+            'layanan_administrasi' => $participants->where('jenis_layanan', 'Administrasi')->count(),
+            'layanan_informasi'    => $participants->where('jenis_layanan', 'Informasi')->count(),
+            'layanan_pengaduan'    => $participants->where('jenis_layanan', 'Pengaduan')->count(),
+            'transaksi_berhasil'   => $participants->where('status', 'Berhasil')->count(),
+            'transaksi_gagal'      => $participants->where('status', 'Tidak Berhasil')->count(),
+            'kepuasan_puas'        => $participants->where('suara_pelanggan', 'Puas')->count(),
+            'kepuasan_tidak_puas'  => $participants->where('suara_pelanggan', 'Tidak puas')->count(),
+        ]);
     }
 
     public function provinsi()
@@ -59,12 +72,12 @@ class BpjsKeliling extends Model
         return $this->belongsTo(AdminUser::class, 'created_by');
     }
 
-    public function getJenisKegiataLabelAttribute(): string
+    public function getJenisKegiatanLabelAttribute(): string
     {
         return self::JENIS_KEGIATAN[$this->jenis_kegiatan] ?? $this->jenis_kegiatan;
     }
 
-    public function getLokasLengkapAttribute(): string
+    public function getLokasILengkapAttribute(): string
     {
         return implode(', ', array_filter([
             $this->nama_desa,

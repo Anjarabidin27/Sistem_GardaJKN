@@ -1,0 +1,46 @@
+Unnamed: 0,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4
+,,,,
+,,,,
+,No,Fields,Keterangan,
+,1,Kedeputian Wilayah,Otomatis terisi sesuai dengan login KC,
+,2,Kantor Cabang,Otomatis terisi sesuai dengan login KC,
+,5,Kabupaten/Kota,Dropdown sesuai login KC,
+,6,Kecamatan,Dropdown sesuai login KC,
+,7,Kelurahan/Desa,Dropdown sesuai login KC,
+,8,Nama Frontliner,Manual sesuai dengan Frontliner yang bertugas,
+,9,Lokasi Kegiatan,Dropdown dengan list berikut,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,10,Tanggal kegiatan,Manual sesuai dengan tanggal pelaksanaan kegiatan,
+,11,Zona waktu,Otomatis sesuai dengan login KC,
+,12,entry peserta,terdiri dari,
+,,,NIK,
+,,,Segmen Peserta,
+,,,Nomor HP,
+,,,Jam Sosialisasi,mulai (pilih jam)
+,,,,selesai (pilih jam)
+,,,Pemahaman ,manual diisi nilai hasil pemahaman
+,,,Efektifitas sosialisasi,Dropdown list pilihan berikut
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,Net Promotor Score,Pilihan:
+,,,,1. Ketertarikan terhadap Program JKN
+,,,,2. Rekomendasi Program JKN
+,,,,3. Rekomendasi BPJS Kesehatan
+,,,,di masing-masing pilihan ada dropdown angka 1-10
+,,,Save dan muncul form baru utk entry peserta,

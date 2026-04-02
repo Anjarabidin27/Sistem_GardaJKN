@@ -67,7 +67,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Load Data Jadwal ---
     function loadData() {
-        let qs = filterStatus.value ? `?status=${filterStatus.value}` : '';
+        const params = new URLSearchParams(window.location.search);
+        const statusVal = params.get('status') || filterStatus.value || '';
+        
+        // Update filter UI to match URL if different
+        if (statusVal && filterStatus.value !== statusVal) {
+            filterStatus.value = statusVal;
+        }
+
+        let qs = statusVal ? `?status=${statusVal}` : '';
+        
+        // Update URL
+        const newUrl = window.location.pathname + (qs ? qs : '');
+        window.history.replaceState({}, '', newUrl);
+
         window.axios.get('admin/bpjs-keliling' + qs)
             .then(res => {
                 eventsData = res.data.data;
@@ -93,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         eventsData.forEach(event => {
-            const hasLaporan = event.jumlah_peserta > 0 || event.layanan_informasi > 0;
+            const hasLaporan = (event.jumlah_peserta > 0 || event.layanan_informasi > 0) || event.status === 'completed';
             const isCompleted = event.status === 'completed';
             const jns = mapJenis[event.jenis_kegiatan] || event.jenis_kegiatan;
             
@@ -110,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else statusBadge = '<span class="status-badge badge-danger text-uppercase">Dibatalkan</span>';
 
             let lapInfo = '';
-            if (hasLaporan) {
+            if (hasLaporan && isCompleted) {
                 lapInfo = `<div style="font-size: 0.70rem; margin-top: 6px; color:#10b981; font-weight:700;"><i data-lucide="check-circle" style="width:12px; height:12px; display:inline"></i> Laporan Masuk: ${event.jumlah_peserta} Peserta</div>`;
             } else if (isCompleted) {
                 lapInfo = `<div style="font-size: 0.70rem; margin-top: 6px; color:#f59e0b; font-weight:700;"><i data-lucide="alert-circle" style="width:12px; height:12px; display:inline"></i> Menunggu Laporan</div>`;
@@ -134,8 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="text-right">
                     <div class="flex gap-2 justify-end">
                         <button class="btn btn-secondary" onclick="editEvent(${event.id})" style="padding: 6px 10px; font-size: 0.75rem;">Edit</button>
-                        <button class="btn ${hasLaporan ? 'btn-secondary' : 'btn-primary'}" onclick="handleLaporan(${event.id})" style="padding: 6px 10px; font-size: 0.75rem;">
-                            ${hasLaporan ? 'Lihat/Edit Laporan' : '+ Input Laporan'}
+                        <button class="btn ${isCompleted ? 'btn-secondary' : 'btn-primary'}" onclick="handleLaporan(${event.id})" style="padding: 6px 10px; font-size: 0.75rem;">
+                            ${isCompleted ? 'Lihat/Edit Laporan' : '+ Input Laporan'}
                         </button>
                         <button class="btn btn-danger" onclick="deleteEvent(${event.id})" style="padding: 6px 10px; font-size: 0.75rem;"><i data-lucide="trash-2" style="width:14px; height:14px"></i></button>
                     </div>
@@ -268,12 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.showToast(res.data.message, 'success');
                 laporanModal.style.display = 'none';
                 loadData();
-                
-                // auto update status ke completed
-                const ev = eventsData.find(e => e.id == id);
-                if(ev && ev.status !== 'completed') {
-                    window.axios.put(`admin/bpjs-keliling/${id}`, {...ev, status: 'completed'}).then(console.log).finally(loadData);
-                }
             })
             .catch(err => window.showToast("Gagal simpan laporan", 'error'))
             .finally(() => { btn.disabled = false; btn.innerText = 'Simpan Laporan'; });

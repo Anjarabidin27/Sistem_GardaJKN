@@ -1,92 +1,255 @@
-<x-member-layout title="BPJS Keliling - Garda JKN">
-    <div style="max-width: 800px; margin: 0 auto; padding-bottom: 60px;">
-        <div style="margin-bottom: 24px;">
-            <h1 class="font-bold text-dark" style="font-size: 1.5rem;">Jadwal BPJS Keliling</h1>
-            <p class="text-muted" style="margin-top: 4px; font-size: 0.9rem;">Temukan layanan jemput bola BPJS Kesehatan terdekat di wilayah Anda.</p>
+@extends('layouts.app')
+
+@section('title', 'Laporan BPJS Keliling - Garda JKN')
+
+@section('content')
+<div class="main-layout">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">BPJS Keliling</h1>
+            <p class="page-subtitle">Pencatatan kegiatan layanan di lapangan secara real-time.</p>
         </div>
-        
-        <div id="loading" class="text-center p-4 text-muted">Memeriksa jadwal terbaru...</div>
-        <div id="jadwal-container" style="display: flex; flex-direction: column; gap: 16px;"></div>
+        <button class="btn btn-primary" onclick="showModal('modalKegiatan')">
+            <i data-lucide="plus-circle" style="width:18px;"></i>
+            <span>Laporan Baru</span>
+        </button>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            window.axios.get('/api/member/bpjs-keliling')
-                .then(res => {
-                    const data = res.data.data;
-                    document.getElementById('loading').style.display = 'none';
-                    const c = document.getElementById('jadwal-container');
-                    
-                    if(data.length === 0) {
-                        c.innerHTML = `
-                        <div class="empty-state card">
-                            <i data-lucide="map" class="empty-icon" style="margin: 0 auto 16px;"></i>
-                            <h3 class="empty-title">Belum Ada Jadwal</h3>
-                            <p class="empty-text">Saat ini tidak ada kegiatan BPJS Keliling yang terdata di sistem.</p>
-                        </div>`;
-                        if(window.lucide) window.lucide.createIcons();
-                        return;
-                    }
-                    
-                    data.forEach(item => {
-                        let locParts = [];
-                        if(item.nama_desa) locParts.push(item.nama_desa);
-                        if(item.kota) locParts.push(item.kota.name);
-                        let locStr = locParts.length > 0 ? locParts.join(', ') : 'Lokasi menyusul';
+    <!-- Stats Row -->
+    <div class="stats-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe; color:#0369a1;"><i data-lucide="calendar"></i></div>
+            <div class="stat-value" id="count-kegiatan">0</div>
+            <div class="stat-label">Total Kegiatan</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0fdf4; color:#15803d;"><i data-lucide="users"></i></div>
+            <div class="stat-value" id="count-peserta">0</div>
+            <div class="stat-label">Terlayani</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff7ed; color:#c2410c;"><i data-lucide="smile"></i></div>
+            <div class="stat-value" id="count-puas">0%</div>
+            <div class="stat-label">Kepuasan</div>
+        </div>
+    </div>
 
-                        let statusBadge = item.status === 'scheduled' ? '<span class="status-badge badge-info">TERJADWAL</span>' : 
-                                       (item.status === 'ongoing' ? '<span class="status-badge badge-warning">SEDANG BERLANGSUNG</span>' : 
-                                       '<span class="status-badge badge-success">SELESAI</span>');
-                        
-                        const mapJenis = {
-                            'goes_to_village': 'Goes To Village (GTV)',
-                            'around_city': 'Around City',
-                            'goes_to_office': 'Goes To Office',
-                            'institusi': 'Kunjungan Institusi',
-                            'pameran': 'Pameran / Event',
-                            'other': 'Lainnya'
-                        };
-                        const jns = mapJenis[item.jenis_kegiatan] || item.jenis_kegiatan;
+    <!-- Table List -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="table-bpjs">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Tanggal</th>
+                            <th>Kegiatan</th>
+                            <th>Wilayah</th>
+                            <th>Peserta</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="list-bpjs">
+                        <!-- Loaded by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-                        c.innerHTML += `
-                            <div class="card" style="padding: 24px; transition: 0.2s;">
-                                <div class="flex justify-between items-start mb-3 border-b" style="padding-bottom:12px; border-color:var(--border);">
-                                    <div>
-                                        <div class="text-sm font-bold text-primary mb-1">${jns}</div>
-                                        <h3 class="font-bold text-dark" style="font-size: 1.15rem;">${item.judul}</h3>
-                                    </div>
-                                    ${statusBadge}
-                                </div>
-                                
-                                <div class="grid-2" style="gap: 16px;">
-                                    <div>
-                                        <div class="text-muted text-uppercase" style="font-size: 0.70rem; font-weight:700; margin-bottom: 4px;">WAKTU PELAKSANAAN</div>
-                                        <div class="font-bold flex items-center gap-2" style="font-size:0.9rem;">
-                                            <i data-lucide="calendar" style="width:16px;height:16px;"></i> 
-                                            ${item.tanggal}
-                                        </div>
-                                        <div class="text-muted mt-1 flex items-center gap-2" style="font-size:0.85rem;">
-                                            <i data-lucide="clock" style="width:16px;height:16px;"></i> 
-                                            ${item.jam_mulai ? item.jam_mulai.slice(0,5) + ' s/d ' + (item.jam_selesai ? item.jam_selesai.slice(0,5) : 'Selesai') : 'Waktu menyusul'}
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <div class="text-muted text-uppercase" style="font-size: 0.70rem; font-weight:700; margin-bottom: 4px;">TITIK LOKASI</div>
-                                        <div class="font-bold flex items-start gap-2" style="font-size:0.9rem; line-height: 1.3;">
-                                            <i data-lucide="map-pin" style="width:16px;height:16px; flex-shrink:0; margin-top:2px;"></i> 
-                                            ${locStr}
-                                        </div>
-                                        <div class="text-muted mt-1 ml-6" style="font-size:0.8rem; background:#f8fafc; padding:6px 10px; border-radius:6px; border:1px solid #e2e8f0;">
-                                            ${item.lokasi_detail || '<i>Bawa dokumen lengkap seperti KTP/KK</i>'}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    if(window.lucide) window.lucide.createIcons();
-                });
-        });
-    </script>
-</x-member-layout>
+<!-- Modal Header Kegiatan -->
+<div id="modalKegiatan" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width:800px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Laporan Penugasan BPJS Keliling</h2>
+            <button type="button" class="modal-close" style="z-index: 50; position: relative; pointer-events: auto;" onclick="document.getElementById('modalKegiatan').style.display='none'">&times;</button>
+        </div>
+        <form id="formKegiatan">
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Kedeputian Wilayah</label>
+                        <input type="text" class="form-control" value="Otomatis (Sesuai Login)" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Kantor Cabang</label>
+                        <input type="text" class="form-control" value="Otomatis (Sesuai Login)" disabled>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Judul Kegiatan / Instansi</label>
+                        <input type="text" id="judul" class="form-control" placeholder="Contoh: BPJS Keliling Desa Makmur" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Jenis Kegiatan</label>
+                        <select id="jenis_kegiatan" class="form-control" required>
+                            <option value="Goes To Village">Goes To Village</option>
+                            <option value="Around City">Around City</option>
+                            <option value="Hi Customer">Hi Customer</option>
+                            <option value="Corporate Gathering">Corporate Gathering</option>
+                            <option value="CFD">CFD</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tanggal Pelaksanaan</label>
+                        <input type="date" id="tanggal" class="form-control" required value="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Kuadran</label>
+                        <select id="kuadran" class="form-control" required>
+                            <option value="1- Engagement">1- Engagement</option>
+                            <option value="2- Rekrutmen">2- Rekrutmen</option>
+                            <option value="3- Pembaharuan Data">3- Pembaharuan Data</option>
+                            <option value="4- Iuran">4- Iuran</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Lokasi Kegiatan</label>
+                        <select id="lokasi_kegiatan" class="form-control" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="Kantor Kecamatan">Kantor Kecamatan</option>
+                            <option value="Kantor Kelurahan">Kantor Kelurahan</option>
+                            <option value="Kantor Desa">Kantor Desa</option>
+                            <option value="Puskesmas">Puskesmas</option>
+                            <option value="Rumah Warga">Rumah Warga</option>
+                            <option value="Lainnya">Lainnya</option>
+                            <option value="Kantor Badan Usaha Swasta">Kantor Badan Usaha Swasta</option>
+                            <option value="Kantor BUMN">Kantor BUMN</option>
+                            <option value="Kantor BUMD">Kantor BUMD</option>
+                            <option value="Kantor Instansi Pemerintah">Kantor Instansi Pemerintah</option>
+                            <option value="Sekolah/Kampus">Sekolah/Kampus</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Nama Frontliner yang Bertugas</label>
+                        <input type="text" id="nama_frontliner" class="form-control" placeholder="Nama lengkap petugas pemateri" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Kabupaten/Kota</label>
+                        <select id="kota_id" class="form-control" onchange="window.loadDistricts(this.value, null, 'kecamatan_id')" required>
+                            <option value="">Pilih Kota...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Kecamatan</label>
+                        <select id="kecamatan_id" class="form-control" required>
+                            <option value="">Pilih Kecamatan...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Kelurahan/Desa</label>
+                        <input type="text" id="nama_desa" class="form-control" placeholder="Nama Desa/Kelurahan">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('modalKegiatan').style.display='none'">Batal</button>
+            <button type="submit" class="btn btn-primary">Simpan Laporan & Lanjut Isi Peserta</button>
+        </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Entry Peserta -->
+<div id="modalParticipant" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width:600px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Entry Peserta Terlayani</h2>
+            <button type="button" class="modal-close" style="z-index: 50; position: relative; pointer-events: auto;" onclick="document.getElementById('modalParticipant').style.display='none'">&times;</button>
+        </div>
+        <form id="formParticipant">
+            <input type="hidden" id="p_activity_id">
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label">NIK (16 Digit)</label>
+                        <input type="text" id="p_nik" class="form-control" placeholder="33..." required maxlength="16">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nama Peserta</label>
+                        <input type="text" id="p_name" class="form-control" placeholder="Nama lengkap">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nomor WhatsApp</label>
+                        <input type="text" id="p_phone" class="form-control" placeholder="08...">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Jam Mulai Layanan</label>
+                        <input type="time" id="p_jam_mulai" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Jam Selesai Layanan</label>
+                        <input type="time" id="p_jam_selesai" class="form-control" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Segmen Peserta</label>
+                        <select id="p_segmen" class="form-control" required>
+                            <option value="PBPU">PBPU (Mandiri)</option>
+                            <option value="BP">BP (Bukan Pekerja)</option>
+                            <option value="PPU BU">PPU BU (Badan Usaha)</option>
+                            <option value="PPU Pemerintah">PPU Pemerintah</option>
+                            <option value="PBI APBN">PBI APBN</option>
+                            <option value="PBI APBD">PBI APBD</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Jenis Layanan</label>
+                        <select id="p_jenis" class="form-control" required onchange="window.updateTransaksi(this.value)">
+                            <option value="Administrasi">Administrasi</option>
+                            <option value="Informasi">Informasi</option>
+                            <option value="Pengaduan">Pengaduan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Transaksi Layanan</label>
+                        <select id="p_transaksi" class="form-control" required>
+                            <option value="">Pilih...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Status</label>
+                        <select id="p_status" class="form-control" required onchange="window.toggleGagal(this.value)">
+                            <option value="Berhasil">Berhasil</option>
+                            <option value="Tidak Berhasil">Tidak Berhasil</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" id="div_keterangan_gagal" style="display:none;">
+                        <label class="form-label">Alasan Tidak Berhasil</label>
+                        <select id="p_keterangan_gagal" class="form-control">
+                            <option value="">-- Pilih Alasan --</option>
+                            <option value="Adanya tindaklanjut rekonsiliasi data">Adanya tindaklanjut rekonsiliasi data</option>
+                            <option value="Berkas persyaratan belum lengkap">Berkas persyaratan belum lengkap</option>
+                            <option value="NIK tidak sesuai, tidak padan dengan Dukcapil atau data tidak valid">NIK tidak sesuai, tidak padan dengan Dukcapil atau data tidak valid</option>
+                            <option value="Perlu koordinasi atau laporan ke Dinsos/Dukcapil">Perlu koordinasi atau laporan ke Dinsos/Dukcapil</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Suara Pelanggan</label>
+                        <select id="p_puas" class="form-control" required>
+                            <option value="Puas">Puas</option>
+                            <option value="Tidak puas">Tidak puas</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('modalParticipant').style.display='none'">Selesai</button>
+            <button type="submit" class="btn btn-primary">Simpan & Input Peserta Lagi</button>
+        </div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener('click', function(e) {
+        let btn = e.target.closest('.modal-close');
+        if (btn) {
+            let overlay = btn.closest('.modal-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+    });
+</script>
+@vite(['resources/js/pages/bpjs_keliling.js', 'resources/js/pages/member.js'])
+@endpush
+@endsection

@@ -46,7 +46,7 @@
                 <div class="input-grid">
                     <div class="form-group">
                         <label class="form-label">NIK (16 Digit)</label>
-                        <input type="text" id="nik" class="form-control" placeholder="Sesuai KTP" required maxlength="16">
+                        <input type="tel" id="nik" class="form-control" placeholder="Sesuai KTP" required minlength="16" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nomor Kartu JKN</label>
@@ -180,13 +180,24 @@
                 </div>
 
                 <div class="section-title">Keamanan Akun</div>
-                <div class="form-group">
-                    <label class="form-label">Kata Sandi (Password)</label>
-                    <div class="input-group-password">
-                        <input type="password" id="password" class="form-control" placeholder="Min. 8 Karakter" required>
-                        <button type="button" class="password-toggle-btn" onclick="togglePassword('password')" tabindex="-1">
-                            <span id="icon-password"><i data-lucide="eye"></i></span>
-                        </button>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Kata Sandi (Password)</label>
+                        <div class="input-group-password">
+                            <input type="password" id="password" class="form-control" placeholder="Min. 8 Karakter" required>
+                            <button type="button" class="password-toggle-btn" onclick="togglePassword('password')" tabindex="-1">
+                                <span id="icon-password"><i data-lucide="eye"></i></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ulangi Kata Sandi</label>
+                        <div class="input-group-password">
+                            <input type="password" id="password_confirmation" class="form-control" placeholder="Konfirmasi Password" required>
+                            <button type="button" class="password-toggle-btn" onclick="togglePassword('password_confirmation')" tabindex="-1">
+                                <span id="icon-password_confirmation"><i data-lucide="eye"></i></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 

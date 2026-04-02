@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('action');
             $table->string('entity_type');
             $table->string('entity_id');
-            $table->jsonb('changes_json')->nullable();
+            $table->json('changes_json')->nullable();
             $table->timestamps();
 
             // Index

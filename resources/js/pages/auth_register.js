@@ -102,11 +102,12 @@ if (regForm) {
         
         const payload = {
             nik: document.getElementById('nik').value,
-            jkn_number: document.getElementById('jkn_number').value,
+            jkn_number: document.getElementById('jkn_number').value || null,
             name: document.getElementById('name').value,
             phone: document.getElementById('phone').value,
             birth_date: document.getElementById('birth_date').value,
             password: document.getElementById('password').value,
+            password_confirmation: document.getElementById('password_confirmation').value,
             gender: document.getElementById('gender').value,
             education: document.getElementById('education').value,
             occupation: document.getElementById('occupation').value,
@@ -120,6 +121,11 @@ if (regForm) {
             dom_address_detail: sameAsKtp ? document.getElementById('address').value : document.getElementById('dom_address').value,
         };
 
+        if (payload.password !== payload.password_confirmation) {
+            window.showToast('Konfirmasi kata sandi tidak cocok.', 'error');
+            return;
+        }
+
         const btn = document.getElementById('btn-register');
         const oldText = btn.innerHTML;
         btn.disabled = true; btn.innerHTML = 'Memproses...';
@@ -127,14 +133,20 @@ if (regForm) {
         try {
             const res = await window.axios.post('member/register', payload);
             if(res.data.success) {
-                showToast('Pendaftaran Berhasil! Silakan Login.', 'success');
+                window.showToast('Pendaftaran Berhasil! Silakan Login.', 'success');
                 setTimeout(() => { window.location.href = '/login'; }, 2000);
             }
         } catch (error) {
             btn.disabled = false; btn.innerHTML = oldText;
-            const msg = error.response?.data?.message || 'Gagal mendaftar. Cek kembali data Anda.';
-            showToast(msg, 'error');
             console.error('Registration Error:', error.response?.data);
+            let msg = 'Gagal mendaftar. Cek kembali data Anda.';
+            if (error.response?.data?.errors) {
+                // Ambil error pertama dari validasi (misal 'NIK sudah terdaftar')
+                msg = Object.values(error.response.data.errors).flat()[0];
+            } else if (error.response?.data?.message) {
+                msg = error.response.data.message;
+            }
+            window.showToast(msg, 'error');
         }
     });
 }

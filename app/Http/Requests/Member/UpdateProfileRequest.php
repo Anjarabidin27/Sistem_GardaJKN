@@ -15,7 +15,7 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'jkn_number' => 'nullable|numeric|digits_between:10,15',
+            'jkn_number' => 'nullable|string|min:10|max:16',
             'phone' => ['required', 'string', 'regex:/^(\+?62|08)[0-9]{8,15}$/'],
             'birth_date' => 'required|date',
             'gender' => 'required|in:L,P',

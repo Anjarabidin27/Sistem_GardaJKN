@@ -67,11 +67,11 @@
             </div>
         </div>
 
-        <div id="pengurus-status-section" style="display:none;" class="table-card p-6 mb-6" style="background: white; border-radius: 16px; border: 1px solid #e5eaf2;">
+        <div id="pengurus-status-section" style="display:none; background: white; border-radius: 16px; border: 1px solid #e5eaf2; padding: 24px; margin-bottom: 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);" class="table-card">
             <div class="flex justify-between items-center">
                 <div>
-                    <div style="font-size: 0.6rem; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 4px;">PERAN ORGANISASI</div>
-                    <div id="memberRoleDisplay" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">—</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.05em;">PERAN ORGANISASI</div>
+                    <div id="memberRoleDisplay" style="font-size: 1.35rem; font-weight: 800; color: #1e293b;">—</div>
                 </div>
                 <div id="statusPengurusBadge"></div>
             </div>
@@ -147,11 +147,11 @@
             <form id="surveyForm" style="padding: 40px;">
                 <div class="form-group" style="margin-bottom: 32px;">
                     <label class="form-label" style="font-weight: 700; color: #475569; margin-bottom: 16px; display: block;">1. Bagaimana penilaian Anda terhadap kecepatan respon pengurus?</label>
-                    <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 12px;">
-                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="5" style="display:none;" required> Sangat Puas</label>
-                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="4" style="display:none;"> Puas</label>
-                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="3" style="display:none;"> Cukup</label>
-                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="2" style="display:none;"> Buruk</label>
+                    <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 12px; display: grid;">
+                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="5" style="opacity:0; position:absolute; z-index:-1;" required> Sangat Puas</label>
+                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="4" style="opacity:0; position:absolute; z-index:-1;"> Puas</label>
+                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="3" style="opacity:0; position:absolute; z-index:-1;"> Cukup</label>
+                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="2" style="opacity:0; position:absolute; z-index:-1;"> Buruk</label>
                     </div>
                 </div>
                 <div class="form-group">
@@ -247,16 +247,48 @@
                             <option value="">Pilih...</option>
                         </select>
                     </div>
+                </div>
+                <div class="grid-2">
                     <div class="form-group">
-                        <label class="form-label">Kecamatan</label>
+                        <label class="form-label">Kecamatan (KTP)</label>
                         <select id="editDistrict" class="form-input">
                             <option value="">Pilih...</option>
                         </select>
                     </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label">Alamat Lengkap KTP (Jalan/RT/RW)</label>
+                        <input type="text" id="editAddressDetail" class="form-input" placeholder="Jl. Merdeka No. 10...">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Alamat Domisili (Jalan/Blok/No)</label>
-                    <textarea id="editAddress" class="form-input" rows="2" style="resize: none;"></textarea>
+
+                <div style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed #e2e8f0;">
+                    <div style="font-weight: 800; color: #1e293b; font-size: 0.9rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="home" style="width: 16px; color: var(--primary);"></i> ALAMAT DOMISILI (ALAMAT SAAT INI)
+                    </div>
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label class="form-label">Provinsi Domisili</label>
+                            <select id="editDomProvince" class="form-input" onchange="window.loadCities(this.value, null, 'editDomCity', 'editDomDistrict')">
+                                <option value="">Pilih...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kota Domisili</label>
+                            <select id="editDomCity" class="form-input" onchange="window.loadDistricts(this.value, null, 'editDomDistrict')">
+                                <option value="">Pilih...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kecamatan Domisili</label>
+                            <select id="editDomDistrict" class="form-input">
+                                <option value="">Pilih...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Detail Alamat Domisili</label>
+                        <textarea id="editDomisiliDetail" class="form-input" rows="2" style="resize: none;" placeholder="Sama dengan KTP atau isi alamat tempat tinggal sekarang..."></textarea>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -332,6 +364,11 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .border-top { border-top: 1px solid var(--border); }
         .px-8 { padding-left: 2rem; padding-right: 2rem; }
+        .btn-pill:has(input:checked) {
+            border-color: var(--primary) !important;
+            background: rgba(0, 74, 173, 0.05);
+            color: var(--primary);
+        }
     </style>
     @endpush
 

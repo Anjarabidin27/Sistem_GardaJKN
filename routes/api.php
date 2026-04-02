@@ -62,6 +62,21 @@ Route::prefix('member')->group(function () {
             Route::get('{id}', 'show');
         });
     });
+
+    // BPJS Keliling (Pengurus, Write)
+    Route::middleware(['auth:sanctum', 'role:pengurus'])->group(function () {
+        Route::prefix('bpjs-keliling')->controller(MemberBpjsController::class)->group(function () {
+            Route::post('/', 'store');
+            Route::post('{id}/participants', 'addParticipant');
+        });
+
+        Route::prefix('pil')->controller(\App\Http\Controllers\Api\Member\PilController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('{id}', 'show');
+            Route::post('{id}/participants', 'addParticipant');
+        });
+    });
 });
 
 

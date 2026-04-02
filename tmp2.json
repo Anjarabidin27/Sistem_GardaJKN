@@ -1,0 +1,45 @@
+Row 0: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 1: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 2: {'Unnamed: 0': nan, 'Unnamed: 1': 'No', 'Unnamed: 2': 'Fields', 'Unnamed: 3': 'Keterangan', 'Unnamed: 4': nan}
+Row 3: {'Unnamed: 0': nan, 'Unnamed: 1': 1, 'Unnamed: 2': 'Kedeputian Wilayah', 'Unnamed: 3': 'Otomatis terisi sesuai dengan login KC', 'Unnamed: 4': nan}
+Row 4: {'Unnamed: 0': nan, 'Unnamed: 1': 2, 'Unnamed: 2': 'Kantor Cabang', 'Unnamed: 3': 'Otomatis terisi sesuai dengan login KC', 'Unnamed: 4': nan}
+Row 5: {'Unnamed: 0': nan, 'Unnamed: 1': 5, 'Unnamed: 2': 'Kabupaten/Kota', 'Unnamed: 3': 'Dropdown sesuai login KC', 'Unnamed: 4': nan}
+Row 6: {'Unnamed: 0': nan, 'Unnamed: 1': 6, 'Unnamed: 2': 'Kecamatan', 'Unnamed: 3': 'Dropdown sesuai login KC', 'Unnamed: 4': nan}
+Row 7: {'Unnamed: 0': nan, 'Unnamed: 1': 7, 'Unnamed: 2': 'Kelurahan/Desa', 'Unnamed: 3': 'Dropdown sesuai login KC', 'Unnamed: 4': nan}
+Row 8: {'Unnamed: 0': nan, 'Unnamed: 1': 8, 'Unnamed: 2': 'Nama Frontliner', 'Unnamed: 3': 'Manual sesuai dengan Frontliner yang bertugas', 'Unnamed: 4': nan}
+Row 9: {'Unnamed: 0': nan, 'Unnamed: 1': 9, 'Unnamed: 2': 'Lokasi Kegiatan', 'Unnamed: 3': 'Dropdown dengan list berikut', 'Unnamed: 4': nan}
+Row 10: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 11: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 12: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 13: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 14: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 15: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 16: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 17: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 18: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 19: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 20: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 21: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 22: {'Unnamed: 0': nan, 'Unnamed: 1': 10, 'Unnamed: 2': 'Tanggal kegiatan', 'Unnamed: 3': 'Manual sesuai dengan tanggal pelaksanaan kegiatan', 'Unnamed: 4': nan}
+Row 23: {'Unnamed: 0': nan, 'Unnamed: 1': 11, 'Unnamed: 2': 'Zona waktu', 'Unnamed: 3': 'Otomatis sesuai dengan login KC', 'Unnamed: 4': nan}
+Row 24: {'Unnamed: 0': nan, 'Unnamed: 1': 12, 'Unnamed: 2': 'entry peserta', 'Unnamed: 3': 'terdiri dari', 'Unnamed: 4': nan}
+Row 25: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': 'NIK', 'Unnamed: 4': nan}
+Row 26: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': 'Segmen Peserta', 'Unnamed: 4': nan}
+Row 27: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': 'Nomor HP', 'Unnamed: 4': nan}
+Row 28: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': 'Jam Sosialisasi', 'Unnamed: 4': 'mulai (pilih jam)'}
+Row 29: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': 'selesai (pilih jam)'}
+Row 30: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': 'Pemahaman ', 'Unnamed: 4': 'manual diisi nilai hasil pemahaman'}
+Row 31: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': 'Efektifitas sosialisasi', 'Unnamed: 4': 'Dropdown list pilihan berikut'}
+Row 32: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 33: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 34: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 35: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 36: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 37: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 38: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan}
+Row 39: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': 'Net Promotor Score', 'Unnamed: 4': 'Pilihan:'}
+Row 40: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': '1. Ketertarikan terhadap Program JKN'}
+Row 41: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': '2. Rekomendasi Program JKN'}
+Row 42: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': '3. Rekomendasi BPJS Kesehatan'}
+Row 43: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': 'di masing-masing pilihan ada dropdown angka 1-10'}
+Row 44: {'Unnamed: 0': nan, 'Unnamed: 1': nan, 'Unnamed: 2': nan, 'Unnamed: 3': 'Save dan muncul form baru utk entry peserta', 'Unnamed: 4': nan}

@@ -53,22 +53,18 @@ class ProfileController extends Controller
         
         $updateData = [
             'is_interested_pengurus' => $data['is_interested_pengurus'],
-            'status_pengurus' => $data['is_interested_pengurus'] ? 'mendaftar' : 'tidak_mendaftar',
+            'status_pengurus'        => $data['is_interested_pengurus'] ? 'pendaftaran_diterima' : 'tidak_mendaftar',
         ];
 
         if ($data['is_interested_pengurus']) {
-            $updateData['role'] = 'anggota'; // Still anggota until approved? Or directly pengurus?
-            // Usually such things need approval, but I'll follow the user's "langsung tersimpan" flow.
-            
+            $updateData['role']               = 'anggota'; 
             $updateData['has_org_experience'] = $data['has_org_experience'];
+
             if ($data['has_org_experience']) {
-                $updateData['org_count'] = $data['org_count'];
-                $updateData['org_name'] = $data['org_name'];
-                $updateData['pengurus_reason'] = $data['pengurus_reason'];
+                $updateData['org_count']       = $data['org_count'] ?? null;
+                $updateData['org_name']        = $data['org_name'] ?? null;
+                $updateData['pengurus_reason'] = $data['pengurus_reason'] ?? null;
             }
-            
-            // If they are interested, we can set status to 'pendaftaran_diterima'
-            $updateData['status_pengurus'] = 'pendaftaran_diterima';
         }
 
         $user->update($updateData);

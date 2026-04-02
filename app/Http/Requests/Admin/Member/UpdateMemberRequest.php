@@ -18,7 +18,7 @@ class UpdateMemberRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|string|max:255',
-            'jkn_number' => 'nullable|numeric|digits_between:10,15',
+            'jkn_number' => 'nullable|string|min:10|max:16',
             'phone' => ['sometimes', 'string', 'regex:/^(\+?62|08)[0-9]{8,15}$/'],
             'birth_date' => 'sometimes|nullable|date',
             'gender' => 'sometimes|nullable|in:L,P',

@@ -18,7 +18,7 @@ class StoreMemberRequest extends FormRequest
     {
         return [
             'nik' => 'required|numeric|digits:16|unique:members,nik',
-            'jkn_number' => 'nullable|numeric|digits_between:10,15',
+            'jkn_number' => 'nullable|string|min:10|max:16',
             'name' => 'required|string|max:255',
             'phone' => ['required', 'string', 'regex:/^(\+?62|08)[0-9]{8,15}$/'],
             'birth_date' => 'required|date',

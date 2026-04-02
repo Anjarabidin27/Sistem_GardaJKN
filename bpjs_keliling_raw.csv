@@ -1,0 +1,75 @@
+Unnamed: 0,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4
+,,,,
+,,,,
+,No,Fields,Keterangan,
+,1,Kedeputian Wilayah,Otomatis terisi sesuai dengan login KC,
+,2,Kantor Cabang,Otomatis terisi sesuai dengan login KC,
+,3,Jenis kegiatan,Dropdown dengan list berikut,
+,,,Goes To Village,
+,,,Around city,
+,,,Hi Customer,
+,,,Corporate Gathering,
+,,,CFD,
+,4,Kuadran,Dropdown dengan list berikut,
+,,,1- Engagement,
+,,,2- Rekrutmen,
+,,,3- Pembaharuan Data,
+,,,4- Iuran,
+,5,Kabupaten/Kota,geotagging sesuai lokasi kegiatan,Geotagging
+,6,Kecamatan,geotagging sesuai lokasi kegiatan,
+,7,Kelurahan/Desa,geotagging sesuai lokasi kegiatan,
+,8,Nama Frontliner,Manual sesuai dengan Frontliner yang bertugas,
+,9,Lokasi Kegiatan,Dropdown dengan list berikut,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,10,Tanggal kegiatan,Manual sesuai dengan tanggal pelaksanaan kegiatan,
+,11,Zona waktu,Otomatis sesuai dengan login KC,
+,12,entry peserta,terdiri dari,
+,,,NIK,
+,,,Segmen Peserta,"PBPU, BP, PPU BU, PPU Pemerintah, PBI APBN, PBI APBD"
+,,,Nomor HP,
+,,,Jam layanan,mulai (pilih jam)
+,,,,selesai (pilih jam)
+,,,Jenis layanan,Administrasi
+,,,,Informasi
+,,,,Pengaduan
+,,,Transaksi Layanan (dropdown otomatis muncul sesuai pilihan jenis layanan),Administrasi
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,Informasi
+,,,,Pengaduan
+,,,Status,Berhasil
+,,,,Tidak Berhasil
+,,,Jika memilih tidak berhasil,Dropdown pilihan berikut
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,Suara Pelanggan,Puas
+,,,,Tidak puas
+,,,Save dan muncul form baru utk entry peserta,

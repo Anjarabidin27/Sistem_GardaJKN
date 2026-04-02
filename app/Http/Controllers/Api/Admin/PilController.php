@@ -101,21 +101,31 @@ class PilController extends Controller
     {
         $kegiatan = PilKegiatan::findOrFail($id);
 
+        if ($kegiatan->status === 'cancelled') {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Tidak dapat mengisi laporan untuk kegiatan yang dibatalkan.',
+            ], 422);
+        }
+
         $validated = $request->validate([
-            'jumlah_peserta' => 'required|integer|min:0',
-            'rata_uji_pemahaman' => 'required|numeric|min:0|max:100',
+            'jumlah_peserta'        => 'required|integer|min:0',
+            'rata_uji_pemahaman'    => 'required|numeric|min:0|max:100',
             'efek_ketertarikan_jkn' => 'required|integer|min:1|max:10',
-            'efek_rekomendasi_jkn' => 'required|integer|min:1|max:10',
+            'efek_rekomendasi_jkn'  => 'required|integer|min:1|max:10',
             'efek_rekomendasi_bpjs' => 'required|integer|min:1|max:10',
-            'catatan' => 'nullable|string',
+            'catatan'               => 'nullable|string',
         ]);
+
+        // Otomatis set status menjadi 'completed' setelah laporan diisi
+        $validated['status'] = 'completed';
 
         $kegiatan->update($validated);
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Laporan PIL berhasil disimpan',
-            'data' => $kegiatan
+            'data'    => $kegiatan
         ]);
     }
 

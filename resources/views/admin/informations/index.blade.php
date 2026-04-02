@@ -41,7 +41,7 @@
     <!-- Modal Tab (Add/Edit) -->
     <div id="infoModal" class="modal-overlay">
         <div class="modal-content">
-            <form id="infoForm" onsubmit="submitForm(event)">
+            <form id="infoForm">
                 <input type="hidden" id="infoId">
                 <div class="modal-header">
                     <h3 class="modal-title" id="modalTitle">Tambah Informasi</h3>

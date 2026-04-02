@@ -32,10 +32,20 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
+        // Secara default Laravel SoftDeletes akan meng-exclude record yang dihapus
         $member = Member::where('nik', $request->nik)->first();
 
-        if (! $member || ! Hash::check($request->password, $member->password)) {
-            return $this->errorResponse('Kredensial tidak valid.', null, 401);
+        if (! $member) {
+            // Cek apakah sebenarnya ada tapi ter-soft-delete
+            $deletedMember = Member::withTrashed()->where('nik', $request->nik)->first();
+            if ($deletedMember && $deletedMember->trashed()) {
+                return $this->errorResponse('Akun Anda telah diarsipkan. Silakan hubungi admin.', null, 403);
+            }
+            return $this->errorResponse('NIK tidak terdaftar.', null, 401);
+        }
+
+        if (! Hash::check($request->password, $member->password)) {
+            return $this->errorResponse('Password salah.', null, 401);
         }
 
         $token = $member->createToken('member-token')->plainTextToken;

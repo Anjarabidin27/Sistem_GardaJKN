@@ -44,7 +44,9 @@ class AuditService
                 $user = auth('sanctum')->user();
                 if ($user) {
                     $actorId = $user->id;
-                    $actorType = ($user instanceof \App\Models\AdminUser) ? 'admin' : 'member';
+                    $actorType = ($user instanceof \App\Models\AdminUser)
+                        ? \App\Models\AdminUser::class
+                        : \App\Models\Member::class;
                 }
             }
 

@@ -175,10 +175,10 @@ window.toggleAttachmentField = function() {
     if (!attachmentField || !attachmentLabel || !attachmentHint || !attachmentInput) return;
 
     if (type === 'text') {
-        attachmentField.classList.add('d-none');
+        attachmentField.style.display = 'none';
         attachmentInput.required = false;
     } else {
-        attachmentField.classList.remove('d-none');
+        attachmentField.style.display = 'block';
         attachmentLabel.innerText = type === 'image' ? 'Lampiran Foto/Gambar' : 'Lampiran Dokumen PDF';
         attachmentHint.innerText = type === 'image' ? 'Format: JPG, PNG. Max 5MB' : 'Format: PDF. Max 5MB';
         attachmentInput.accept = type === 'image' ? 'image/*' : '.pdf';

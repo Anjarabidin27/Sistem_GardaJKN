@@ -15,10 +15,18 @@ class MemberSeeder extends Seeder
         $p = Province::where('name', 'LIKE', '%JAKARTA%')->first() ?? Province::first();
         if (!$p) return;
 
-        $city = City::where('province_id', $p->id)->first() ?? City::where('province_id', $p->id)->first();
-        $dist = District::where('city_id', $city->id)->first() ?? District::where('city_id', $city->id)->first();
+        $city = City::where('province_id', $p->id)->first();
+        if (!$city) return;
 
-        if (!$city || !$dist) return;
+        // Ensure at least one district exists for this city
+        $dist = District::where('city_id', $city->id)->first();
+        if (!$dist) {
+            $dist = District::create([
+                'city_id' => $city->id,
+                'code' => $city->code . '010',
+                'name' => 'KECAMATAN CONTOH'
+            ]);
+        }
 
         $members = [
             ['nik' => '3171010101900000', 'name' => 'Vini Jr'],
@@ -46,5 +54,6 @@ class MemberSeeder extends Seeder
                 ]
             );
         }
+        echo "Member seeding completed.\n";
     }
 }

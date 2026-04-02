@@ -39,7 +39,7 @@
             <form id="loginForm">
                 <div class="auth-group" style="margin-bottom: 24px;">
                     <label class="label" id="identityLabel">NIK Anggota (16 Digit)</label>
-                    <input type="text" id="identity" class="form-input" placeholder="3324560004677870" required>
+                    <input type="tel" id="identity" class="form-input" placeholder="3324560004677870" required minlength="16" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);">
                 </div>
                 
                 <div class="auth-group" style="margin-bottom: 32px;">
@@ -61,9 +61,8 @@
                     <a href="#" style="font-size: 0.75rem; color: var(--primary); font-weight: 600; text-decoration: none;">Lupa password?</a>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    Masuk ke Sistem
-                </button>
+                <button type="submit" id="btn-login" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; border-radius: 12px; font-weight: 700;">Masuk ke Sistem</button>
+                <div id="login-error-msg" style="color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; margin-top: 16px; padding: 12px; border-radius: 8px; text-align: center; font-size: 0.85rem; font-weight: 600; display: none;"></div>
 
                 <div style="margin-top: 24px; text-align: center; font-size: 0.875rem;">
                     <span style="color: var(--text-muted);">Belum punya akun?</span>

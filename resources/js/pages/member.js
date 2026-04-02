@@ -366,7 +366,8 @@
         document.getElementById('editGender').value = currentData.gender || 'L';
         document.getElementById('editEducation').value = currentData.education || 'SMA';
         document.getElementById('editOccupation').value = currentData.occupation || 'LAINNYA';
-        document.getElementById('editAddress').value = currentData.address_detail || '';
+        document.getElementById('editAddressDetail').value = currentData.address_detail || '';
+        document.getElementById('editDomisiliDetail').value = currentData.domisili_detail || '';
         
         if (currentData.photo_url) {
             document.getElementById('editPhotoPreview').src = currentData.photo_url;
@@ -375,26 +376,32 @@
         
         document.getElementById('editModal').style.display = 'flex';
         
-        // Populate regions
-        await loadProvinces(currentData.province_id);
-        await loadCities(currentData.province_id, currentData.city_id);
-        await loadDistricts(currentData.city_id, currentData.district_id);
+        // Populate regions (KTP)
+        await loadProvinces(currentData.province_id, 'editProvince');
+        await loadCities(currentData.province_id, currentData.city_id, 'editCity', 'editDistrict');
+        await loadDistricts(currentData.city_id, currentData.district_id, 'editDistrict');
+
+        // Populate regions (Domisili)
+        await loadProvinces(currentData.dom_province_id, 'editDomProvince');
+        await loadCities(currentData.dom_province_id, currentData.dom_city_id, 'editDomCity', 'editDomDistrict');
+        await loadDistricts(currentData.dom_city_id, currentData.dom_district_id, 'editDomDistrict');
     }
 
     window.closeEditModal = function() { document.getElementById('editModal').style.display = 'none'; }
 
-    window.loadProvinces = async function(selectedId = null) {
+    window.loadProvinces = async function(selectedId = null, targetId = 'editProvince') {
         const res = await axios.get('master/provinces');
-        const sel = document.getElementById('editProvince');
+        const sel = document.getElementById(targetId);
+        if(!sel) return;
         sel.innerHTML = '<option value="">Pilih...</option>';
         res.data.data.forEach(p => {
             sel.innerHTML += `<option value="${p.id}" ${p.id == selectedId ? 'selected' : ''}>${p.name}</option>`;
         });
     }
 
-    window.loadCities = async function(provId, selectedId = null) {
-        const sel = document.getElementById('editCity');
-        const distSel = document.getElementById('editDistrict');
+    window.loadCities = async function(provId, selectedId = null, targetId = 'editCity', nextTargetId = 'editDistrict') {
+        const sel = document.getElementById(targetId);
+        const distSel = document.getElementById(nextTargetId);
         
         // Reset both child dropdowns
         if(sel) sel.innerHTML = '<option value="">Pilih...</option>';
@@ -409,8 +416,8 @@
         });
     }
 
-    window.loadDistricts = async function(cityId, selectedId = null) {
-        const sel = document.getElementById('editDistrict');
+    window.loadDistricts = async function(cityId, selectedId = null, targetId = 'editDistrict') {
+        const sel = document.getElementById(targetId);
         if(sel) sel.innerHTML = '<option value="">Pilih...</option>';
         
         if(!cityId) return;
@@ -433,7 +440,8 @@
         formData.append('_method', 'PUT'); 
         
         formData.append('name', getVal('editName'));
-        formData.append('jkn_number', getVal('editJknNumber').replace(/\D/g, ''));
+        const jknVal = getVal('editJknNumber');
+        if (jknVal) formData.append('jkn_number', jknVal.replace(/\D/g, ''));
         formData.append('phone', getVal('editPhone').replace(/\D/g, ''));
         formData.append('birth_date', getVal('editBirthDate'));
         formData.append('gender', getVal('editGender'));
@@ -443,12 +451,18 @@
         const provId = getVal('editProvince');
         const cityId = getVal('editCity');
         const distId = getVal('editDistrict');
-
         if (provId) formData.append('province_id', provId);
         if (cityId) formData.append('city_id', cityId);
         if (distId) formData.append('district_id', distId);
+        formData.append('address_detail', getVal('editAddressDetail'));
 
-        formData.append('address_detail', getVal('editAddress'));
+        const domProvId = getVal('editDomProvince');
+        const domCityId = getVal('editDomCity');
+        const domDistId = getVal('editDomDistrict');
+        if (domProvId) formData.append('dom_province_id', domProvId);
+        if (domCityId) formData.append('dom_city_id', domCityId);
+        if (domDistId) formData.append('dom_district_id', domDistId);
+        formData.append('domisili_detail', getVal('editDomisiliDetail'));
 
         const photoInput = document.getElementById('editPhoto');
         if (photoInput && photoInput.files[0]) {

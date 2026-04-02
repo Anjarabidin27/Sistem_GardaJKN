@@ -18,9 +18,9 @@ class RegisterRequest extends FormRequest
     {
         return [
             'nik' => 'required|numeric|digits:16|unique:members,nik',
-            'jkn_number' => 'nullable|numeric|digits_between:10,15',
+            'jkn_number' => 'nullable|string|min:10|max:16',
             'name' => 'required|string|max:255',
-            'phone' => ['required', 'string', 'regex:/^(\+?62|08)[0-9]{8,15}$/'],
+            'phone' => ['required', 'numeric', 'digits_between:10,15'],
             'birth_date' => 'required|date',
             'gender' => 'required|in:L,P',
             'education' => 'required|in:SD,SMP,SMA,Diploma,S1/D4,S2',
@@ -49,7 +49,7 @@ class RegisterRequest extends FormRequest
             ],
             'dom_address_detail' => 'required|string',
             'address_detail' => 'required|string',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6|confirmed',
         ];
     }
 }
