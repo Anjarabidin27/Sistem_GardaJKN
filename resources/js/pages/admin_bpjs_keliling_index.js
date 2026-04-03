@@ -180,10 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
         bpjsId.value = ev.id;
         document.getElementById('jenis_kegiatan').value = ev.jenis_kegiatan;
         document.getElementById('judul').value = ev.judul;
+        document.getElementById('kuadran').value = ev.kuadran || '';
+        document.getElementById('nama_frontliner').value = ev.nama_frontliner || '';
         document.getElementById('tanggal').value = ev.tanggal ? ev.tanggal.split('T')[0] : '';
         document.getElementById('jam_mulai').value = ev.jam_mulai ? ev.jam_mulai.slice(0,5) : '';
         document.getElementById('jam_selesai').value = ev.jam_selesai ? ev.jam_selesai.slice(0,5) : '';
         document.getElementById('nama_desa').value = ev.nama_desa || '';
+        document.getElementById('lokasi_kegiatan').value = ev.lokasi_kegiatan || '';
         document.getElementById('lokasi_detail').value = ev.lokasi_detail || '';
         document.getElementById('jumlah_petugas').value = ev.jumlah_petugas;
         document.getElementById('status').value = ev.status;
@@ -245,46 +248,145 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // --- Modal Laporan ---
+    // --- Modal Laporan / Entry ---
+    const entryPesertaModal = document.getElementById('entryPesertaModal');
+    const pesertaForm = document.getElementById('pesertaForm');
+    const entryKegiatanId = document.getElementById('entry_kegiatan_id');
+    const pesertaListWrap = document.getElementById('peserta-list');
+
+    // Dynamic show/hide
+    const jenisLayananSelect = document.getElementById('jenis_layanan');
+    const wrapTransaksi = document.getElementById('wrap_transaksi_layanan');
+    const transaksiSelect = document.getElementById('transaksi_layanan');
+    
+    jenisLayananSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'Administrasi') {
+            wrapTransaksi.style.display = 'block';
+            transaksiSelect.required = true;
+        } else {
+            wrapTransaksi.style.display = 'none';
+            transaksiSelect.required = false;
+            transaksiSelect.value = '';
+        }
+    });
+
+    const statusLayananSelect = document.getElementById('status_layanan');
+    const wrapKeterangan = document.getElementById('wrap_keterangan_gagal');
+    const keteranganSelect = document.getElementById('keterangan_gagal');
+    
+    statusLayananSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'Tidak Berhasil') {
+            wrapKeterangan.style.display = 'block';
+            keteranganSelect.required = true;
+        } else {
+            wrapKeterangan.style.display = 'none';
+            keteranganSelect.required = false;
+            keteranganSelect.value = '';
+        }
+    });
+
     window.handleLaporan = (id) => {
         const ev = eventsData.find(e => e.id === id);
         if(!ev) return;
 
-        laporanForm.reset();
-        lapKegiatanId.value = ev.id;
+        pesertaForm.reset();
+        entryKegiatanId.value = ev.id;
+        
+        // Reset dynamic fields
+        wrapTransaksi.style.display = 'none';
+        transaksiSelect.required = false;
+        wrapKeterangan.style.display = 'none';
+        keteranganSelect.required = false;
 
-        if(ev.jumlah_peserta > 0 || ev.layanan_informasi > 0) {
-            document.getElementById('layanan_informasi').value = ev.layanan_informasi;
-            document.getElementById('layanan_administrasi').value = ev.layanan_administrasi;
-            document.getElementById('layanan_pengaduan').value = ev.layanan_pengaduan;
-            document.getElementById('transaksi_berhasil').value = ev.transaksi_berhasil || 0;
-            document.getElementById('transaksi_gagal').value = ev.transaksi_gagal || 0;
-            document.getElementById('jumlah_peserta').value = ev.jumlah_peserta;
-            document.getElementById('kepuasan_puas').value = ev.kepuasan_puas;
-            document.getElementById('kepuasan_tidak_puas').value = ev.kepuasan_tidak_puas;
-            document.getElementById('catatan').value = ev.catatan || '';
-        }
-
-        laporanModal.style.display = 'flex';
+        loadParticipants(ev.id);
+        entryPesertaModal.style.display = 'flex';
     };
 
-    laporanForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const id = lapKegiatanId.value;
-        const data = Object.fromEntries(new FormData(laporanForm).entries());
+    function loadParticipants(id) {
+        pesertaListWrap.innerHTML = '<div class="text-center text-muted" style="padding:10px;">Loading...</div>';
+        window.axios.get(`admin/bpjs-keliling/${id}/participants`)
+            .then(res => {
+                const data = res.data.data;
+                renderParticipantsList(data);
+            }).catch(e => {
+                pesertaListWrap.innerHTML = '<div class="text-danger text-center">Gagal memuat peserta</div>';
+            });
+    }
 
-        const btn = document.getElementById('btn-save-laporan');
+    function renderParticipantsList(data) {
+        pesertaListWrap.innerHTML = '';
+        if(data.length === 0) {
+            pesertaListWrap.innerHTML = '<div class="text-muted text-center" style="padding: 20px; font-size: 0.85rem;">Belum ada peserta</div>';
+            return;
+        }
+
+        data.forEach(p => {
+            let infoStr = p.jenis_layanan;
+            let statusClr = p.status === 'Berhasil' ? 'var(--success)' : 'var(--danger)';
+            pesertaListWrap.innerHTML += `
+                <div style="border:1px solid var(--border); border-radius:6px; padding:10px; background:#fff; position: relative;">
+                    <div style="font-weight:700; font-size:0.85rem;">NIK: ${p.nik}</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom: 5px;">${p.segmen_peserta} | ${p.jam_mulai} - ${p.jam_selesai}</div>
+                    <div style="font-size:0.75rem; font-weight:600; color:var(--primary);">${infoStr}</div>
+                    ${p.transaksi_layanan ? `<div style="font-size:0.7rem;">${p.transaksi_layanan}</div>` : ''}
+                    <div style="font-size:0.75rem; font-weight:700; color:${statusClr}; margin-top:5px;">${p.status}</div>
+                    <button type="button" onclick="deleteParticipant(${p.id})" style="position: absolute; right: 10px; top: 10px; background:none; border:none; color:var(--danger); cursor:pointer;"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+                </div>
+            `;
+        });
+        if(window.lucide) window.lucide.createIcons();
+    }
+
+    pesertaForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = entryKegiatanId.value;
+        const data = Object.fromEntries(new FormData(pesertaForm).entries());
+
+        const btn = document.getElementById('btn-save-peserta');
         btn.disabled = true; btn.innerText = 'Menyimpan...';
 
-        window.axios.post(`admin/bpjs-keliling/${id}/laporan`, data)
+        window.axios.post(`admin/bpjs-keliling/${id}/participants`, data)
             .then(res => {
                 window.showToast(res.data.message, 'success');
-                laporanModal.style.display = 'none';
-                loadData();
+                pesertaForm.reset();
+                wrapTransaksi.style.display = 'none';
+                wrapKeterangan.style.display = 'none';
+                window.scrollTo({top:0, behavior:'smooth'});
+                document.getElementById('nik').focus();
+                
+                loadParticipants(id);
+                loadData(); // So background table updates softly
             })
-            .catch(err => window.showToast("Gagal simpan laporan", 'error'))
-            .finally(() => { btn.disabled = false; btn.innerText = 'Simpan Laporan'; });
+            .catch(err => window.showToast("Gagal simpan peserta. Cek form.", 'error'))
+            .finally(() => { btn.disabled = false; btn.innerText = 'Save & Muncul Form Baru'; });
     });
+
+    window.deleteParticipant = (p_id) => {
+        if(!confirm("Hapus peserta ini?")) return;
+        const keg_id = entryKegiatanId.value;
+        window.axios.delete(`admin/bpjs-keliling/${keg_id}/participants/${p_id}`)
+            .then(res => {
+                window.showToast("Dihapus", 'success');
+                loadParticipants(keg_id);
+                loadData();
+            });
+    }
+
+    document.getElementById('btn-refresh-peserta').addEventListener('click', () => {
+        loadParticipants(entryKegiatanId.value);
+    });
+
+    document.getElementById('btn-finish-kegiatan').addEventListener('click', () => {
+        if(!confirm("Selesaikan kegiatan dan tutup laporan?")) return;
+        const id = entryKegiatanId.value;
+        window.axios.post(`admin/bpjs-keliling/${id}/finish`)
+            .then(res => {
+                window.showToast(res.data.message, 'success');
+                entryPesertaModal.style.display = 'none';
+                loadData();
+            });
+    });
+
 
 
     // INIT

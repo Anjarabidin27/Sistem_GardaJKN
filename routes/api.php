@@ -118,7 +118,10 @@ Route::prefix('admin')->group(function () {
             Route::get('{id}', 'show');
             Route::put('{id}', 'update');
             Route::delete('{id}', 'destroy');
-            Route::post('{id}/laporan', 'storeLaporan');
+            Route::get('{id}/participants', 'getParticipants');
+            Route::post('{id}/participants', 'storeParticipant');
+            Route::delete('{id}/participants/{participant_id}', 'destroyParticipant');
+            Route::post('{id}/finish', 'finishLaporan');
         });
 
         Route::prefix('pil')->controller(AdminPilController::class)->group(function () {
@@ -128,7 +131,10 @@ Route::prefix('admin')->group(function () {
             Route::get('{id}', 'show');
             Route::put('{id}', 'update');
             Route::delete('{id}', 'destroy');
-            Route::post('{id}/laporan', 'storeLaporan');
+            Route::get('{id}/participants', 'getParticipants');
+            Route::post('{id}/participants', 'storeParticipant');
+            Route::delete('{id}/participants/{participant_id}', 'destroyParticipant');
+            Route::post('{id}/finish', 'finishLaporan');
         });
     });
 });

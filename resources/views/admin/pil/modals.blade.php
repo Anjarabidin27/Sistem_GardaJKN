@@ -9,9 +9,15 @@
             <form id="pilForm">
                 <input type="hidden" id="pil_id" name="id">
                 
-                <div class="form-group">
-                    <label class="form-label">Nama/Judul Kegiatan Penyuluhan</label>
-                    <input type="text" id="judul" name="judul" class="form-input" required>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Nama/Judul Kegiatan Penyuluhan</label>
+                        <input type="text" id="judul" name="judul" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Frontliner</label>
+                        <input type="text" id="nama_frontliner" name="nama_frontliner" class="form-input" required>
+                    </div>
                 </div>
 
                 <div class="grid-3">
@@ -40,8 +46,21 @@
 
                 <div class="grid-2">
                     <div class="form-group">
-                        <label class="form-label">Titik Lokasi Tambahan / Desa</label>
-                        <input type="text" id="nama_desa" name="nama_desa" class="form-input">
+                        <label class="form-label">Lokasi Kegiatan</label>
+                        <select id="lokasi_kegiatan" name="lokasi_kegiatan" class="form-input" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="Kantor Kecamatan">Kantor Kecamatan</option>
+                            <option value="Kantor Kelurahan">Kantor Kelurahan</option>
+                            <option value="Kantor Desa">Kantor Desa</option>
+                            <option value="Puskesmas">Puskesmas</option>
+                            <option value="Rumah Warga">Rumah Warga</option>
+                            <option value="Lainnya">Lainnya</option>
+                            <option value="Kantor Badan Usaha Swasta">Kantor Badan Usaha Swasta</option>
+                            <option value="Kantor BUMN">Kantor BUMN</option>
+                            <option value="Kantor BUMD">Kantor BUMD</option>
+                            <option value="Kantor Instansi Pemerintah">Kantor Instansi Pemerintah</option>
+                            <option value="Sekolah/Kampus">Sekolah/Kampus</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Lokasi Detail Lapangan</label>
@@ -73,54 +92,108 @@
     </div>
 </div>
 
-<!-- Modal Laporan PIL -->
-<div id="laporanModal" class="modal-overlay" style="display:none;">
-    <div class="modal-content" style="max-width: 600px;">
-        <div class="modal-header">
-            <h3 class="modal-title">Laporan Analisis PIL</h3>
-            <button class="modal-close" onclick="document.getElementById('laporanModal').style.display='none'">&times;</button>
-        </div>
-        <div class="modal-body">
-            <form id="laporanForm">
-                <input type="hidden" id="lap_kegiatan_id">
-                
-                <h4 class="form-label" style="font-size: 0.9rem; color: #004aad; margin-bottom: 20px;">Tingkat Partisipasi</h4>
-                <div class="grid-2" style="padding-bottom: 20px; border-bottom: 1px dashed #e2e8f0; margin-bottom: 20px;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label" style="color: var(--primary);">Total Kehadiran Peserta</label>
-                        <input type="number" id="jumlah_peserta" name="jumlah_peserta" class="form-input" min="0" value="0" required>
+<!-- Modal Laporan / Entry Peserta -->
+<div id="entryPesertaModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width: 800px; display: flex; gap: 20px;">
+        <!-- Area Form Entry -->
+        <div style="flex: 1;">
+            <div class="modal-header">
+                <h3 class="modal-title">Entry Peserta PIL</h3>
+                <button class="modal-close" onclick="document.getElementById('entryPesertaModal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <form id="pesertaForm">
+                    <input type="hidden" id="entry_kegiatan_id">
+                    
+                    <div class="form-group">
+                        <label class="form-label">NIK (16 Digit)</label>
+                        <input type="text" id="nik" name="nik" class="form-input" maxlength="16" required>
                     </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label" style="color: var(--warning);">Rata Rata Uji Pemahaman</label>
-                        <input type="number" id="rata_uji_pemahaman" name="rata_uji_pemahaman" class="form-input" min="0" max="100" step="0.1" value="0" placeholder="Skala 0-100" required>
-                    </div>
-                </div>
 
-                <h4 class="form-label" style="font-size: 0.9rem; color: #004aad; margin-bottom: 20px;">Kinerja Efektivitas (Skala 1 - 10)</h4>
-                <div class="grid-3" style="padding-bottom: 20px; border-bottom: 1px dashed #e2e8f0; margin-bottom: 20px;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label text-success">Ketertarikan JKN</label>
-                        <input type="number" id="efek_ketertarikan_jkn" name="efek_ketertarikan_jkn" class="form-input" min="1" max="10" value="1" required>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Segmen Peserta</label>
+                            <select id="segmen_peserta" name="segmen_peserta" class="form-input" required>
+                                <option value="">- Pilih -</option>
+                                <option value="PBPU">PBPU</option>
+                                <option value="BP">BP</option>
+                                <option value="PPU BU">PPU BU</option>
+                                <option value="PPU Pemerintah">PPU Pemerintah</option>
+                                <option value="PBI APBN">PBI APBN</option>
+                                <option value="PBI APBD">PBI APBD</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor HP</label>
+                            <input type="text" id="phone_number" name="phone_number" class="form-input">
+                        </div>
                     </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label text-success">Rekomen. JKN</label>
-                        <input type="number" id="efek_rekomendasi_jkn" name="efek_rekomendasi_jkn" class="form-input" min="1" max="10" value="1" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label text-success">Rekomen. BPJS</label>
-                        <input type="number" id="efek_rekomendasi_bpjs" name="efek_rekomendasi_bpjs" class="form-input" min="1" max="10" value="1" required>
-                    </div>
-                </div>
 
-                <div class="form-group mb-0">
-                    <label class="form-label">Catatan Evaluasi / Resume Umum</label>
-                    <textarea id="catatan" name="catatan" class="form-input" rows="3" style="resize:none;"></textarea>
-                </div>
-            </form>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Jam Mulai</label>
+                            <input type="time" id="jam_sosialisasi_mulai" name="jam_sosialisasi_mulai" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Jam Selesai</label>
+                            <input type="time" id="jam_sosialisasi_selesai" name="jam_sosialisasi_selesai" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Nilai Pemahaman (0 - 100)</label>
+                        <input type="number" min="0" max="100" id="nilai_pemahaman" name="nilai_pemahaman" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Efektivitas Sosialisasi</label>
+                        <select id="efektifitas_sosialisasi" name="efektifitas_sosialisasi" class="form-input" required>
+                            <option value="">- Pilih -</option>
+                            <option value="Sangat Efektif">Sangat Efektif</option>
+                            <option value="Efektif">Efektif</option>
+                            <option value="Kurang Efektif">Kurang Efektif</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label" style="font-weight:700; color:var(--primary)">Pilih Kepuasan NPS (1 - 10)</label>
+                        <div class="grid-3" style="gap:10px;">
+                            <div>
+                                <label class="form-label" style="font-size:0.75rem;">Ketertarikan</label>
+                                <input type="number" id="nps_ketertarikan" name="nps_ketertarikan" min="1" max="10" class="form-input" required>
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size:0.75rem;">Rekom. Program</label>
+                                <input type="number" id="nps_rekomendasi_program" name="nps_rekomendasi_program" min="1" max="10" class="form-input" required>
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size:0.75rem;">Rekom. BPJS</label>
+                                <input type="number" id="nps_rekomendasi_bpjs" name="nps_rekomendasi_bpjs" min="1" max="10" class="form-input" required>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" form="pesertaForm" class="btn btn-primary" id="btn-save-peserta" style="width: 100%;">Save & Muncul Form Baru</button>
+            </div>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="document.getElementById('laporanModal').style.display='none'">Batal</button>
-            <button type="submit" form="laporanForm" class="btn btn-primary" id="btn-save-laporan">Simpan Laporan</button>
+        
+        <!-- Area Riwayat Peserta -->
+        <div style="flex: 1; border-left: 1px solid var(--border); padding-left: 20px; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3 class="modal-title" style="font-size: 1rem;">Daftar Terinput</h3>
+            </div>
+            <div class="modal-body" style="flex: 1; max-height: 70vh; overflow-y: auto;">
+                <button class="btn btn-secondary mb-3" id="btn-refresh-peserta" style="width: 100%; font-size: 0.8rem;"><i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;"></i> Segarkan Daftar</button>
+                <div id="peserta-list" style="display:flex; flex-direction:column; gap:10px;">
+                    <div class="text-muted text-center" style="padding: 20px; font-size: 0.85rem;">Belum ada peserta</div>
+                </div>
+            </div>
+            <div style="margin-top: auto; padding-top: 15px;">
+                <button type="button" class="btn btn-success" id="btn-finish-kegiatan" style="width: 100%;">Tutup & Selesaikan Kegiatan</button>
+            </div>
         </div>
     </div>
 </div>

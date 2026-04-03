@@ -27,7 +27,9 @@ class BpjsKelilingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'jenis_kegiatan' => 'required|in:goes_to_village,around_city,goes_to_office,institusi,pameran,other',
+            'jenis_kegiatan' => 'required|string',
+            'kuadran' => 'nullable|string',
+            'nama_frontliner' => 'nullable|string',
             'judul' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'jam_mulai' => 'nullable',
@@ -36,12 +38,21 @@ class BpjsKelilingController extends Controller
             'kota_id' => 'nullable|exists:cities,id',
             'kecamatan_id' => 'nullable|exists:districts,id',
             'nama_desa' => 'nullable|string|max:255',
+            'lokasi_kegiatan' => 'nullable|string|max:255',
             'lokasi_detail' => 'nullable|string',
             'jumlah_petugas' => 'required|integer|min:1',
             'status' => 'required|in:scheduled,ongoing,completed,cancelled'
         ]);
 
-        $validated['created_by'] = Auth::guard('admin')->id() ?? 1;
+        $user = Auth::guard('admin')->user();
+        if ($user) {
+            $validated['created_by'] = $user->id;
+            $validated['kedeputian_wilayah'] = $user->kedeputian_wilayah;
+            $validated['kantor_cabang'] = $user->kantor_cabang;
+            $validated['zona_waktu'] = $user->zona_waktu ?: 'WIB';
+        } else {
+            $validated['created_by'] = 1; // Fallback
+        }
 
         $item = BpjsKeliling::create($validated);
 
@@ -66,7 +77,9 @@ class BpjsKelilingController extends Controller
         $item = BpjsKeliling::findOrFail($id);
 
         $validated = $request->validate([
-            'jenis_kegiatan' => 'required|in:goes_to_village,around_city,goes_to_office,institusi,pameran,other',
+            'jenis_kegiatan' => 'required|string',
+            'kuadran' => 'nullable|string',
+            'nama_frontliner' => 'nullable|string',
             'judul' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'jam_mulai' => 'nullable',
@@ -75,6 +88,7 @@ class BpjsKelilingController extends Controller
             'kota_id' => 'nullable|exists:cities,id',
             'kecamatan_id' => 'nullable|exists:districts,id',
             'nama_desa' => 'nullable|string|max:255',
+            'lokasi_kegiatan' => 'nullable|string|max:255',
             'lokasi_detail' => 'nullable|string',
             'jumlah_petugas' => 'required|integer|min:1',
             'status' => 'required|in:scheduled,ongoing,completed,cancelled'
@@ -100,38 +114,74 @@ class BpjsKelilingController extends Controller
         ]);
     }
 
-    public function storeLaporan(Request $request, $id)
+    // --- Master-Detail Laporan (Entry Peserta) ---
+
+    public function getParticipants($id)
+    {
+        $kegiatan = BpjsKeliling::with('participants')->findOrFail($id);
+        return response()->json([
+            'status' => 'success',
+            'data'   => $kegiatan->participants()->orderByDesc('created_at')->get()
+        ]);
+    }
+
+    public function storeParticipant(Request $request, $id)
     {
         $kegiatan = BpjsKeliling::findOrFail($id);
 
         if ($kegiatan->status === 'cancelled') {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Tidak dapat mengisi laporan untuk kegiatan yang dibatalkan.',
-            ], 422);
+            return response()->json(['status' => 'error', 'message' => 'Kegiatan telah dibatalkan.'], 422);
         }
 
         $validated = $request->validate([
-            'layanan_informasi'    => 'required|integer|min:0',
-            'layanan_administrasi' => 'required|integer|min:0',
-            'layanan_pengaduan'    => 'required|integer|min:0',
-            'transaksi_berhasil'   => 'required|integer|min:0',
-            'transaksi_gagal'      => 'required|integer|min:0',
-            'jumlah_peserta'       => 'required|integer|min:0',
-            'kepuasan_puas'        => 'required|integer|min:0',
-            'kepuasan_tidak_puas'  => 'required|integer|min:0',
-            'catatan'              => 'nullable|string',
+            'nik'               => 'required|string|max:16',
+            'segmen_peserta'    => 'required|string',
+            'phone_number'      => 'nullable|string',
+            'jam_mulai'         => 'nullable',
+            'jam_selesai'       => 'nullable',
+            'jenis_layanan'     => 'required|in:Administrasi,Informasi,Pengaduan',
+            'transaksi_layanan' => 'nullable|string',
+            'status'            => 'required|in:Berhasil,Tidak Berhasil',
+            'keterangan_gagal'  => 'nullable|string',
+            'suara_pelanggan'   => 'nullable|in:Puas,Tidak puas'
         ]);
 
-        // Otomatis set status menjadi 'completed' setelah laporan diisi
-        $validated['status'] = 'completed';
+        // Otomatis ubah header status menjadi completed jika mulai ngisi peserta (sesuai kemudahan) atau biarkan ongoing.
+        if ($kegiatan->status === 'scheduled') {
+            $kegiatan->update(['status' => 'ongoing']);
+        }
 
-        $kegiatan->update($validated);
+        $participant = $kegiatan->participants()->create($validated);
+        
+        $kegiatan->recalculateSummaries();
 
         return response()->json([
             'status'  => 'success',
-            'message' => 'Laporan berhasil disimpan',
-            'data'    => $kegiatan
+            'message' => 'Peserta berhasil disimpan!',
+            'data'    => $participant
+        ]);
+    }
+    
+    public function finishLaporan($id)
+    {
+        $kegiatan = BpjsKeliling::findOrFail($id);
+        $kegiatan->update(['status' => 'completed']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Laporan selesai, kegiatan ditutup.'
+        ]);
+    }
+
+    public function destroyParticipant($id, $participant_id)
+    {
+        $kegiatan = BpjsKeliling::findOrFail($id);
+        $p = $kegiatan->participants()->findOrFail($participant_id);
+        $p->delete();
+        $kegiatan->recalculateSummaries();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data peserta dihapus'
         ]);
     }
 
