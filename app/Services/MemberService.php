@@ -21,6 +21,11 @@ class MemberService
         return DB::transaction(function () use ($dto) {
             $data = $dto->toArray();
             $data['password'] = Hash::make($dto->password);
+
+            // Jika berminat jadi pengurus, status otomatis jadi 'pendaftaran_diterima' (Menunggu Persetujuan)
+            if ($dto->is_interested_pengurus) {
+                $data['status_pengurus'] = 'pendaftaran_diterima';
+            }
             
             $member = $this->memberRepo->create($data);
 
@@ -149,8 +154,18 @@ class MemberService
             $member = $this->memberRepo->findById($id);
             
             if ($status === 'setujui') {
-                $member->role = 'pengurus';
                 $member->status_pengurus = 'aktif';
+                
+                // Smart Role Assignment based on registration interests
+                if ($member->interest_pil && $member->interest_keliling) {
+                    $member->role = 'admin_wilayah'; // Can do both
+                } elseif ($member->interest_pil) {
+                    $member->role = 'petugas_pil';
+                } elseif ($member->interest_keliling) {
+                    $member->role = 'petugas_keliling';
+                } else {
+                    $member->role = 'pengurus'; // Fallback generic
+                }
             } else {
                 $member->role = 'anggota';
                 $member->status_pengurus = 'ditolak';

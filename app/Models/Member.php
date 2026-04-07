@@ -34,6 +34,8 @@ class Member extends Authenticatable
         'dom_address_detail',
         'photo_path',
         'is_interested_pengurus',
+        'interest_pil',
+        'interest_keliling',
         'has_org_experience',
         'org_count',
         'org_name',

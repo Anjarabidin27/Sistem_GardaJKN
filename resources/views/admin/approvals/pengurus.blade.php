@@ -27,6 +27,14 @@
                                 <div class="flex flex-col gap-2">
                                     <div class="font-bold text-dark" style="font-size:0.95rem;">{{ $app->name }}</div>
                                     <div class="text-muted" style="font-size:0.75rem; font-weight:600;">NIK: {{ $app->nik }}</div>
+                                    <div class="flex gap-2" style="margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap;">
+                                        @if($app->interest_pil)
+                                            <span style="background: rgba(59, 130, 246, 0.1); color: #3B82F6; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.2); text-transform: uppercase;">PENYULUHAN (PIL)</span>
+                                        @endif
+                                        @if($app->interest_keliling)
+                                            <span style="background: rgba(16, 185, 129, 0.1); color: #10B981; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2); text-transform: uppercase;">BPJS KELILING</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </td>
                             <td>

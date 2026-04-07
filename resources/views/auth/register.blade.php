@@ -179,6 +179,45 @@
                     </div>
                 </div>
 
+                <!-- STAFF INTEREST SECTION -->
+                <div class="section-title" style="margin-top: 48px;">Peminatan Pengurus / Petugas</div>
+                <div class="form-group" style="background: #f0f9ff; padding: 20px; border-radius: 12px; border: 1.5px solid #bae6fd; margin-bottom: 32px;">
+                    <label style="display: flex; align-items: flex-start; gap: 16px; cursor: pointer; user-select: none;">
+                        <input type="checkbox" id="is_interested_pengurus" name="is_interested_pengurus" style="width: 20px; height: 20px; cursor: pointer; margin-top: 4px;" onchange="toggleStaffInterest(this.checked)">
+                        <div>
+                            <span style="font-size: 1rem; font-weight: 800; color: #0c4a6e; display: block; margin-bottom: 4px;">Saya berminat menjadi Pengurus/Petugas Lapangan</span>
+                            <span style="font-size: 0.85rem; color: #0369a1; line-height: 1.5; display: block;">Berikan tanda centang jika Anda ingin berkontribusi dalam tim BPJS Keliling atau Penyuluhan (PIL).</span>
+                        </div>
+                    </label>
+
+                    <div id="staff_detail_section" style="display: none; margin-top: 24px; padding-top: 20px; border-top: 1px dashed #bae6fd;">
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label class="form-label" style="color: #0c4a6e;">Modul yang Diminati</label>
+                            <div style="display: flex; gap: 20px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <input type="checkbox" id="interest_pil" class="interest-check"> <span style="font-size: 0.9rem;">Penyuluhan (PIL)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <input type="checkbox" id="interest_keliling" class="interest-check"> <span style="font-size: 0.9rem;">BPJS Keliling</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label class="form-label" style="color: #0c4a6e;">Apakah memiliki pengalaman organisasi sebelumnya?</label>
+                            <select id="has_org_experience" class="form-control" onchange="toggleOrgDetail(this.value)">
+                                <option value="0">Tidak</option>
+                                <option value="1">Ya, Ada</option>
+                            </select>
+                        </div>
+                        <div id="org_detail_wrap" style="display: none; margin-top: 16px; background: #fff; padding: 16px; border-radius: 8px;">
+                             <label class="form-label">Nama Organisasi & Posisi</label>
+                             <input type="text" id="org_name" class="form-control" placeholder="Contoh: BEM (Ketua), Karang Taruna (Sekretaris)" style="margin-bottom: 12px;">
+                             <label class="form-label">Alasan ingin bergabung</label>
+                             <textarea id="pengurus_reason" class="form-control" rows="2" placeholder="Jelaskan secara singkat motivasi Anda"></textarea>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="section-title">Keamanan Akun</div>
                 <div class="input-grid">
                     <div class="form-group">
@@ -233,6 +272,25 @@
             section.style.opacity = '1';
             section.style.pointerEvents = 'auto';
             inputs.forEach(i => i.setAttribute('required', ''));
+        }
+    }
+
+    function toggleStaffInterest(isInterested) {
+        const section = document.getElementById('staff_detail_section');
+        if (section) {
+            section.style.display = isInterested ? 'block' : 'none';
+            
+            // Auto scroll to detail
+            if(isInterested) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    }
+
+    function toggleOrgDetail(hasExp) {
+        const wrap = document.getElementById('org_detail_wrap');
+        if (wrap) {
+            wrap.style.display = (hasExp == "1") ? 'block' : 'none';
         }
     }
 

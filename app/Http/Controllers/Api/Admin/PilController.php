@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\PilKegiatan;
+use App\Models\Pil;
 use Illuminate\Support\Facades\Auth;
 
 class PilController extends Controller
 {
     public function index(Request $request)
     {
-        $query = PilKegiatan::with(['provinsi', 'kota'])
+        $query = Pil::with(['provinsi', 'kota'])
             ->when($request->status, fn($q) => $q->where('status', $request->status))
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
             ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai))
@@ -19,7 +19,7 @@ class PilController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $query->get()
+            'data' => $query->get()->append('status_label')
         ]);
     }
 
@@ -51,7 +51,7 @@ class PilController extends Controller
             $validated['created_by'] = 1;
         }
 
-        $item = PilKegiatan::create($validated);
+        $item = Pil::create($validated);
 
         return response()->json([
             'status' => 'success',
@@ -62,7 +62,7 @@ class PilController extends Controller
 
     public function show($id)
     {
-        $item = PilKegiatan::findOrFail($id);
+        $item = Pil::findOrFail($id);
         return response()->json([
             'status' => 'success',
             'data' => $item
@@ -71,7 +71,7 @@ class PilController extends Controller
 
     public function update(Request $request, $id)
     {
-        $item = PilKegiatan::findOrFail($id);
+        $item = Pil::findOrFail($id);
 
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
@@ -100,7 +100,7 @@ class PilController extends Controller
 
     public function destroy($id)
     {
-        $item = PilKegiatan::findOrFail($id);
+        $item = Pil::findOrFail($id);
         $item->delete();
 
         return response()->json([
@@ -113,7 +113,7 @@ class PilController extends Controller
 
     public function getParticipants($id)
     {
-        $kegiatan = PilKegiatan::with('participants')->findOrFail($id);
+        $kegiatan = Pil::with('participants')->findOrFail($id);
         return response()->json([
             'status' => 'success',
             'data'   => $kegiatan->participants()->orderByDesc('created_at')->get()
@@ -122,7 +122,7 @@ class PilController extends Controller
 
     public function storeParticipant(Request $request, $id)
     {
-        $kegiatan = PilKegiatan::findOrFail($id);
+        $kegiatan = Pil::findOrFail($id);
 
         if ($kegiatan->status === 'cancelled') {
             return response()->json(['status' => 'error', 'message' => 'Kegiatan telah dibatalkan.'], 422);
@@ -130,8 +130,8 @@ class PilController extends Controller
 
         $validated = $request->validate([
             'nik'                     => 'required|string|max:16',
-            'segmen_peserta'          => 'required|string',
             'phone_number'            => 'nullable|string',
+            'segmen_peserta'          => 'required|string',
             'jam_sosialisasi_mulai'   => 'nullable',
             'jam_sosialisasi_selesai' => 'nullable',
             'nilai_pemahaman'         => 'required|integer|min:0|max:100',
@@ -157,7 +157,7 @@ class PilController extends Controller
 
     public function finishLaporan($id)
     {
-        $kegiatan = PilKegiatan::findOrFail($id);
+        $kegiatan = Pil::findOrFail($id);
         $kegiatan->update(['status' => 'completed']);
         return response()->json([
             'status' => 'success',
@@ -167,7 +167,7 @@ class PilController extends Controller
 
     public function destroyParticipant($id, $participant_id)
     {
-        $kegiatan = PilKegiatan::findOrFail($id);
+        $kegiatan = Pil::findOrFail($id);
         $p = $kegiatan->participants()->findOrFail($participant_id);
         $p->delete();
         $kegiatan->recalculateSummaries();
@@ -180,20 +180,59 @@ class PilController extends Controller
 
     public function dashboard(Request $request)
     {
-        $query = PilKegiatan::query()
+        $user = auth()->user();
+        $query = Pil::query()
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
             ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai));
 
+        // ACL Filtering (Mandatory for security & accuracy)
+        if ($user->role === 'admin') {
+            if ($user->kantor_cabang_id) {
+                // KC Context: Filter by specific office
+                $query->where('kantor_cabang_id', $user->kantor_cabang_id);
+            } elseif ($user->kedeputian_wilayah_id) {
+                // KW Context: Filter by entire region
+                $query->where('kedeputian_wilayah_id', $user->kedeputian_wilayah_id);
+            }
+        }
+
         $kegiatan = $query->get();
+
+        // Prepare context strings for UI
+        $contextLabel = 'Nasional';
+        if ($user->kantor_cabang_id) $contextLabel = $user->kantor_cabang;
+        elseif ($user->kedeputian_wilayah_id) $contextLabel = $user->kedeputian_wilayah;
 
         return response()->json([
             'status' => 'success',
             'data' => [
+                'context' => $contextLabel,
                 'total_kegiatan'          => $kegiatan->count(),
                 'total_peserta'           => $kegiatan->sum('jumlah_peserta'),
-                'rata_nps_ketertarikan'   => (float)$kegiatan->avg('rata_nps_ketertarikan') ?: 0,
-                'rata_nps_rekomendasi_program' => (float)$kegiatan->avg('rata_nps_rekomendasi_program') ?: 0,
-                'rata_nps_rekomendasi_bpjs' => (float)$kegiatan->avg('rata_nps_rekomendasi_bpjs') ?: 0,
+                'rata_pemahaman'          => (float)$kegiatan->avg('rata_pemahaman') ?: 0,
+                
+                // Efektifitas Sosialisasi
+                'count_sangat_efektif'    => $kegiatan->sum('count_sangat_efektif'),
+                'count_efektif'           => $kegiatan->sum('count_efektif'),
+                'count_kurang_efektif'    => $kegiatan->sum('count_kurang_efektif'),
+                
+                // Segmen Peserta Breakdown
+                'segmen_breakdown' => [
+                    'PBPU' => $kegiatan->sum('count_seg_pbpu'),
+                    'BP' => $kegiatan->sum('count_seg_bp'),
+                    'PPU BU' => $kegiatan->sum('count_seg_ppu_bu'),
+                    'PPU Pemerintah' => $kegiatan->sum('count_seg_ppu_pem'),
+                    'PBI APBN' => $kegiatan->sum('count_seg_pbi_apbn'),
+                    'PBI APBD' => $kegiatan->sum('count_seg_pbi_apbd'),
+                ],
+
+                // Lokasi Kegiatan Breakdown
+                'lokasi_breakdown' => $kegiatan->groupBy('lokasi_kegiatan')->map->count(),
+
+                // NPS averages
+                'rata_nps_ketertarikan'         => (float)$kegiatan->avg('rata_nps_ketertarikan') ?: 0,
+                'rata_nps_rekomendasi_program'  => (float)$kegiatan->avg('rata_nps_rekomendasi_program') ?: 0,
+                'rata_nps_rekomendasi_bpjs'     => (float)$kegiatan->avg('rata_nps_rekomendasi_bpjs') ?: 0,
             ]
         ]);
     }

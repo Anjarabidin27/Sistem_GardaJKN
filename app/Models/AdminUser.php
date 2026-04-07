@@ -18,6 +18,10 @@ class AdminUser extends Authenticatable
         'password',
         'name',
         'role',
+        'kantor_cabang_id',
+        'kedeputian_wilayah',
+        'kantor_cabang',
+        'zona_waktu',
     ];
 
     protected $hidden = [
@@ -27,4 +31,9 @@ class AdminUser extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
     ];
+
+    public function kantorCabang()
+    {
+        return $this->belongsTo(KantorCabang::class, 'kantor_cabang_id');
+    }
 }

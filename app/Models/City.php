@@ -20,4 +20,9 @@ class City extends Model
     {
         return $this->hasMany(District::class);
     }
+
+    public function kantorCabang()
+    {
+        return $this->hasOne(KantorCabang::class, 'city_id');
+    }
 }

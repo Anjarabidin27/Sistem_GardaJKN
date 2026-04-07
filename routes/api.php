@@ -31,11 +31,21 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-// --- Public Master Data ---
+// --- Master Data (Regions - Public for Registration) ---
 Route::prefix('master')->controller(RegionController::class)->group(function () {
     Route::get('provinces', 'provinces');
     Route::get('cities', 'cities');
     Route::get('districts', 'districts');
+});
+
+// --- Master Data (Protected for Context & Institutions) ---
+Route::middleware('auth:sanctum')->prefix('master')->group(function () {
+    Route::get('get-context', [RegionController::class, 'getContext']);
+    
+    Route::controller(\App\Http\Controllers\Api\Master\InstitutionController::class)->group(function () {
+        Route::get('kedeputian-wilayahs', 'kedeputianWilayahs');
+        Route::get('kantor-cabangs', 'kantorCabangs');
+    });
 });
 
 // --- Member Portal ---
@@ -89,6 +99,8 @@ Route::prefix('admin')->group(function () {
         
         Route::get('dashboard', [DashboardController::class, 'index']);
         Route::get('audit-logs', [\App\Http\Controllers\Api\Admin\AuditLogController::class, 'index']);
+
+        Route::apiResource('staff', \App\Http\Controllers\Api\Admin\StaffController::class);
 
         Route::prefix('members')->controller(AdminMemberController::class)->group(function () {
             Route::get('/', 'index');

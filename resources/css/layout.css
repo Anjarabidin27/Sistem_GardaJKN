@@ -42,7 +42,7 @@ html::-webkit-scrollbar-thumb:hover {
 
 .sidebar {
     width: var(--sb-width);
-    background: var(--primary);
+    background: #001233; /* Darker navy for better contrast - Industry Premium */
     color: white;
     display: flex;
     flex-direction: column;
@@ -52,68 +52,53 @@ html::-webkit-scrollbar-thumb:hover {
     overflow-y: auto;
     overflow-x: hidden;
     border-right: 1px solid rgba(255,255,255,0.05);
+    font-family: var(--font-primary) !important; /* Force Jakarta Font */
 }
 
 .sb-menu {
     flex: 1;
     overflow-y: auto;
-    padding: 24px 12px;
+    padding: 2px 10px; /* Reduced vertical padding */
 }
 
+/* Folding Menu System */
+.sb-folding-menu { margin: 2px 0; border-radius: 8px; transition: all 0.2s; }
+.sb-folding-menu.active { background: rgba(255,255,255,0.02); padding-bottom: 4px; }
 
-.sb-brand {
-    padding: 32px 28px;
-    background: var(--primary-hover);
+.sb-folding-header {
+    display: flex; align-items: center; gap: 10px; padding: 6px 12px; /* Mepet design */
+    color: rgba(255,255,255,0.45); font-weight: 500; font-size: 0.8rem;
+    cursor: pointer; border-radius: 8px; transition: 0.15s;
 }
+.sb-folding-header:hover { color: #fff; background: rgba(255,255,255,0.04); }
+.sb-folding-menu.active .sb-folding-header { color: #fff; font-weight: 700; }
 
-.sb-brand-name {
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
+.sb-folding-items {
+    padding-left: 28px; margin-top: 1px; display: none;
+    flex-direction: column; gap: 1px; border-left: 1px solid rgba(255,255,255,0.06); margin-left: 18px;
 }
+.sb-folding-menu.active .sb-folding-items { display: flex; }
 
-.sb-user-card {
-    padding: 24px 28px;
-    display: flex; align-items: center; gap: 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+.sb-sub-link {
+    font-size: 0.75rem; color: rgba(255,255,255,0.4); text-decoration: none;
+    padding: 4px 10px; border-radius: 6px; transition: 0.15s;
 }
-
-.sb-avatar {
-    width: 48px; height: 48px; border-radius: 12px;
-    background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.25);
-    display: flex; align-items: center; justify-content: center; font-weight: 800;
-    overflow: hidden;
-}
-
-.sb-user-name { font-weight: 700; font-size: 0.95rem; line-height: 1.2; }
-.sb-user-role { font-size: 0.70rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
-
-
-
-.sb-section-label {
-    padding: 0 16px; margin-bottom: 8px; margin-top: 16px;
-    font-size: 0.65rem; font-weight: 800;
-    color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em;
-}
+.sb-sub-link:hover, .sb-sub-link.active { color: #fff; background: rgba(255,255,255,0.04); }
+.sb-sub-link.active { font-weight: 700; color: #3B82F6; }
 
 .sb-link {
-    display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px;
-    color: rgba(255,255,255,0.7); text-decoration: none !important; font-weight: 600; font-size: 0.9rem;
-    margin-bottom: 4px; transition: 0.2s;
-    border: none; background: none; width: 100%; text-align: left;
-    cursor: pointer;
+    display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 8px;
+    color: rgba(255,255,255,0.5); text-decoration: none !important; font-weight: 500; font-size: 0.8rem;
+    margin: 1px 0; transition: 0.15s;
 }
+.sb-link:hover { background: rgba(255,255,255,0.06); color: white; }
+.sb-link.active { background: rgba(59, 130, 246, 0.12); color: white; font-weight: 700; border-left: 2px solid #3B82F6; }
+.sb-link.active i { color: #3B82F6; }
+.sb-link-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.6; }
 
-.sb-link:hover { background: rgba(255,255,255,0.1); color: white; }
-.sb-link.active { background: rgba(255,255,255,0.15); color: white; }
-.sb-link-icon { width: 18px; height: 18px; flex-shrink: 0; }
+.logout-link:hover { color: #EF4444 !important; background: rgba(239, 68, 68, 0.08) !important; }
 
-.sb-footer {
-    padding: 24px 12px; border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-/* Main Body Styling */
+/* Main Body Styling - Optimized for space */
 .main-body {
     margin-left: var(--sb-width);
     flex: 1;
@@ -121,26 +106,21 @@ html::-webkit-scrollbar-thumb:hover {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    overflow: visible !important;
+    background: #F8FAFC;
 }
 
 .top-header {
-    height: var(--header-height);
+    height: 64px;
     background: white;
-    border-bottom: 1px solid var(--border);
-    padding: 0 40px;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 0 32px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 900;
 }
 
-.topbar-title { font-size: 1.125rem; font-weight: 800; color: var(--text-title); letter-spacing: -0.01em; }
-.topbar-date { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
-
 .view-container {
-    padding: 40px;
+    padding: 32px;
     flex: 1;
-    min-height: 0;
-    overflow: visible !important;
 }
 
 @media (max-width: 768px) {

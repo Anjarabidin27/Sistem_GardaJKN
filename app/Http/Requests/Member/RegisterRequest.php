@@ -50,6 +50,24 @@ class RegisterRequest extends FormRequest
             'dom_address_detail' => 'required|string',
             'address_detail' => 'required|string',
             'password' => 'required|string|min:6|confirmed',
+            
+            // Pengurus Interest Fields
+            'is_interested_pengurus' => 'nullable|boolean',
+            'interest_pil'           => 'nullable|boolean',
+            'interest_keliling'      => 'nullable|boolean',
+            'has_org_experience'     => 'nullable|boolean',
+            'org_name'               => 'nullable|string|max:255',
+            'pengurus_reason'        => 'nullable|string|max:1000',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'is_interested_pengurus' => $this->is_interested_pengurus === 'true' || $this->is_interested_pengurus === 'on' || $this->is_interested_pengurus === true,
+            'interest_pil' => $this->interest_pil === 'true' || $this->interest_pil === 'on',
+            'interest_keliling' => $this->interest_keliling === 'true' || $this->interest_keliling === 'on',
+            'has_org_experience' => $this->has_org_experience === '1' || $this->has_org_experience === true,
+        ]);
     }
 }

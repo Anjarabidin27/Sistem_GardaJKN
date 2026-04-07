@@ -149,6 +149,11 @@ function renderTable(members) {
                     <div style="font-size:0.75rem; color:#64748b; font-weight: 500;">${m.province?.name || '-'}</div>
                 </td>
                 <td><span class="badge badge-blue">${m.occupation}</span></td>
+                <td>
+                    ${m.status_pengurus === 'pendaftaran_diterima' 
+                        ? `<div class="badge-pending" style="color:#c2410c; background:#fff7ed; padding:4px 8px; border-radius:6px; font-size:0.65rem; font-weight:800; border:1px solid #fdba74; display:block; text-align:center;">BUTUH PERSETUJUAN</div>` 
+                        : `<span style="font-size:0.75rem; color:#64748b; font-weight:600; display:block; text-align:center;">${m.role.toUpperCase()}</span>`}
+                </td>
                 <td style="text-align: right;">${actionButtons}</td>
             </tr>
         `;
@@ -225,6 +230,20 @@ window.openEdit = async function(id) {
         
         await window.loadEditDistricts(m.city_id || '');
         document.getElementById('editDistrict').value = m.district_id || '';
+
+        // Approval Section Logic
+        const approvalSection = document.getElementById('approvalSection');
+        const approvalInfo = document.getElementById('approvalInfo');
+        if (m.status_pengurus === 'pendaftaran_diterima' && approvalSection && approvalInfo) {
+            approvalSection.style.display = 'block';
+            approvalInfo.innerHTML = `
+                <div style="margin-bottom:4px;"><strong>Ketertarikan:</strong> ${m.interest_pil ? 'PIL' : ''} ${m.interest_pil && m.interest_keliling ? ' & ' : ''} ${m.interest_keliling ? 'BPJS Keliling' : ''}</div>
+                <div style="margin-bottom:4px;"><strong>Pengalaman Org:</strong> ${m.has_org_experience ? 'Ya' : 'Tidak Telepas'}</div>
+                <div style="margin-bottom:4px;"><strong>Alasan:</strong> ${m.pengurus_reason || '-'}</div>
+            `;
+        } else if (approvalSection) {
+            approvalSection.style.display = 'none';
+        }
 
         const modal = document.getElementById('editModal');
         if (modal) {
@@ -351,6 +370,26 @@ window.resetPassword = async function() {
         if (typeof showToast !== 'undefined') showToast('Password telah di-reset.', 'success');
         window.closeEditModal();
     } catch(e) { if (typeof showToast !== 'undefined') showToast('Gagal reset password', 'error'); }
+}
+
+window.processApproval = async function(status) {
+    const confirmMsg = status === 'setujui' ? 'Setujui Anggota sebagai Pengurus?' : 'Tolak Pendaftaran Pengurus?';
+    const type = status === 'setujui' ? 'success' : 'danger';
+    
+    if (typeof showConfirm !== 'undefined') {
+        const ok = await showConfirm(confirmMsg, `Tindakan ini akan ${status === 'setujui' ? 'mengaktifkan' : 'menolak'} hak akses pelaporan pengurus.`, { type, confirmText: 'Ya, Lanjutkan' });
+        if (!ok) return;
+    }
+    
+    try {
+        await window.axios.post(`admin/members/${editingId}/verify-pengurus`, { status });
+        if (typeof showToast !== 'undefined') showToast(`Pendaftaran telah ${status === 'setujui' ? 'disetujui' : 'ditolak'}.`, 'success');
+        window.closeEditModal();
+        window.fetchData();
+    } catch (e) {
+        console.error('Approval error:', e);
+        if (typeof showToast !== 'undefined') showToast('Gagal memproses persetujuan.', 'error');
+    }
 }
 
 window.openAddModal = async function() {

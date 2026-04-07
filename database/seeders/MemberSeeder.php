@@ -29,11 +29,11 @@ class MemberSeeder extends Seeder
         }
 
         $members = [
-            ['nik' => '3171010101900000', 'name' => 'Vini Jr'],
-            ['nik' => '3171010101900001', 'name' => 'Valverde'],
-            ['nik' => '3171010101900002', 'name' => 'Bellingham'],
-            ['nik' => '3171010101900003', 'name' => 'Rodrygo'],
-            ['nik' => '3171010101900004', 'name' => 'Courtois'],
+            ['nik' => '3171010101900000', 'name' => 'Ahmad Fauzi'],
+            ['nik' => '3171010101900001', 'name' => 'Siti Aminah'],
+            ['nik' => '3171010101900002', 'name' => 'Rizky Ramadan'],
+            ['nik' => '3171010101900003', 'name' => 'Sri Wahyuni'],
+            ['nik' => '3171010101900004', 'name' => 'Bambang Sudarmono'],
         ];
 
         foreach ($members as $m) {

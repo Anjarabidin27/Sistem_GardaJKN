@@ -11,16 +11,34 @@ class BpjsKelilingController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user() ?: auth('admin')->user();
+
         $query = BpjsKeliling::with(['provinsi', 'kota'])
             ->when($request->status, fn($q) => $q->where('status', $request->status))
             ->when($request->jenis, fn($q) => $q->where('jenis_kegiatan', $request->jenis))
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
-            ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai))
-            ->orderByDesc('tanggal');
+            ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai));
+
+        // ACL (Access Control List) based on Role
+        if ($user) {
+            $userRole = $user->role;
+            $userKC   = trim($user->kantor_cabang);
+            $userKW   = trim($user->kedeputian_wilayah);
+
+            if ($userRole === 'admin_wilayah' && $userKW) {
+                $query->where('kedeputian_wilayah', 'LIKE', '%' . $userKW . '%');
+            } elseif (in_array($userRole, ['petugas_keliling', 'administrator']) && $userKC) {
+                // Robust fuzzy match: removes common prefixes like "KC " or "Bandung" vs "KC Bandung"
+                $cleanKC = str_ireplace('KC ', '', $userKC);
+                $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
+            }
+        }
+
+        $query->orderByDesc('tanggal');
 
         return response()->json([
             'status' => 'success',
-            'data' => $query->get()
+            'data' => $query->get()->append('status_label')
         ]);
     }
 
@@ -44,14 +62,19 @@ class BpjsKelilingController extends Controller
             'status' => 'required|in:scheduled,ongoing,completed,cancelled'
         ]);
 
-        $user = Auth::guard('admin')->user();
+        $user = auth()->user();
         if ($user) {
             $validated['created_by'] = $user->id;
-            $validated['kedeputian_wilayah'] = $user->kedeputian_wilayah;
-            $validated['kantor_cabang'] = $user->kantor_cabang;
+            
+            // Automatically fill from user's institutional context if not provided
+            if (empty($validated['kedeputian_wilayah'])) {
+                $validated['kedeputian_wilayah'] = $user->kedeputian_wilayah;
+            }
+            if (empty($validated['kantor_cabang'])) {
+                $validated['kantor_cabang'] = $user->kantor_cabang;
+            }
+            
             $validated['zona_waktu'] = $user->zona_waktu ?: 'WIB';
-        } else {
-            $validated['created_by'] = 1; // Fallback
         }
 
         $item = BpjsKeliling::create($validated);
@@ -187,34 +210,98 @@ class BpjsKelilingController extends Controller
 
     public function dashboard(Request $request)
     {
+        // Use generic auth() which should point to the correct guard via sanctum or session
+        $user = auth()->user() ?: auth('admin')->user();
+        
         $query = BpjsKeliling::query()
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
             ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai));
 
-        $kegiatan = $query->get();
+        // ACL (Access Control List) based on Role - Only if user exists
+        if ($user) {
+            $userRole = $user->role;
+            $userKC   = trim($user->kantor_cabang);
+            $userKW   = trim($user->kedeputian_wilayah);
 
-        $totalPuas      = $kegiatan->sum('kepuasan_puas');
-        $totalTidakPuas = $kegiatan->sum('kepuasan_tidak_puas');
-        $totalResponden = $totalPuas + $totalTidakPuas;
+            if ($userRole === 'admin_wilayah' && $userKW) {
+                // Fuzzy match for Region
+                $query->where('kedeputian_wilayah', 'LIKE', '%' . $userKW . '%');
+            } elseif (in_array($userRole, ['petugas_keliling', 'administrator']) && $userKC) {
+                // Robust fuzzy match: removes common prefixes like "KC " or "Bandung" vs "KC Bandung"
+                $cleanKC = str_ireplace('KC ', '', $userKC);
+                $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
+            }
+        }
 
+        $kegiatan = $query->with('participants')->get();
+        $allParticipants = $kegiatan->flatMap(function($k) {
+            return $k->participants;
+        });
+
+        $totalHadir = $allParticipants->count();
+        $totalInfo = $allParticipants->where('jenis_layanan', 'Informasi')->count();
+        $totalAdmin = $allParticipants->where('jenis_layanan', 'Administrasi')->count();
+        $totalAduan = $allParticipants->where('jenis_layanan', 'Pengaduan')->count();
+
+        $successCount = $allParticipants->where('status', 'Berhasil')->count();
+        $failedCount = $allParticipants->where('status', 'Tidak Berhasil')->count();
+
+        // Items for Dashboard (matching the image specs)
         return response()->json([
             'status' => 'success',
             'data' => [
-                'total_kegiatan'           => $kegiatan->count(),
-                'total_peserta'            => $kegiatan->sum('jumlah_peserta'),
-                'total_informasi'          => $kegiatan->sum('layanan_informasi'),
-                'total_administrasi'       => $kegiatan->sum('layanan_administrasi'),
-                'total_pengaduan'          => $kegiatan->sum('layanan_pengaduan'),
-                'total_transaksi_berhasil' => $kegiatan->sum('transaksi_berhasil'),
-                'total_transaksi_gagal'    => $kegiatan->sum('transaksi_gagal'),
-                'rata_kepuasan_persen'     => $totalResponden > 0
-                    ? round(($totalPuas / $totalResponden) * 100, 2)
+                // 1, 2, 3, 4: Basic Stats & Percentages
+                'total_peserta' => $totalHadir,
+                'layanan_informasi' => [
+                    'count' => $totalInfo,
+                    'pct'   => $totalHadir > 0 ? round(($totalInfo / $totalHadir) * 100, 1) : 0
+                ],
+                'layanan_administrasi' => [
+                    'count' => $totalAdmin,
+                    'pct'   => $totalHadir > 0 ? round(($totalAdmin / $totalHadir) * 100, 1) : 0
+                ],
+                'layanan_pengaduan' => [
+                    'count' => $totalAduan,
+                    'pct'   => $totalHadir > 0 ? round(($totalAduan / $totalHadir) * 100, 1) : 0
+                ],
+
+                // 5: Transaction Status
+                'status_transaksi' => [
+                    'berhasil' => $successCount,
+                    'gagal'    => $failedCount,
+                    'pct_berhasil' => $totalHadir > 0 ? round(($successCount / $totalHadir) * 100, 1) : 0
+                ],
+
+                // 6: SUPEL (Satisfaction)
+                'avg_supel' => $allParticipants->whereNotNull('suara_pelanggan')->count() > 0
+                    ? round(($allParticipants->where('suara_pelanggan', 'Puas')->count() / $allParticipants->whereNotNull('suara_pelanggan')->count()) * 100, 1)
                     : 0,
-                'per_jenis_kegiatan'       => $kegiatan->groupBy('jenis_kegiatan')->map(fn($g) => [
-                    'label'           => \App\Models\BpjsKeliling::JENIS_KEGIATAN[$g->first()->jenis_kegiatan] ?? $g->first()->jenis_kegiatan,
-                    'jumlah_kegiatan' => $g->count(),
-                    'total_peserta'   => $g->sum('jumlah_peserta'),
+
+                // 7: Segmen Peserta Breakdown
+                'per_segmen' => $allParticipants->groupBy('segmen_peserta')->map(fn($g) => $g->count()),
+
+                // 8: Capaian Desa (Unique Villages reached)
+                'capaian_desa' => [
+                    'count'    => $kegiatan->pluck('nama_desa')->unique()->filter()->count(),
+                    'total_kegiatan' => $kegiatan->count()
+                ],
+
+                // 9: Transaksi Layanan (Khusus Administrasi)
+                'transaksi_administrasi_breakdown' => $allParticipants->where('jenis_layanan', 'Administrasi')
+                    ->whereNotNull('transaksi_layanan')
+                    ->groupBy('transaksi_layanan')->map(fn($g) => $g->count()),
+
+                // 10: Kuadran
+                'per_kuadran' => $kegiatan->groupBy('kuadran')->map(fn($g) => $g->count()),
+
+                // 11: Jenis Kegiatan
+                'per_jenis_kegiatan' => $kegiatan->groupBy('jenis_kegiatan')->map(fn($g) => [
+                    'label' => \App\Models\BpjsKeliling::JENIS_KEGIATAN[$g->first()->jenis_kegiatan] ?? $g->first()->jenis_kegiatan,
+                    'count' => $g->count()
                 ]),
+
+                // 12: Lokasi Kegiatan
+                'per_lokasi' => $kegiatan->groupBy('lokasi_kegiatan')->map(fn($g) => $g->count()),
             ]
         ]);
     }

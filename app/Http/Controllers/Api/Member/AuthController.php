@@ -41,11 +41,11 @@ class AuthController extends Controller
             if ($deletedMember && $deletedMember->trashed()) {
                 return $this->errorResponse('Akun Anda telah diarsipkan. Silakan hubungi admin.', null, 403);
             }
-            return $this->errorResponse('NIK tidak terdaftar.', null, 401);
+            return $this->errorResponse('Nomor NIK ini belum terdaftar di sistem kami.', null, 401);
         }
 
         if (! Hash::check($request->password, $member->password)) {
-            return $this->errorResponse('Password salah.', null, 401);
+            return $this->errorResponse('Password yang Anda masukkan salah. Silakan coba lagi.', null, 401);
         }
 
         $token = $member->createToken('member-token')->plainTextToken;

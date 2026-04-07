@@ -86,4 +86,26 @@ class BpjsKeliling extends Model
             $this->provinsi?->name,
         ]));
     }
+
+    /**
+     * Automatic Status Calculation based on BRD (Logic Step 9)
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        if ($this->status === 'canceled') return 'Dibatalkan';
+        if ($this->status === 'completed') return 'Selesai';
+
+        $now = now();
+        $tanggal = \Carbon\Carbon::parse($this->tanggal);
+        
+        if ($tanggal->isFuture()) return 'Terjadwal';
+        if ($tanggal->isPast()) return 'Selesai';
+        
+        // If today, check hours
+        $currentTime = $now->format('H:i:s');
+        if($this->jam_mulai && $currentTime < $this->jam_mulai) return 'Terjadwal';
+        if($this->jam_selesai && $currentTime > $this->jam_selesai) return 'Selesai';
+        
+        return 'Berlangsung';
+    }
 }

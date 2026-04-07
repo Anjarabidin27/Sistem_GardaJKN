@@ -13,11 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(res.data.success) {
                     window.showToast('Otorisasi admin berhasil!', 'success');
                     localStorage.setItem('auth_token', res.data.data.token);
-                    localStorage.setItem('user_role', 'admin');
-                    localStorage.setItem('user_name', 'Administrator');
+                    localStorage.setItem('user_role', res.data.data.role);
+                    localStorage.setItem('user_name', res.data.data.name);
+                    localStorage.setItem('kantor_cabang', res.data.data.kantor_cabang);
+                    localStorage.setItem('kedeputian_wilayah', res.data.data.kedeputian_wilayah);
                     
+                    let targetUrl = '/admin/dashboard';
+                    if (res.data.data.role === 'petugas_keliling') targetUrl = '/admin/bpjs-keliling';
+                    else if (res.data.data.role === 'petugas_pil') targetUrl = '/admin/pil';
+
                     setTimeout(() => {
-                        window.location.href = '/admin/dashboard';
+                        window.location.href = targetUrl;
                     }, 1000);
                 }
             } catch (error) {

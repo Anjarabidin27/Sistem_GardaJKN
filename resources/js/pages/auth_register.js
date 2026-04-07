@@ -119,6 +119,15 @@ if (regForm) {
             dom_city_id: sameAsKtp ? document.getElementById('city').value : document.getElementById('dom_city').value,
             dom_district_id: sameAsKtp ? document.getElementById('district').value : document.getElementById('dom_district').value,
             dom_address_detail: sameAsKtp ? document.getElementById('address').value : document.getElementById('dom_address').value,
+            address_detail: document.getElementById('address').value,
+            
+            // Pengurus Interest
+            is_interested_pengurus: document.getElementById('is_interested_pengurus').checked,
+            interest_pil: document.getElementById('interest_pil').checked,
+            interest_keliling: document.getElementById('interest_keliling').checked,
+            has_org_experience: document.getElementById('has_org_experience').value === "1",
+            org_name: document.getElementById('org_name').value || null,
+            pengurus_reason: document.getElementById('pengurus_reason').value || null,
         };
 
         if (payload.password !== payload.password_confirmation) {

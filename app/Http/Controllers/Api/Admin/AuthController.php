@@ -23,8 +23,12 @@ class AuthController extends Controller
 
         $admin = AdminUser::where('username', $request->username)->first();
 
-        if (! $admin || ! Hash::check($request->password, $admin->password)) {
-            return $this->errorResponse('Kredensial Admin Salah', null, 401);
+        if (! $admin) {
+            return $this->errorResponse('Username tidak terdaftar.', null, 401);
+        }
+
+        if (! Hash::check($request->password, $admin->password)) {
+            return $this->errorResponse('Password yang Anda masukkan salah.', null, 401);
         }
 
         $token = $admin->createToken('admin-token')->plainTextToken;
@@ -36,9 +40,16 @@ class AuthController extends Controller
             ]);
         } catch (\Exception $e) {}
 
+        $admin->load('kantorCabang.kedeputianWilayah');
+
         return $this->successResponse('Login Admin Berhasil', [
             'token' => $token,
             'role' => $admin->role,
+            'name' => $admin->name,
+            'kantor_cabang' => $admin->kantorCabang ? $admin->kantorCabang->name : $admin->kantor_cabang,
+            'kedeputian_wilayah' => ($admin->kantorCabang && $admin->kantorCabang->kedeputianWilayah) 
+                ? $admin->kantorCabang->kedeputianWilayah->name 
+                : $admin->kedeputian_wilayah,
         ]);
     }
 

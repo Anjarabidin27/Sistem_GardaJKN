@@ -55,7 +55,11 @@ Route::prefix('admin')->group(function () {
     });
     
     Route::get('/members', function () {
-        return view('admin.members.index'); // Nanti kita buat file ini
+        return view('admin.members.index');
+    });
+
+    Route::get('/staff', function () {
+        return view('admin.staff.index');
     });
 
     Route::get('/audit-logs', function () {
@@ -64,6 +68,7 @@ Route::prefix('admin')->group(function () {
 
     Route::prefix('bpjs-keliling')->group(function () {
         Route::get('/', function () { return view('admin.bpjs_keliling.index'); });
+        Route::get('/laporan', function () { return view('admin.bpjs_keliling.laporan'); });
         Route::get('/dashboard', function () { return view('admin.bpjs_keliling.dashboard'); });
     });
 

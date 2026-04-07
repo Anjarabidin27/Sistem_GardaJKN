@@ -1,4 +1,27 @@
 <x-admin-layout title="Admin Dashboard - Garda JKN">
+    @php
+        $admin = auth('admin')->user();
+        $r = $admin ? $admin->role : 'guest';
+        if($r === 'petugas_keliling') {
+            echo "<script>window.location.href='/admin/bpjs-keliling';</script>";
+            exit;
+        } elseif($r === 'petugas_pil') {
+            echo "<script>window.location.href='/admin/pil';</script>";
+            exit;
+        }
+    @endphp
+
+    <script>
+        // Fallback: If PHP session is not detected but localStorage shows special role
+        (function() {
+            const role = localStorage.getItem('user_role');
+            if (role === 'petugas_keliling' && !window.location.pathname.includes('bpjs-keliling')) {
+                window.location.href = '/admin/bpjs-keliling';
+            } else if (role === 'petugas_pil' && !window.location.pathname.includes('pil')) {
+                window.location.href = '/admin/pil';
+            }
+        })();
+    </script>
     <div class="summary-grid">
         <div class="stat-card">
             <div class="stat-label">Basis Anggota</div>

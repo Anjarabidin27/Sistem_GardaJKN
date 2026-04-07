@@ -9,6 +9,7 @@
                 <input type="text" id="searchInput" placeholder="Cari Nama/NIK...." class="form-input" style="width: 200px;">
                 <select id="statusFilter" class="form-input" style="width: auto;">
                     <option value="false">Data Aktif</option>
+                    <option value="pending">Menunggu Persetujuan</option>
                     <option value="true">Arsip Dihapus</option>
                 </select>
                 <select id="provinceFilter" class="form-input" style="width: auto;">
@@ -26,6 +27,7 @@
                         <th>Kontak Aktif</th>
                         <th>Domisili Wilayah</th>
                         <th>Klasifikasi</th>
+                        <th>Role/Status</th>
                         <th class="text-right">Opsi</th>
                     </tr>
                 </thead>

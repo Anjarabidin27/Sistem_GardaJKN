@@ -9,12 +9,42 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
+        // Super Admin
         AdminUser::updateOrCreate(
-            ['username' => 'admin'],
+            ['username' => 'superadmin'],
             [
-                'password' => 'password',
-                'name' => 'Administrator',
-                'role' => 'administrator',
+                'password' => 'GardaAdmin2026!!',
+                'name' => 'Super Administrator',
+                'role' => 'superadmin',
+                'kedeputian_wilayah' => 'KANTOR PUSAT',
+                'kantor_cabang' => 'JAKARTA PUSAT',
+                'zona_waktu' => 'WIB',
+            ]
+        );
+
+        // Petugas BPJS Keliling (WIB)
+        AdminUser::updateOrCreate(
+            ['username' => 'admin_keliling'],
+            [
+                'password' => 'GardaKeliling2026!!',
+                'name' => 'Petugas BPJS Keliling',
+                'role' => 'petugas_keliling',
+                'kedeputian_wilayah' => '05 - Jawa Barat',
+                'kantor_cabang' => 'KC Bandung',
+                'zona_waktu' => 'WIB',
+            ]
+        );
+
+        // Petugas PIL (WITA)
+        AdminUser::updateOrCreate(
+            ['username' => 'admin_pil'],
+            [
+                'password' => 'GardaPil2026!!',
+                'name' => 'Petugas Penyuluhan (PIL)',
+                'role' => 'petugas_pil',
+                'kedeputian_wilayah' => '09 - Sulselbartra dan Maluku',
+                'kantor_cabang' => 'KC Makassar',
+                'zona_waktu' => 'WITA',
             ]
         );
 

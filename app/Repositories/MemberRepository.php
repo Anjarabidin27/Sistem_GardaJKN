@@ -34,6 +34,8 @@ class MemberRepository extends BaseRepository
 
         if (!empty($filters['only_deleted']) && $filters['only_deleted'] === 'true') {
             $query->onlyTrashed();
+        } elseif (!empty($filters['only_deleted']) && $filters['only_deleted'] === 'pending') {
+            $query->where('status_pengurus', 'pendaftaran_diterima');
         } else {
             $query->whereNull('deleted_at');
         }

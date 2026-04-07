@@ -1,20 +1,22 @@
 :root {
     /* Garda JKN Premium Enterprise Palette */
-    --primary: #004aad;       /* Institutional Blue */
+    --primary: #001F4D;
+    --primary-light: #3B82F6;
     --primary-hover: #003a8c;
     --accent: #3b82f6;        /* Modern Blue */
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
     --info: #3b82f6;
     
     /* Neutral Palette */
-    --bg-base: #f1f5f9;       /* Slate 100 */
+    --bg-base: #F8FAFC;
     --bg-surface: #ffffff;
+    --text: #0F172A;
     --text-title: #0f172a;    /* Slate 900 */
     --text-body: #334155;     /* Slate 700 */
-    --text-muted: #64748b;    /* Slate 500 */
-    --border: #e2e8f0;        /* Slate 200 */
+    --text-muted: #64748B;
+    --border: #E2E8F0;
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -28,6 +30,20 @@
     --radius-pill: 9999px;
     
     /* Layout */
-    --sb-width: 280px;
-    --header-height: 72px;
+    --sb-width: 260px;        /* Slightly narrower for tighter look */
+    --header-height: 64px;    /* Tighter header */
+
+    /* Typography */
+    --font-primary: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --font-heading: 'Outfit', sans-serif;
+}
+
+body {
+    font-family: var(--font-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, .font-heading {
+    font-family: var(--font-heading);
 }
