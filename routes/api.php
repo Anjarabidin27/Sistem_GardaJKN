@@ -98,6 +98,7 @@ Route::prefix('admin')->group(function () {
         Route::post('logout', [AdminAuthController::class, 'logout']);
         
         Route::get('dashboard', [DashboardController::class, 'index']);
+        Route::get('dashboard/hub-data', [DashboardController::class, 'hubData']);
         Route::get('audit-logs', [\App\Http\Controllers\Api\Admin\AuditLogController::class, 'index']);
 
         Route::apiResource('staff', \App\Http\Controllers\Api\Admin\StaffController::class);

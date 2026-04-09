@@ -22,8 +22,10 @@ class StorePengurusApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'is_interested' => 'required|boolean',
-            'has_org_experience' => 'required_if:is_interested,1|boolean',
+            'is_interested_pengurus' => 'required|boolean',
+            'interest_pil' => 'nullable|boolean',
+            'interest_keliling' => 'nullable|boolean',
+            'has_org_experience' => 'required_if:is_interested_pengurus,1|boolean',
             'org_name' => 'required_if:has_org_experience,1|nullable|string|max:255',
             'org_position' => 'required_if:has_org_experience,1|nullable|string|max:255',
             'org_duration_months' => 'required_if:has_org_experience,1|nullable|integer|min:1',

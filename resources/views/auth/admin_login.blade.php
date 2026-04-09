@@ -31,6 +31,14 @@
                 <p>Otorisasi sistem diperlukan untuk akses admin.</p>
             </div>
 
+            <!-- Error Feedback Box -->
+            <div id="login-error-box" class="alert alert-danger" style="display: none; border-radius: 12px; font-size: 0.85rem; font-weight: 700; border: none; background: #fef2f2; color: #dc2626; padding: 12px 16px; margin-bottom: 24px;">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
+                    <span id="login-error-msg">Terjadi kesalahan.</span>
+                </div>
+            </div>
+
             <form id="adminLoginForm">
                 <div class="auth-group" style="margin-bottom: 24px;">
                     <label class="label">Username Admin</label>

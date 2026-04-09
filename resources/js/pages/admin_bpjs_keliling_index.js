@@ -377,6 +377,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if(wrapKeterangan) wrapKeterangan.style.display = 'none';
         if(keteranganSelect) keteranganSelect.required = false;
 
+        // Pre-fill participant times from the master activity times
+        const defMulai = ev.jam_mulai ? ev.jam_mulai.slice(0,5) : '';
+        const defSelesai = ev.jam_selesai ? ev.jam_selesai.slice(0,5) : '';
+        if(document.getElementById('peserta_jam_mulai')) document.getElementById('peserta_jam_mulai').value = defMulai;
+        if(document.getElementById('peserta_jam_selesai')) document.getElementById('peserta_jam_selesai').value = defSelesai;
+
         loadParticipants(ev.id);
         
         if(mainContentArea) mainContentArea.style.display = 'none';
@@ -478,7 +484,16 @@ document.addEventListener('DOMContentLoaded', () => {
         window.axios.post(`admin/bpjs-keliling/${id}/participants`, data)
             .then(res => {
                 window.showToast(res.data.message, 'success');
+                
+                // Maintain activity times after reset
+                const curMulai = document.getElementById('peserta_jam_mulai')?.value;
+                const curSelesai = document.getElementById('peserta_jam_selesai')?.value;
+                
                 if(pesertaForm) pesertaForm.reset();
+                
+                if(curMulai) document.getElementById('peserta_jam_mulai').value = curMulai;
+                if(curSelesai) document.getElementById('peserta_jam_selesai').value = curSelesai;
+
                 if(wrapTransaksi) wrapTransaksi.style.display = 'none';
                 if(wrapKeterangan) wrapKeterangan.style.display = 'none';
                 window.scrollTo({top:0, behavior:'smooth'});

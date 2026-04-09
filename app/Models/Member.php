@@ -33,6 +33,7 @@ class Member extends Authenticatable
         'dom_district_id',
         'dom_address_detail',
         'photo_path',
+        'kantor_cabang_id',
         'is_interested_pengurus',
         'interest_pil',
         'interest_keliling',
@@ -65,6 +66,10 @@ class Member extends Authenticatable
 
     protected $casts = [
         'password' => 'hashed',
+        'is_interested_pengurus' => 'boolean',
+        'interest_pil' => 'boolean',
+        'interest_keliling' => 'boolean',
+        'has_org_experience' => 'boolean',
     ];
 
     public function province()
@@ -80,5 +85,10 @@ class Member extends Authenticatable
     public function district()
     {
         return $this->belongsTo(District::class);
+    }
+
+    public function kantorCabang()
+    {
+        return $this->belongsTo(KantorCabang::class);
     }
 }

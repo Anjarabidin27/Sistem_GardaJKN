@@ -1,9 +1,22 @@
-const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
     const role = localStorage.getItem('user_role');
-    if (!token || (role !== 'pengurus' && role !== 'admin')) window.location.href = '/login';
+    const allowedRoles = ['admin', 'admin_wilayah', 'petugas_pil', 'petugas_keliling', 'pengurus'];
+    
+    if (!token || !allowedRoles.includes(role)) window.location.href = '/login';
 
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('date-now').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const searchInput = document.getElementById('memberSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const q = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#memberTableBody tr');
+                rows.forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    row.style.display = text.includes(q) ? '' : 'none';
+                });
+            });
+        }
+
         fetchMembers();
     });
 
@@ -21,21 +34,31 @@ const token = localStorage.getItem('auth_token');
 
     function renderTable(members) {
         const body = document.getElementById('memberTableBody');
+        if (!body) return;
         body.innerHTML = '';
         members.forEach(m => {
             body.innerHTML += `
                 <tr>
                     <td>
-                        <div style="font-weight: 700;">${m.name}</div>
-                        <div style="font-size: 0.75rem; color: #64748b;">NIK: ${m.nik}</div>
+                        <div class="v-flex v-items-center v-gap-3">
+                            <div style="width: 32px; height: 32px; background: var(--v-gray-50); border: 1px solid var(--v-gray-100); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.7rem; color: var(--v-gray-500);">
+                                ${m.name.substring(0,1)}
+                            </div>
+                            <div>
+                                <span style="font-weight: 800; color: var(--v-black); display: block;">${m.name}</span>
+                                <span style="font-size: 10px; color: var(--v-gray-400); font-weight: 700;">${m.nik}</span>
+                            </div>
+                        </div>
                     </td>
-                    <td style="font-weight: 500;">${m.phone}</td>
+                    <td style="font-weight: 600; font-size: 0.8rem; color: var(--v-gray-500);">${m.phone}</td>
                     <td>
-                        <div style="font-weight: 600;">${m.city?.name || '-'}</div>
-                        <div style="font-size: 0.7rem; color: #94a3b8;">${m.province?.name || '-'}</div>
+                        <span style="font-weight: 700; color: var(--v-black); display: block;">${m.city?.name || '-'}</span>
+                        <span style="font-size: 9px; color: var(--v-gray-400); font-weight: 700;">${m.province?.name || '-'}</span>
                     </td>
-                    <td><span class="badge badge-blue">${m.occupation || 'UMUM'}</span></td>
-                    <td style="text-align: right;"><span style="color: #10b981; font-weight: 700;">AKTIF</span></td>
+                    <td><span style="padding: 2px 8px; border-radius: 9999px; font-size: 9px; font-weight: 900; background: rgba(37, 99, 235, 0.05); color: var(--v-blue-600); border: 1px solid rgba(37, 99, 235, 0.1);">${m.occupation || 'UMUM'}</span></td>
+                    <td style="text-align: right;">
+                        <span style="color: var(--v-emerald-500); font-weight: 900; font-size: 10px;">AKTIF</span>
+                    </td>
                 </tr>
             `;
         });

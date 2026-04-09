@@ -82,7 +82,7 @@ class MemberDTO
             $nik = null; // Ignore masked NIK
         }
 
-        return array_filter([
+        $allData = [
             'nik' => $nik,
             'jkn_number' => $this->jkn_number,
             'name' => $this->name,
@@ -113,6 +113,9 @@ class MemberDTO
             'org_description' => $this->org_description,
             'pengurus_reason' => $this->pengurus_reason,
             'org_certificate_path' => $this->org_certificate_path,
-        ], fn($val) => $val !== null);
+        ];
+
+        // Only remove keys that are truly null, keep false/0
+        return array_filter($allData, fn($val) => !is_null($val));
     }
 }

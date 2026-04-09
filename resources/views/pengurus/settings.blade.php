@@ -25,7 +25,9 @@
         <div class="sb-footer">
             <div class="sb-section-label" style="margin-top:0;margin-bottom:8px;">Pengaturan</div>
             <a href="/pengurus/settings" class="sb-link active"><i data-lucide="settings" style="width:16px;height:16px;"></i> Pengaturan Akun</a>
-            <a href="#" class="sb-link" onclick="logout()" style="color:#fca5a5;margin-top:4px;"><i data-lucide="log-out" style="width:16px;height:16px;color:#fca5a5;"></i> Keluar Sesi</a>
+            <a href="javascript:void(0)" onclick="logout()" class="sb-link logout-link">
+                <i data-lucide="log-out" class="sb-link-icon"></i> <span>Keluar Sesi</span>
+            </a>
         </div>
     </aside>
 

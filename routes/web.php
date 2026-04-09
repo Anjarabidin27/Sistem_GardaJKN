@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Halaman Login (Public - Member & Pengurus)
+Route::get('/', function () {
+    return view('welcome');
+});
+
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
@@ -22,6 +26,10 @@ Route::get('/login', function () {
 Route::get('/login/admin', function () {
     return view('auth.admin_login');
 })->name('admin.login');
+
+Route::get('/login/petugas', function () {
+    return view('auth.petugas_login');
+})->name('petugas.login');
 
 Route::get('/register', function () {
     return view('auth.register');

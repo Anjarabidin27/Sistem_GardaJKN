@@ -11,11 +11,29 @@ class PilController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user() ?: auth('admin')->user();
+
         $query = Pil::with(['provinsi', 'kota'])
             ->when($request->status, fn($q) => $q->where('status', $request->status))
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
-            ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai))
-            ->orderByDesc('tanggal');
+            ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai));
+
+        // ACL (Access Control List) based on Role
+        if ($user) {
+            $userRole = $user->role;
+            $userKC   = trim($user->kantor_cabang);
+            $userKW   = trim($user->kedeputian_wilayah);
+
+            if ($userRole === 'admin_wilayah' && $userKW) {
+                $query->where('kedeputian_wilayah', 'LIKE', '%' . $userKW . '%');
+            } elseif (in_array($userRole, ['petugas_pil', 'administrator', 'admin']) && $userKC) {
+                // Aggressive fuzzy match: removes common prefixes like "KC "
+                $cleanKC = str_ireplace('KC ', '', $userKC);
+                $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
+            }
+        }
+
+        $query->orderByDesc('tanggal');
 
         return response()->json([
             'status' => 'success',
@@ -41,7 +59,7 @@ class PilController extends Controller
             'status' => 'required|in:scheduled,ongoing,completed,cancelled'
         ]);
 
-        $user = Auth::guard('admin')->user();
+        $user = auth()->user() ?: auth('admin')->user();
         if ($user) {
             $validated['created_by'] = $user->id;
             $validated['kedeputian_wilayah'] = $user->kedeputian_wilayah;
@@ -183,16 +201,30 @@ class PilController extends Controller
         $user = auth()->user();
         $query = Pil::query()
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
-            ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai));
+            ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai))
+            ->when($request->status, fn($q) => $q->where('status', $request->status))
+            ->when($request->provinsi_id, fn($q) => $q->where('provinsi_id', $request->provinsi_id))
+            ->when($request->kota_id, fn($q) => $q->where('kota_id', $request->kota_id));
 
         // ACL Filtering (Mandatory for security & accuracy)
-        if ($user->role === 'admin') {
-            if ($user->kantor_cabang_id) {
-                // KC Context: Filter by specific office
-                $query->where('kantor_cabang_id', $user->kantor_cabang_id);
-            } elseif ($user->kedeputian_wilayah_id) {
-                // KW Context: Filter by entire region
-                $query->where('kedeputian_wilayah_id', $user->kedeputian_wilayah_id);
+        if ($user->role === 'superadmin') {
+            if ($request->kedeputian_wilayah) {
+                $query->where('kedeputian_wilayah', 'LIKE', '%' . $request->kedeputian_wilayah . '%');
+            }
+            if ($request->kantor_cabang) {
+                $query->where('kantor_cabang', 'LIKE', '%' . $request->kantor_cabang . '%');
+            }
+        } elseif ($user->role === 'admin' || $user->role === 'administrator' || $user->role === 'admin_wilayah') {
+            // Priority 1: User's owned regional context
+            if ($user->kedeputian_wilayah) {
+                $query->where('kedeputian_wilayah', 'LIKE', '%' . $user->kedeputian_wilayah . '%');
+            }
+            
+            // Priority 2: Manual filters within allowed context
+            if ($request->kantor_cabang) {
+                $query->where('kantor_cabang', 'LIKE', '%' . $request->kantor_cabang . '%');
+            } elseif ($user->kantor_cabang) {
+                $query->where('kantor_cabang', 'LIKE', '%' . $user->kantor_cabang . '%');
             }
         }
 
@@ -200,16 +232,37 @@ class PilController extends Controller
 
         // Prepare context strings for UI
         $contextLabel = 'Nasional';
-        if ($user->kantor_cabang_id) $contextLabel = $user->kantor_cabang;
-        elseif ($user->kedeputian_wilayah_id) $contextLabel = $user->kedeputian_wilayah;
+        if ($user->role === 'superadmin') {
+            $contextLabel = $request->kantor_cabang ?: ($request->kedeputian_wilayah ?: 'Nasional');
+        } else {
+            $contextLabel = $user->kantor_cabang ?: ($user->kedeputian_wilayah ?: 'Nasional');
+        }
+
+        // Additional Stats for Excel Compliance
+        $totalPeserta = $kegiatan->sum('jumlah_peserta');
+        $uniqueDesaCount = $kegiatan->whereNotNull('nama_desa')->unique('nama_desa')->count();
+        
+        // Target Kepesertaan JKN (Simulated target/master data)
+        // In real app, this should come from a Setting or Target table
+        $targetJKN = 25000; 
+        $targetDesa = 500; 
 
         return response()->json([
             'status' => 'success',
             'data' => [
                 'context' => $contextLabel,
                 'total_kegiatan'          => $kegiatan->count(),
-                'total_peserta'           => $kegiatan->sum('jumlah_peserta'),
+                'total_peserta'           => (int)$totalPeserta,
                 'rata_pemahaman'          => (float)$kegiatan->avg('rata_pemahaman') ?: 0,
+                
+                // Excel Specs: Capaian Coverage Sosialisasi
+                'target_jkn'              => $targetJKN,
+                'coverage_sosialisasi'    => $targetJKN > 0 ? ($totalPeserta / $targetJKN) * 100 : 0,
+
+                // Excel Specs: Capaian Desa
+                'total_desa_terjamah'     => $uniqueDesaCount,
+                'target_desa'             => $targetDesa,
+                'persentase_desa'         => $targetDesa > 0 ? ($uniqueDesaCount / $targetDesa) * 100 : 0,
                 
                 // Efektifitas Sosialisasi
                 'count_sangat_efektif'    => $kegiatan->sum('count_sangat_efektif'),

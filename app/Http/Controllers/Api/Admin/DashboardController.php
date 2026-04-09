@@ -25,4 +25,24 @@ class DashboardController extends Controller
 
         return $this->successResponse('Data Dashboard', $data);
     }
+
+    public function hubData()
+    {
+        $totalMembers = \App\Models\Member::where('role', 'anggota')->count();
+        
+        $pilCount = \App\Models\Pil::count();
+        $kelilingCount = \App\Models\BpjsKeliling::count();
+        
+        $pilImpact = \App\Models\PilParticipant::count();
+        $kelilingImpact = \App\Models\BpjsKelilingParticipant::count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_members' => $totalMembers,
+                'total_sessions' => $pilCount + $kelilingCount,
+                'total_impact' => $pilImpact + $kelilingImpact
+            ]
+        ]);
+    }
 }

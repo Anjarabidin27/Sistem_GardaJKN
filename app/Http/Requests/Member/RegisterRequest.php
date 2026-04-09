@@ -23,7 +23,7 @@ class RegisterRequest extends FormRequest
             'phone' => ['required', 'numeric', 'digits_between:10,15'],
             'birth_date' => 'required|date',
             'gender' => 'required|in:L,P',
-            'education' => 'required|in:SD,SMP,SMA,Diploma,S1/D4,S2',
+            'education' => 'required|in:SD,SMP,SMA,Diploma,S1/D4,S2,S3',
             'occupation' => 'required|string',
             'province_id' => 'required|exists:provinces,id',
             'city_id' => [
@@ -64,10 +64,10 @@ class RegisterRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'is_interested_pengurus' => $this->is_interested_pengurus === 'true' || $this->is_interested_pengurus === 'on' || $this->is_interested_pengurus === true,
-            'interest_pil' => $this->interest_pil === 'true' || $this->interest_pil === 'on',
-            'interest_keliling' => $this->interest_keliling === 'true' || $this->interest_keliling === 'on',
-            'has_org_experience' => $this->has_org_experience === '1' || $this->has_org_experience === true,
+            'is_interested_pengurus' => filter_var($this->is_interested_pengurus, FILTER_VALIDATE_BOOLEAN),
+            'interest_pil'           => filter_var($this->interest_pil, FILTER_VALIDATE_BOOLEAN),
+            'interest_keliling'      => filter_var($this->interest_keliling, FILTER_VALIDATE_BOOLEAN),
+            'has_org_experience'     => filter_var($this->has_org_experience, FILTER_VALIDATE_BOOLEAN),
         ]);
     }
 }

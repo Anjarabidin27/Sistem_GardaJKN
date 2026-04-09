@@ -34,216 +34,235 @@
     </div>
 
     <!-- Right Side: Registration Form -->
-    <div class="form-side" style="padding-top: 60px;">
+    <div class="form-side">
         <div class="form-container register">
             <div class="welcome-text">
-                <h2>Buka Akun Baru</h2>
-                <p>Lengkapi formulir di bawah ini untuk memulai registrasi Anggota.</p>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h2 style="font-size: 1.5rem; margin-bottom: 4px;">Pendaftaran Akun</h2>
+                        <p style="font-size: 0.85rem;">Lengkapi data diri Anda sesuai identitas resmi.</p>
+                    </div>
+                    <div style="background: #f1f5f9; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; color: #475569;">
+                        MEMBER BARU
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stepper Indicator -->
+            <div class="stepper">
+                <div class="step-header active" id="header-1">
+                    <div class="step-circle">1</div>
+                    <span class="step-label">Profil</span>
+                </div>
+                <div class="step-header" id="header-2">
+                    <div class="step-circle">2</div>
+                    <span class="step-label">Alamat</span>
+                </div>
+                <div class="step-header" id="header-3">
+                    <div class="step-circle">3</div>
+                    <span class="step-label">Akses</span>
+                </div>
             </div>
 
             <form id="registerForm">
-                <div class="section-title">Data Identitas Utama</div>
-                <div class="input-grid">
-                    <div class="form-group">
-                        <label class="form-label">NIK (16 Digit)</label>
-                        <input type="tel" id="nik" class="form-control" placeholder="Sesuai KTP" required minlength="16" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);">
+                <!-- STEP 1: PROFIL & IDENTITAS -->
+                <div class="form-step active" id="step-1">
+                    <div class="section-title"><i data-lucide="user"></i> Data Identitas Utama</div>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label class="form-label">NIK (16 Digit)</label>
+                            <input type="tel" id="nik" class="form-control" placeholder="Sesuai KTP" required minlength="16" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor Kartu JKN</label>
+                            <input type="text" id="jkn_number" class="form-control" placeholder="Opsional">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Nomor Kartu JKN</label>
-                        <input type="text" id="jkn_number" class="form-control" placeholder="Opsional / No. BPJS">
-                    </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="form-label">Nama Lengkap</label>
-                    <input type="text" id="name" class="form-control" placeholder="Sesuai KTP (Tanpa Gelar)" required>
-                </div>
-
-                <div class="input-grid">
                     <div class="form-group">
-                        <label class="form-label">WhatsApp (Aktif)</label>
-                        <input type="text" id="phone" class="form-control" placeholder="0812..." required>
+                        <label class="form-label">Nama Lengkap</label>
+                        <input type="text" id="name" class="form-control" placeholder="Sesuai KTP (Tanpa Gelar)" required>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Tanggal Lahir</label>
-                        <input type="date" id="birth_date" class="form-control" required>
-                    </div>
-                </div>
 
-                <div class="section-title">Profil Bio & Pendidikan</div>
-                <div class="input-grid">
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label class="form-label">WhatsApp (Aktif)</label>
+                            <input type="text" id="phone" class="form-control" placeholder="0812..." required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tanggal Lahir</label>
+                            <input type="date" id="birth_date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label class="form-label">Jenis Kelamin</label>
+                            <select id="gender" class="form-control" required>
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pendidikan Terakhir</label>
+                            <select id="education" class="form-control" required>
+                                <option value="SD">SD</option>
+                                <option value="SMP">SMP</option>
+                                <option value="SMA">SMA</option>
+                                <option value="Diploma">Diploma</option>
+                                <option value="S1/D4">S1 / D4</option>
+                                <option value="S2">S2</option>
+                                <option value="S3">S3</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label class="form-label">Jenis Kelamin</label>
-                        <select id="gender" class="form-control" required>
-                            <option value="L">Laki-laki</option>
-                            <option value="P">Perempuan</option>
+                        <label class="form-label">Jenis Pekerjaan</label>
+                        <select id="occupation" class="form-control" required>
+                            <option value="BELUM/TIDAK BEKERJA">BELUM/TIDAK BEKERJA</option>
+                            <option value="MENGURUS RUMAH TANGGA">MENGURUS RUMAH TANGGA</option>
+                            <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                            <option value="PENSIUNAN">PENSIUNAN</option>
+                            <option value="PEGAWAI NEGERI SIPIL">PEGAWAI NEGERI SIPIL</option>
+                            <option value="TNI/POLRI">TNI / POLRI</option>
+                            <option value="KARYAWAN SWASTA">KARYAWAN SWASTA</option>
+                            <option value="WIRASWASTA">WIRASWASTA</option>
+                            <option value="LAINNYA">LAINNYA</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Pendidikan Terakhir</label>
-                        <select id="education" class="form-control" required>
-                            <option value="SD">SD</option>
-                            <option value="SMP">SMP</option>
-                            <option value="SMA">SMA</option>
-                            <option value="Diploma">Diploma (D1/D2/D3)</option>
-                            <option value="S1/D4">S1 / D4</option>
-                            <option value="S2">S2</option>
-                            <option value="S3">S3</option>
-                        </select>
+
+                    <div class="step-actions">
+                        <button type="button" class="next-btn" onclick="nextStep(2)">
+                            <span>Lanjut ke Alamat</span> <i data-lucide="arrow-right" style="width: 18px;"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Jenis Pekerjaan</label>
-                    <select id="occupation" class="form-control" required>
-                        <option value="BELUM/TIDAK BEKERJA">BELUM/TIDAK BEKERJA</option>
-                        <option value="MENGURUS RUMAH TANGGA">MENGURUS RUMAH TANGGA</option>
-                        <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
-                        <option value="PENSIUNAN">PENSIUNAN</option>
-                        <option value="PEGAWAI NEGERI SIPIL">PEGAWAI NEGERI SIPIL</option>
-                        <option value="TNI/POLRI">TNI / POLRI</option>
-                        <option value="KARYAWAN SWASTA">KARYAWAN SWASTA</option>
-                        <option value="KARYAWAN BUMN/BUMD">KARYAWAN BUMN/BUMD</option>
-                        <option value="WIRASWASTA">WIRASWASTA</option>
-                        <option value="PETANI/PEKEBUN">PETANI/PEKEBUN</option>
-                        <option value="NELAYAN/PERIKANAN">NELAYAN/PERIKANAN</option>
-                        <option value="BURUH HARIAN LEPAS">BURUH HARIAN LEPAS</option>
-                        <option value="PEDAGANG">PEDAGANG</option>
-                        <option value="PERANGKAT DESA">PERANGKAT DESA</option>
-                        <option value="TENAGA MEDIS">TENAGA MEDIS</option>
-                        <option value="LAINNYA">LAINNYA</option>
-                    </select>
-                </div>
-
-                <div class="section-title">Domisili Sesuai KTP</div>
-                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-                    <div>
-                        <label class="form-label">Provinsi</label>
-                        <select id="province" class="form-control" style="padding: 14px 10px;" onchange="window.loadCities(this.value, 'city')" required>
-                            <option value="">Pilih...</option>
-                        </select>
+                <!-- STEP 2: ALAMAT & DOMISILI -->
+                <div class="form-step" id="step-2">
+                    <div class="section-title"><i data-lucide="map-pin"></i> Domisili Sesuai KTP</div>
+                    
+                    <div class="info-box">
+                        <i data-lucide="info"></i>
+                        <div class="info-content">Pastikan alamat sesuai dengan yang tertera di dokumen KTP Anda untuk proses verifikasi.</div>
                     </div>
-                    <div>
-                        <label class="form-label">Kota/Kab</label>
-                        <select id="city" class="form-control" style="padding: 14px 10px;" onchange="window.loadDistricts(this.value, 'district')" required disabled>
-                            <option value="">Pilih...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="form-label">Kecamatan</label>
-                        <select id="district" class="form-control" style="padding: 14px 10px;" required disabled>
-                            <option value="">Pilih...</option>
-                        </select>
-                    </div>
-                </div>
 
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label class="form-label">Alamat Lengkap (KTP)</label>
-                    <textarea id="address" class="form-control" rows="2" style="resize: none;" placeholder="Contoh: Jl. Sudirman No. 123, RT 01/RW 02, Desa Makmur" required></textarea>
-                </div>
-
-                <!-- Toggle Domisili -->
-                <div class="form-group" style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 32px;">
-                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none;">
-                        <input type="checkbox" id="same_as_ktp" onchange="toggleDomisili(this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
-                        <span style="font-size: 0.9rem; font-weight: 700; color: #1e293b;">Alamat Domisili saat ini SAMA dengan KTP</span>
-                    </label>
-                </div>
-
-                <div id="domisili_section">
-                    <div class="section-title">Domisili Tempat Tinggal Sekarang</div>
-                    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                         <div>
                             <label class="form-label">Provinsi</label>
-                            <select id="dom_province" class="form-control" style="padding: 14px 10px;" onchange="window.loadCities(this.value, 'dom_city')" required>
+                            <select id="province" class="form-control" onchange="window.loadCities(this.value, 'city')" required>
                                 <option value="">Pilih...</option>
                             </select>
                         </div>
                         <div>
                             <label class="form-label">Kota/Kab</label>
-                            <select id="dom_city" class="form-control" style="padding: 14px 10px;" onchange="window.loadDistricts(this.value, 'dom_district')" required disabled>
+                            <select id="city" class="form-control" onchange="window.loadDistricts(this.value, 'district')" required disabled>
                                 <option value="">Pilih...</option>
                             </select>
                         </div>
                         <div>
                             <label class="form-label">Kecamatan</label>
-                            <select id="dom_district" class="form-control" style="padding: 14px 10px;" required disabled>
+                            <select id="district" class="form-control" required disabled>
                                 <option value="">Pilih...</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Alamat Lengkap (Sekarang)</label>
-                        <textarea id="dom_address" class="form-control" rows="2" style="resize: none;" placeholder="Masukkan alamat tempat tinggal Anda saat ini" required></textarea>
+                        <label class="form-label">Alamat Lengkap (KTP)</label>
+                        <textarea id="address" class="form-control" rows="2" style="resize: none;" placeholder="Jl. Sudirman No. 123..." required></textarea>
+                    </div>
+
+                    <div style="margin: 20px 0; padding: 12px; background: #f8fafc; border-radius: 10px; border: 1.5px dashed #e2e8f0;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="same_as_ktp" onchange="toggleDomisili(this.checked)" style="width: 16px; height: 16px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: #1e293b;">Alamat saat ini SAMA dengan KTP</span>
+                        </label>
+                    </div>
+
+                    <div id="domisili_section">
+                        <div class="section-title" style="border-color: #e2e8f0; color: #64748b;">Domisili Sekarang</div>
+                        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                            <div><select id="dom_province" class="form-control" onchange="window.loadCities(this.value, 'dom_city')"><option value="">Provinsi</option></select></div>
+                            <div><select id="dom_city" class="form-control" onchange="window.loadDistricts(this.value, 'dom_district')" disabled><option value="">Kota</option></select></div>
+                            <div><select id="dom_district" class="form-control" disabled><option value="">Kec</option></select></div>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="dom_address" class="form-control" rows="2" style="resize: none;" placeholder="Alamat tinggal sekarang..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="step-actions">
+                        <button type="button" class="prev-btn" onclick="nextStep(1)">Kembali</button>
+                        <button type="button" class="next-btn" onclick="nextStep(3)">
+                            <span>Lanjut ke Terakhir</span> <i data-lucide="arrow-right" style="width: 18px;"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- STAFF INTEREST SECTION -->
-                <div class="section-title" style="margin-top: 48px;">Peminatan Pengurus / Petugas</div>
-                <div class="form-group" style="background: #f0f9ff; padding: 20px; border-radius: 12px; border: 1.5px solid #bae6fd; margin-bottom: 32px;">
-                    <label style="display: flex; align-items: flex-start; gap: 16px; cursor: pointer; user-select: none;">
-                        <input type="checkbox" id="is_interested_pengurus" name="is_interested_pengurus" style="width: 20px; height: 20px; cursor: pointer; margin-top: 4px;" onchange="toggleStaffInterest(this.checked)">
-                        <div>
-                            <span style="font-size: 1rem; font-weight: 800; color: #0c4a6e; display: block; margin-bottom: 4px;">Saya berminat menjadi Pengurus/Petugas Lapangan</span>
-                            <span style="font-size: 0.85rem; color: #0369a1; line-height: 1.5; display: block;">Berikan tanda centang jika Anda ingin berkontribusi dalam tim BPJS Keliling atau Penyuluhan (PIL).</span>
-                        </div>
-                    </label>
+                <!-- STEP 3: MINAT & KEAMANAN -->
+                <div class="form-step" id="step-3">
+                    <div class="section-title"><i data-lucide="settings"></i> Peminatan & Keamanan</div>
+                    
+                    <div class="form-group" style="background: #f0f9ff; padding: 14px; border-radius: 10px; border: 1px solid #bae6fd; margin-bottom: 20px;">
+                        <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                            <input type="checkbox" id="is_interested_pengurus" style="width: 18px; height: 18px; margin-top: 3px;" onchange="toggleStaffInterest(this.checked)">
+                            <div>
+                                <span style="font-size: 0.9rem; font-weight: 800; color: #0c4a6e; display: block;">Berminat jadi Pengurus?</span>
+                                <span style="font-size: 0.75rem; color: #0369a1;">Centang jika ingin bergabung di tim lapangan.</span>
+                            </div>
+                        </label>
 
-                    <div id="staff_detail_section" style="display: none; margin-top: 24px; padding-top: 20px; border-top: 1px dashed #bae6fd;">
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label class="form-label" style="color: #0c4a6e;">Modul yang Diminati</label>
-                            <div style="display: flex; gap: 20px; margin-top: 8px;">
-                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                    <input type="checkbox" id="interest_pil" class="interest-check"> <span style="font-size: 0.9rem;">Penyuluhan (PIL)</span>
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                    <input type="checkbox" id="interest_keliling" class="interest-check"> <span style="font-size: 0.9rem;">BPJS Keliling</span>
-                                </label>
+                        <div id="staff_detail_section" style="display: none; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #bae6fd;">
+                            <div class="form-group">
+                                <label class="form-label">Modul & Pengalaman</label>
+                                <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem;"><input type="checkbox" id="interest_pil"> PIL</label>
+                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem;"><input type="checkbox" id="interest_keliling"> Keliling</label>
+                                </div>
+                                <select id="has_org_experience" class="form-control" onchange="toggleOrgDetail(this.value)" style="padding: 8px 12px; font-size: 0.85rem;">
+                                    <option value="0">Tanpa Pengalaman Organisasi</option>
+                                    <option value="1">Ada Pengalaman Organisasi</option>
+                                </select>
+                            </div>
+                            <div id="org_detail_wrap" style="display: none;">
+                                <input type="text" id="org_name" class="form-control" placeholder="Nama Organisasi" style="margin-bottom: 8px;">
+                                <textarea id="pengurus_reason" class="form-control" rows="2" placeholder="Alasan bergabung..."></textarea>
                             </div>
                         </div>
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label class="form-label" style="color: #0c4a6e;">Apakah memiliki pengalaman organisasi sebelumnya?</label>
-                            <select id="has_org_experience" class="form-control" onchange="toggleOrgDetail(this.value)">
-                                <option value="0">Tidak</option>
-                                <option value="1">Ya, Ada</option>
-                            </select>
-                        </div>
-                        <div id="org_detail_wrap" style="display: none; margin-top: 16px; background: #fff; padding: 16px; border-radius: 8px;">
-                             <label class="form-label">Nama Organisasi & Posisi</label>
-                             <input type="text" id="org_name" class="form-control" placeholder="Contoh: BEM (Ketua), Karang Taruna (Sekretaris)" style="margin-bottom: 12px;">
-                             <label class="form-label">Alasan ingin bergabung</label>
-                             <textarea id="pengurus_reason" class="form-control" rows="2" placeholder="Jelaskan secara singkat motivasi Anda"></textarea>
-                        </div>
                     </div>
-                </div>
 
-                <div class="section-title">Keamanan Akun</div>
-                <div class="input-grid">
-                    <div class="form-group">
-                        <label class="form-label">Kata Sandi (Password)</label>
-                        <div class="input-group-password">
-                            <input type="password" id="password" class="form-control" placeholder="Min. 8 Karakter" required>
-                            <button type="button" class="password-toggle-btn" onclick="togglePassword('password')" tabindex="-1">
-                                <span id="icon-password"><i data-lucide="eye"></i></span>
-                            </button>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label class="form-label">Kata Sandi</label>
+                            <div class="input-group-password" style="position: relative;">
+                                <input type="password" id="password" class="form-control" placeholder="Min. 8 Karakter" required>
+                                <button type="button" onclick="togglePassword('password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer;">
+                                    <span id="icon-password"><i data-lucide="eye"></i></span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Konfirmasi</label>
+                            <div class="input-group-password" style="position: relative;">
+                                <input type="password" id="password_confirmation" class="form-control" placeholder="Ulangi..." required>
+                                <button type="button" onclick="togglePassword('password_confirmation')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer;">
+                                    <span id="icon-password_confirmation"><i data-lucide="eye"></i></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Ulangi Kata Sandi</label>
-                        <div class="input-group-password">
-                            <input type="password" id="password_confirmation" class="form-control" placeholder="Konfirmasi Password" required>
-                            <button type="button" class="password-toggle-btn" onclick="togglePassword('password_confirmation')" tabindex="-1">
-                                <span id="icon-password_confirmation"><i data-lucide="eye"></i></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
-                <div style="margin-top: 40px;">
-                    <button type="submit" class="submit-btn" id="btn-register">
-                        <span>Lanjutkan Registrasi</span> <i data-lucide="arrow-right" style="width: 18px;"></i>
-                    </button>
+                    <div style="margin-top: 24px;">
+                        <button type="submit" class="submit-btn" id="btn-register">
+                            <span>Selesaikan Pendaftaran</span> <i data-lucide="check-circle" style="width: 18px;"></i>
+                        </button>
+                    </div>
+
+                    <div class="step-actions">
+                        <button type="button" class="prev-btn" onclick="nextStep(2)">Kembali</button>
+                    </div>
                 </div>
 
                 <div class="footer-links">
@@ -252,7 +271,6 @@
                 </div>
             </form>
         </div>
-    </div>
 </div>
 @endsection
 

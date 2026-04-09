@@ -14,6 +14,51 @@ function initRegistration() {
     }
 }
 
+// Global scope for navigation
+window.nextStep = function(step) {
+    // Validate current step before proceeding
+    const currentStep = document.querySelector('.form-step.active');
+    const inputs = currentStep.querySelectorAll('input[required], select[required], textarea[required]');
+    
+    // Check validity
+    let isValid = true;
+    inputs.forEach(input => {
+        if (!input.checkValidity()) {
+            input.reportValidity();
+            isValid = false;
+        }
+    });
+
+    if (!isValid && step > parseInt(currentStep.id.split('-')[1])) return;
+
+    // Hide all steps
+    document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.step-header').forEach(h => h.classList.remove('active'));
+    
+    // Show target step
+    document.getElementById('step-' + step).classList.add('active');
+    
+    // Update headers
+    for (let i = 1; i <= 3; i++) {
+        const header = document.getElementById('header-' + i);
+        if (i < step) {
+            header.classList.add('completed');
+            header.classList.remove('active');
+        } else if (i === step) {
+            header.classList.add('active');
+            header.classList.remove('completed');
+        } else {
+            header.classList.remove('active', 'completed');
+        }
+    }
+
+    // Scroll top of form
+    document.querySelector('.form-side').scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Refresh Lucide Icons
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 async function loadProvinces() {
     try {
         const res = await window.axios.get('master/provinces');
@@ -50,7 +95,6 @@ async function loadCities(provId, targetId) {
         sel.innerHTML = '<option value="">Pilih...</option>';
         sel.disabled = false;
         res.data.data.forEach(c => { 
-            // Bersihkan nama dari kata KABUPATEN atau KOTA yang sudah ada agar tidak dobel
             let cleanName = c.name.replace(/^(KABUPATEN|KOTA|KAB\.?)\s+/i, '');
             sel.innerHTML += `<option value="${c.id}">${c.type === 'KOTA' ? 'KOTA ' : 'KAB. '}${cleanName}</option>`; 
         });
@@ -72,14 +116,9 @@ async function loadDistricts(cityId, targetId) {
     }
     
     try {
-        console.log(`Loading districts for city: ${cityId} to ${targetId}`);
         const res = await window.axios.get(`master/districts?city_id=${cityId}`);
         sel.innerHTML = '<option value="">Pilih...</option>';
         sel.disabled = false;
-        if(res.data.data.length === 0) {
-            sel.innerHTML = '<option value="">Belum ada data (tunggu sync)...</option>';
-            return;
-        }
         res.data.data.forEach(d => { 
             sel.innerHTML += `<option value="${d.id}">${d.name}</option>`; 
         });
@@ -100,34 +139,36 @@ if (regForm) {
         
         const sameAsKtp = document.getElementById('same_as_ktp').checked;
         
+        const getValue = (id) => document.getElementById(id) ? document.getElementById(id).value : null;
+        const isChecked = (id) => document.getElementById(id) ? document.getElementById(id).checked : false;
+
         const payload = {
-            nik: document.getElementById('nik').value,
-            jkn_number: document.getElementById('jkn_number').value || null,
-            name: document.getElementById('name').value,
-            phone: document.getElementById('phone').value,
-            birth_date: document.getElementById('birth_date').value,
-            password: document.getElementById('password').value,
-            password_confirmation: document.getElementById('password_confirmation').value,
-            gender: document.getElementById('gender').value,
-            education: document.getElementById('education').value,
-            occupation: document.getElementById('occupation').value,
-            province_id: document.getElementById('province').value,
-            city_id: document.getElementById('city').value,
-            district_id: document.getElementById('district').value,
-            address_detail: document.getElementById('address').value,
-            dom_province_id: sameAsKtp ? document.getElementById('province').value : document.getElementById('dom_province').value,
-            dom_city_id: sameAsKtp ? document.getElementById('city').value : document.getElementById('dom_city').value,
-            dom_district_id: sameAsKtp ? document.getElementById('district').value : document.getElementById('dom_district').value,
-            dom_address_detail: sameAsKtp ? document.getElementById('address').value : document.getElementById('dom_address').value,
-            address_detail: document.getElementById('address').value,
+            nik: getValue('nik'),
+            jkn_number: getValue('jkn_number') || null,
+            name: getValue('name'),
+            phone: getValue('phone'),
+            birth_date: getValue('birth_date'),
+            password: getValue('password'),
+            password_confirmation: getValue('password_confirmation'),
+            gender: getValue('gender'),
+            education: getValue('education'),
+            occupation: getValue('occupation'),
+            province_id: getValue('province'),
+            city_id: getValue('city'),
+            district_id: getValue('district'),
+            address_detail: getValue('address'),
+            dom_province_id: sameAsKtp ? getValue('province') : getValue('dom_province'),
+            dom_city_id: sameAsKtp ? getValue('city') : getValue('dom_city'),
+            dom_district_id: sameAsKtp ? getValue('district') : getValue('dom_district'),
+            dom_address_detail: sameAsKtp ? getValue('address') : getValue('dom_address'),
             
             // Pengurus Interest
-            is_interested_pengurus: document.getElementById('is_interested_pengurus').checked,
-            interest_pil: document.getElementById('interest_pil').checked,
-            interest_keliling: document.getElementById('interest_keliling').checked,
-            has_org_experience: document.getElementById('has_org_experience').value === "1",
-            org_name: document.getElementById('org_name').value || null,
-            pengurus_reason: document.getElementById('pengurus_reason').value || null,
+            is_interested_pengurus: isChecked('is_interested_pengurus'),
+            interest_pil: isChecked('interest_pil'),
+            interest_keliling: isChecked('interest_keliling'),
+            has_org_experience: getValue('has_org_experience') === "1",
+            org_name: getValue('org_name') || null,
+            pengurus_reason: getValue('pengurus_reason') || null,
         };
 
         if (payload.password !== payload.password_confirmation) {
@@ -147,11 +188,12 @@ if (regForm) {
             }
         } catch (error) {
             btn.disabled = false; btn.innerHTML = oldText;
-            console.error('Registration Error:', error.response?.data);
+            console.error('Registration Error Details:', error.response?.data || error.message);
+            
             let msg = 'Gagal mendaftar. Cek kembali data Anda.';
             if (error.response?.data?.errors) {
-                // Ambil error pertama dari validasi (misal 'NIK sudah terdaftar')
-                msg = Object.values(error.response.data.errors).flat()[0];
+                const firstErr = Object.values(error.response.data.errors).flat()[0];
+                msg = firstErr;
             } else if (error.response?.data?.message) {
                 msg = error.response.data.message;
             }

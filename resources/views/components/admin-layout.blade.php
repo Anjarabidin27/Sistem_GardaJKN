@@ -104,7 +104,7 @@
                             <div class="sb-folding-items">
                                 <a href="/admin/bpjs-keliling" class="sb-sub-link @if(Request::is('admin/bpjs-keliling') && !Request::is('admin/bpjs-keliling/*')) active @endif">📅 Jadwal Kegiatan</a>
                                 <a href="/admin/bpjs-keliling/laporan" class="sb-sub-link @if(Request::is('admin/bpjs-keliling/laporan')) active @endif">📋 Daftar Terinput</a>
-                                <a href="/admin/bpjs-keliling/dashboard" class="sb-sub-link @if(Request::is('admin/bpjs-keliling/dashboard')) active @endif">📈 Dashboard Analitik</a>
+                                <a href="/admin/bpjs-keliling/dashboard" class="sb-sub-link @if(Request::is('admin/bpjs-keliling/dashboard')) active @endif">📈 Dashboard BPJS Keliling</a>
                             </div>
                         </div>
                     </div>
@@ -117,7 +117,7 @@
                             </div>
                             <div class="sb-folding-items">
                                 <a href="/admin/pil" class="sb-sub-link">📅 Jadwal PIL</a>
-                                <a href="/admin/pil/dashboard" class="sb-sub-link">📈 Analitik PIL</a>
+                                <a href="/admin/pil/dashboard" class="sb-sub-link">📈 Dashboard PIL</a>
                             </div>
                         </div>
                     </div>
@@ -295,6 +295,14 @@
                 } else {
                     g.style.display = 'none';
                 }
+            });
+
+            // GLOBAL Sidebar folding logic
+            document.querySelectorAll('.sb-folding-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const menu = header.parentElement;
+                    menu.classList.toggle('active');
+                });
             });
         });
 

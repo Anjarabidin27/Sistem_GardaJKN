@@ -1,4 +1,5 @@
-if (!localStorage.getItem('auth_token') || localStorage.getItem('user_role') !== 'admin') window.location.href = '/login';
+const allowedRoles = ['superadmin', 'administrator', 'admin', 'admin_wilayah'];
+if (!localStorage.getItem('auth_token') || !allowedRoles.includes(localStorage.getItem('user_role'))) window.location.href = '/login/admin';
 let currentPage = 1;
 
     document.addEventListener('DOMContentLoaded', () => {

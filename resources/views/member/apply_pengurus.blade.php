@@ -41,7 +41,38 @@
                     </div>
                 </div>
 
-                <input type="hidden" name="is_interested" id="is_interested" value="0">
+                <input type="hidden" name="is_interested_pengurus" id="is_interested_pengurus" value="0">
+
+                <!-- Step 1b: Role Interest Selection -->
+                <div class="step-content" id="step1b">
+                    <div class="question-section">
+                        <span class="question-text">Pilih Bagian Pelayanan yang Anda Minati:</span>
+                        <p class="text-muted" style="font-size: 0.8rem; margin-top: -16px; margin-bottom: 24px;">Anda dapat memilih satu atau keduanya</p>
+                        
+                        <input type="checkbox" name="interest_keliling" id="interest_keliling" value="1" style="display:none;">
+                        <input type="checkbox" name="interest_pil" id="interest_pil" value="1" style="display:none;">
+
+                        <div class="choice-grid" style="grid-template-columns: 1fr 1fr;">
+                            <div class="role-card" onclick="toggleRole('interest_keliling')" id="card-keliling">
+                                <i data-lucide="truck" class="role-icon"></i>
+                                <div class="role-name">BPJS Keliling</div>
+                                <div class="role-desc">Pelayanan lapangan & Admin</div>
+                            </div>
+                            <div class="role-card" onclick="toggleRole('interest_pil')" id="card-pil">
+                                <i data-lucide="megaphone" class="role-icon"></i>
+                                <div class="role-name">Penyuluhan (PIL)</div>
+                                <div class="role-desc">Edukasi & Sosialisasi</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 32px;">
+                            <button type="button" class="primary-btn" onclick="validateRoleSelection()">
+                                LANJUT KE PERTANYAAN BERIKUTNYA &rarr;
+                            </button>
+                            <button type="button" onclick="goToStep(1)" style="background: none; border: none; color: #94a3b8; font-weight: 700; cursor: pointer; font-size: 0.8rem;">&larr; KEMBALI</button>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Step 2: Experience Check -->
                 <div class="step-content" id="step2">

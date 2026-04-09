@@ -90,9 +90,9 @@
                 <a href="/member/settings" class="sb-link @if(Request::is('member/settings')) active @endif">
                     <i data-lucide="settings" class="sb-link-icon"></i> <span>Pengaturan Akun</span>
                 </a>
-                <button class="sb-link" onclick="logout()" style="color: #fca5a5;">
-                    <i data-lucide="log-out" class="sb-link-icon" style="color: #fca5a5;"></i> <span>Keluar Sesi</span>
-                </button>
+                <a href="javascript:void(0)" onclick="logout()" class="sb-link logout-link">
+                    <i data-lucide="log-out" class="sb-link-icon"></i> <span>Keluar Sesi</span>
+                </a>
             </div>
         </aside>
 

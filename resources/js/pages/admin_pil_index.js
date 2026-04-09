@@ -313,6 +313,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if(entryKegiatanId) entryKegiatanId.value = ev.id;
         if(activeKegiatanTitle) activeKegiatanTitle.innerText = ev.judul;
         if(filterPesertaInput) filterPesertaInput.value = '';
+
+        // Pre-fill participant times from the master activity times
+        const defMulai = ev.jam_mulai ? ev.jam_mulai.slice(0,5) : '';
+        const defSelesai = ev.jam_selesai ? ev.jam_selesai.slice(0,5) : '';
+        if(document.getElementById('pil_jam_mulai')) document.getElementById('pil_jam_mulai').value = defMulai;
+        if(document.getElementById('pil_jam_selesai')) document.getElementById('pil_jam_selesai').value = defSelesai;
         
         loadParticipants(ev.id);
         
@@ -384,7 +390,16 @@ document.addEventListener('DOMContentLoaded', () => {
             window.axios.post(`admin/pil/${id}/participants`, data)
                 .then(res => {
                     window.showToast(res.data.message, 'success');
+                    
+                    // Maintain activity times after reset
+                    const curMulai = document.getElementById('pil_jam_mulai')?.value;
+                    const curSelesai = document.getElementById('pil_jam_selesai')?.value;
+                    
                     pesertaForm.reset();
+                    
+                    if(curMulai) document.getElementById('pil_jam_mulai').value = curMulai;
+                    if(curSelesai) document.getElementById('pil_jam_selesai').value = curSelesai;
+
                     window.scrollTo({top:0, behavior:'smooth'});
                     if(document.getElementById('nik')) document.getElementById('nik').focus();
                     

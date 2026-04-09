@@ -1,81 +1,114 @@
-@extends('layouts.app')
+<x-admin-layout title="Administrasi Keanggotaan - Garda JKN">
+    <style>
+        :root {
+            --v-black: #000;
+            --v-white: #fff;
+            --v-gray-50: #f9fafb;
+            --v-gray-100: #f3f4f6;
+            --v-gray-200: #e5e7eb;
+            --v-gray-400: #9ca3af;
+            --v-gray-500: #6b7280;
+            --v-emerald-500: #10b981;
+            --v-blue-600: #2563eb;
+        }
 
-@section('title', 'Data Anggota Wilayah - Pengurus Garda JKN')
+        .v-flex { display: flex; }
+        .v-items-center { align-items: center; }
+        .v-justify-between { justify-content: space-between; }
+        .v-gap-3 { gap: 0.75rem; }
+        
+        .v-card {
+            background: var(--v-white);
+            border-radius: 1rem;
+            border: 1px solid var(--v-gray-100);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
 
+        .v-label-caps {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--v-gray-400);
+            margin-bottom: 2px;
+            display: block;
+        }
 
+        .v-table { width: 100%; border-collapse: collapse; }
+        .v-table th { 
+            text-align: left; 
+            padding: 0.75rem 1.25rem; 
+            background: var(--v-gray-50); 
+            font-size: 10px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+            color: var(--v-gray-500);
+            border-bottom: 1px solid var(--v-gray-100);
+        }
+        .v-table td { 
+            padding: 0.75rem 1.25rem; 
+            border-bottom: 1px solid var(--v-gray-50); 
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+        .v-table tr:hover { background: #fafafa; }
 
-@section('content')
+        .v-input-compact {
+            border: 1px solid var(--v-gray-200);
+            border-radius: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--v-gray-50);
+            width: 100%;
+            max-width: 280px;
+        }
+    </style>
 
-<div class="admin-layout">
-    <aside class="sidebar">
-        <div class="sb-brand">
-            <div class="sb-brand-name">Garda JKN</div>
+    <!-- Sleek Header -->
+    <div class="v-flex v-justify-between v-items-center" style="margin-bottom: 1.5rem;">
+        <div>
+            <h1 style="font-size: 1.5rem; font-weight: 900; letter-spacing: -0.03em; color: var(--v-black); margin: 0;">Anggota Wilayah</h1>
+            <p style="font-size: 0.85rem; color: var(--v-gray-500); margin-top: 2px;">Cari dan kelola basis data anggota di wilayah koordinasi Anda.</p>
         </div>
-        <div class="sb-user-card">
-            <div class="sb-avatar" id="sb-avatar-wrap"><span id="sb-initials">A</span></div>
-            <div class="sb-user-name" id="sb-user-name">Administrator</div>
+        <div>
+            <input type="text" id="memberSearch" class="v-input-compact" placeholder="Cari Nama / NIK anggota...">
         </div>
-        <nav class="sb-menu">
-            <div class="sb-section-label">Menu</div>
-            <a href="/pengurus/dashboard" class="sb-link"><i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard</a>
-            <a href="/pengurus/members" class="sb-link active"><i data-lucide="users" style="width:16px;height:16px;"></i> Anggota Wilayah</a>
-            <a href="/pengurus/informations" class="sb-link"><i data-lucide="megaphone" style="width:16px;height:16px;"></i> Informasi</a>
-        </nav>
-        <div class="sb-footer">
-            <div class="sb-section-label" style="margin-top:0;margin-bottom:8px;">Pengaturan</div>
-            <a href="/pengurus/settings" class="sb-link {{ request()->is('pengurus/settings') ? 'active' : '' }}"><i data-lucide="settings" style="width:16px;height:16px;"></i> Pengaturan Akun</a>
-            <button class="sb-link" onclick="logout()" style="color:#fca5a5;margin-top:4px;border:none;background:none;width:100%;text-align:left;"><i data-lucide="log-out" style="width:16px;height:16px;color:#fca5a5;"></i> Keluar Sesi</button>
-        </div>
-    </aside>
+    </div>
 
-    <main class="main-body">
-        <header class="top-header">
-            <div style="font-weight: 600; color: #1e293b; font-size: 1rem;">Administrasi Keanggotaan Wilayah</div>
-            <div id="user-info-header" style="display: flex; align-items: center; gap: 12px;">
-                <span id="date-now" style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;"></span>
-                <div id="user-initials" style="width: 32px; height: 32px; background: #eff6ff; color: #004aad; border: 1px solid #dbeafe; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">...</div>
-            </div>
-        </header>
+    <div class="v-card">
+        <table class="v-table">
+            <thead>
+                <tr>
+                    <th width="30%">Identitas Anggota</th>
+                    <th width="20%">Kontak</th>
+                    <th width="25%">Alamat / Wilayah</th>
+                    <th width="15%">Klasifikasi</th>
+                    <th width="10%" style="text-align: right;">Status</th>
+                </tr>
+            </thead>
+            <tbody id="memberTableBody">
+                <!-- Data loaded via JS -->
+                <tr>
+                    <td colspan="5" style="padding: 4rem; text-align: center;">
+                        <span class="loading-spinner"></span>
+                        <p class="v-label-caps" style="margin-top: 1rem;">Memuat Data Anggota...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div id="pagination" style="padding: 1rem 1.25rem; display: flex; justify-content: center; background: var(--v-gray-50); border-top: 1px solid var(--v-gray-100);"></div>
+    </div>
 
-        <div class="view-container">
-            <div class="table-card">
-                <div class="table-header">
-                    <div>
-                        <h2>Daftar Anggota Terkelola</h2>
-                        <p style="font-size: 0.8125rem; color: #64748b; margin-top: 2px;">Data anggota di wilayah koordinasi Anda.</p>
-                    </div>
-                </div>
-
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Informasi Anggota</th>
-                            <th>Kontak Aktif</th>
-                            <th>Domisili Wilayah</th>
-                            <th>Klasifikasi</th>
-                            <th style="text-align: right;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="memberTableBody">
-                        <!-- Data loaded via JS -->
-                    </tbody>
-                </table>
-                <div id="pagination" style="padding: 16px 32px; display: flex; justify-content: center; background: white; border-top: 1px solid #f1f5f9;"></div>
-            </div>
-        </div>
-    </main>
-</div>
-@endsection
-
-@push('scripts')
-@vite(['resources/css/pages/pengurus_members.css', 'resources/js/pages/pengurus_members.js'])
-
-
-@endpush
-
-@push("scripts")
-<script>
-    window.sessionSuccess = "{{ session("success") }}";
-    window.sessionError = "{{ session("error") }}";
-</script>
-@endpush
+    @push('scripts')
+    @vite(['resources/js/pages/pengurus_members.js'])
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if(window.lucide) window.lucide.createIcons();
+        });
+    </script>
+    @endpush
+</x-admin-layout>

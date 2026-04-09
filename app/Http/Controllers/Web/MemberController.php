@@ -33,16 +33,30 @@ class MemberController extends Controller
     {
         $member = Auth::guard('member')->user();
 
-        if (!$request->input('is_interested')) {
+        if (!$request->input('is_interested_pengurus')) {
             return redirect()->route('member.profile');
         }
 
         $data = $request->validated();
+        
+        // Handle certificate path
         if ($request->hasFile('org_certificate')) {
-            $data['org_certificate'] = $request->file('org_certificate');
+            $data['org_certificate_path'] = $request->file('org_certificate')->store('certificates', 'public');
         }
 
-        $this->memberService->applyForPengurus($member, $data);
+        // Update Member data explicitly
+        $member->update([
+            'is_interested_pengurus' => true,
+            'interest_pil'           => $request->boolean('interest_pil', false) ? 1 : 0,
+            'interest_keliling'      => $request->boolean('interest_keliling', false) ? 1 : 0,
+            'status_pengurus'        => 'pendaftaran_diterima',
+            'has_org_experience'     => $data['has_org_experience'],
+            'org_name'               => $data['org_name'] ?? null,
+            'org_position'           => $data['org_position'] ?? null,
+            'org_duration_months'    => $data['org_duration_months'] ?? null,
+            'org_description'        => $data['org_description'] ?? null,
+            'org_certificate_path'   => $data['org_certificate_path'] ?? $member->org_certificate_path,
+        ]);
 
         return redirect()->route('member.profile')->with('success', 'Permohonan pengurus berhasil dikirim. Menunggu persetujuan admin.');
     }

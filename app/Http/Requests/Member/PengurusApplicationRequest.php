@@ -18,6 +18,8 @@ class PengurusApplicationRequest extends FormRequest
     {
         return [
             'is_interested_pengurus' => 'required|boolean',
+            'interest_pil' => 'nullable|boolean',
+            'interest_keliling' => 'nullable|boolean',
             'has_org_experience' => 'required_if:is_interested_pengurus,true|boolean',
             'org_count' => 'required_if:has_org_experience,true|integer|min:1',
             'org_name' => 'required_if:has_org_experience,true|string',

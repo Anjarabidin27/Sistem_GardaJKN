@@ -27,8 +27,8 @@ class BpjsKelilingController extends Controller
 
             if ($userRole === 'admin_wilayah' && $userKW) {
                 $query->where('kedeputian_wilayah', 'LIKE', '%' . $userKW . '%');
-            } elseif (in_array($userRole, ['petugas_keliling', 'administrator']) && $userKC) {
-                // Robust fuzzy match: removes common prefixes like "KC " or "Bandung" vs "KC Bandung"
+            } elseif (in_array($userRole, ['petugas_keliling', 'petugas_pil', 'administrator', 'admin']) && $userKC) {
+                // Robust fuzzy match: removes common prefixes like "KC "
                 $cleanKC = str_ireplace('KC ', '', $userKC);
                 $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
             }
@@ -62,7 +62,7 @@ class BpjsKelilingController extends Controller
             'status' => 'required|in:scheduled,ongoing,completed,cancelled'
         ]);
 
-        $user = auth()->user();
+        $user = auth()->user() ?: auth('admin')->user();
         if ($user) {
             $validated['created_by'] = $user->id;
             
@@ -215,19 +215,39 @@ class BpjsKelilingController extends Controller
         
         $query = BpjsKeliling::query()
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
-            ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai));
+            ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai))
+            ->when($request->jenis_kegiatan, fn($q) => $q->where('jenis_kegiatan', $request->jenis_kegiatan))
+            ->when($request->kuadran, fn($q) => $q->where('kuadran', $request->kuadran))
+            ->when($request->status, fn($q) => $q->where('status', $request->status))
+            ->when($request->provinsi_id, fn($q) => $q->where('provinsi_id', $request->provinsi_id))
+            ->when($request->kota_id, fn($q) => $q->where('kota_id', $request->kota_id));
 
         // ACL (Access Control List) based on Role - Only if user exists
+        $contextLabel = 'Nasional';
+
         if ($user) {
             $userRole = $user->role;
             $userKC   = trim($user->kantor_cabang);
             $userKW   = trim($user->kedeputian_wilayah);
 
-            if ($userRole === 'admin_wilayah' && $userKW) {
-                // Fuzzy match for Region
+            if ($userRole === 'superadmin') {
+                $contextLabel = 'Nasional';
+                // Jika Superadmin memilih filter manual, filter tersebut akan menimpa filter regional default
+                if ($request->kedeputian_wilayah) {
+                    $query->where('kedeputian_wilayah', 'LIKE', '%' . $request->kedeputian_wilayah . '%');
+                }
+                if ($request->kantor_cabang) {
+                    $query->where('kantor_cabang', 'LIKE', '%' . $request->kantor_cabang . '%');
+                }
+            } elseif ($userRole === 'admin_wilayah' && $userKW) {
+                $contextLabel = $userKW;
                 $query->where('kedeputian_wilayah', 'LIKE', '%' . $userKW . '%');
-            } elseif (in_array($userRole, ['petugas_keliling', 'administrator']) && $userKC) {
-                // Robust fuzzy match: removes common prefixes like "KC " or "Bandung" vs "KC Bandung"
+                // Admin Wilayah bisa memfilter level KC di bawahnya
+                if ($request->kantor_cabang) {
+                    $query->where('kantor_cabang', 'LIKE', '%' . $request->kantor_cabang . '%');
+                }
+            } elseif (in_array($userRole, ['petugas_keliling', 'administrator', 'admin']) && $userKC) {
+                $contextLabel = $userKC;
                 $cleanKC = str_ireplace('KC ', '', $userKC);
                 $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
             }
@@ -250,6 +270,7 @@ class BpjsKelilingController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => [
+                'context' => $contextLabel,
                 // 1, 2, 3, 4: Basic Stats & Percentages
                 'total_peserta' => $totalHadir,
                 'layanan_informasi' => [

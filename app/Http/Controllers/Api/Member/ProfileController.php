@@ -53,6 +53,8 @@ class ProfileController extends Controller
         
         $updateData = [
             'is_interested_pengurus' => $data['is_interested_pengurus'],
+            'interest_pil'           => $data['interest_pil'] ?? 0,
+            'interest_keliling'      => $data['interest_keliling'] ?? 0,
             'status_pengurus'        => $data['is_interested_pengurus'] ? 'pendaftaran_diterima' : 'tidak_mendaftar',
         ];
 

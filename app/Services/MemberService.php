@@ -22,6 +22,14 @@ class MemberService
             $data = $dto->toArray();
             $data['password'] = Hash::make($dto->password);
 
+            // Automated Kantor Cabang Assignment
+            if ($dto->city_id) {
+                $kc = \App\Models\KantorCabang::where('city_id', $dto->city_id)->first();
+                if ($kc) {
+                    $data['kantor_cabang_id'] = $kc->id;
+                }
+            }
+
             // Jika berminat jadi pengurus, status otomatis jadi 'pendaftaran_diterima' (Menunggu Persetujuan)
             if ($dto->is_interested_pengurus) {
                 $data['status_pengurus'] = 'pendaftaran_diterima';
@@ -166,9 +174,26 @@ class MemberService
                 } else {
                     $member->role = 'pengurus'; // Fallback generic
                 }
+
+                // Sync to AdminUser table for Dashboard Access
+                \App\Models\AdminUser::updateOrCreate(
+                    ['username' => $member->nik],
+                    [
+                        'password' => $member->password, // Password is already hashed
+                        'name' => $member->name,
+                        'role' => $member->role,
+                        'kantor_cabang_id' => $member->kantor_cabang_id,
+                        'kantor_cabang' => $member->kantor_cabang_id ? $member->kantorCabang?->name : null,
+                        'kedeputian_wilayah' => $member->kantor_cabang_id ? $member->kantorCabang?->kedeputianWilayah?->name : null,
+                    ]
+                );
+
             } else {
                 $member->role = 'anggota';
                 $member->status_pengurus = 'ditolak';
+
+                // Remove from AdminUser if rejected later
+                \App\Models\AdminUser::where('username', $member->nik)->delete();
             }
             
             $member->save();

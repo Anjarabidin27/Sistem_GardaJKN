@@ -9,9 +9,16 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                const res = await axios.post('admin/login', payload);
+                const btn = document.querySelector('button[type="submit"]');
+                if (btn) { btn.disabled = true; btn.dataset.oldText = btn.innerHTML; btn.innerHTML = 'Memproses...'; }
+                
+                // Hide error box on new attempt
+                const errorBox = document.getElementById('login-error-box');
+                if (errorBox) errorBox.style.display = 'none';
+
+                const res = await window.axios.post('admin/login', payload);
                 if(res.data.success) {
-                    window.showToast('Otorisasi admin berhasil!', 'success');
+                    if (window.showToast) window.showToast('Otorisasi admin berhasil!', 'success');
                     localStorage.setItem('auth_token', res.data.data.token);
                     localStorage.setItem('user_role', res.data.data.role);
                     localStorage.setItem('user_name', res.data.data.name);
@@ -19,14 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('kedeputian_wilayah', res.data.data.kedeputian_wilayah);
                     
                     let targetUrl = '/admin/dashboard';
-                    if (res.data.data.role === 'petugas_keliling') targetUrl = '/admin/bpjs-keliling';
-                    else if (res.data.data.role === 'petugas_pil') targetUrl = '/admin/pil';
+                    if (res.data.data.role === 'petugas_keliling') targetUrl = '/admin/bpjs-keliling/dashboard';
+                    else if (res.data.data.role === 'petugas_pil') targetUrl = '/admin/pil/dashboard';
 
                     setTimeout(() => {
                         window.location.href = targetUrl;
                     }, 1000);
                 }
             } catch (error) {
+                const btn = document.querySelector('button[type="submit"]');
+                if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.oldText || 'Masuk Dashboard'; }
+                
                 console.error('Admin Login Error:', error.response?.data);
                 let errorMsg = 'Kredensial admin tidak valid.';
                 if (error.response?.data?.errors) {
@@ -34,7 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (error.response?.data?.message) {
                     errorMsg = error.response.data.message;
                 }
-                window.showToast(errorMsg, 'error');
+                
+                // Show in alert box
+                const errorBox = document.getElementById('login-error-box');
+                const errorMsgEl = document.getElementById('login-error-msg');
+                if (errorBox && errorMsgEl) {
+                    errorMsgEl.innerText = errorMsg;
+                    errorBox.style.display = 'block';
+                    if(window.lucide) window.lucide.createIcons();
+                }
+
+                if (window.showToast) window.showToast(errorMsg, 'error');
             }
         });
     }
