@@ -1,0 +1,47 @@
+============================================================
+SISTEM GARDA JKN - LAPORAN SERAH TERIMA PROYEK
+============================================================
+
+Halo Pak
+
+Berikut adalah folder proyek Garda JKN terbaru. Untuk menjalankan 
+aplikasi ini di perangkat Bapak/Ibu, silakan ikuti langkah berikut:
+
+1. PERSIAPAN DEPENDENSI
+   Buka terminal/command prompt di dalam folder ini, lalu jalankan:
+   > composer install
+   > npm install
+   > npm run build (untuk compile aset frontend)
+
+2. SETTING DATABASE (.env)
+   Pastikan file .env sudah dikonfigurasi. Jika belum ada, copy dari 
+   .env.example lalu sesuaikan DB_DATABASE-nya.
+
+3. MENGISI DATA AWAL (PENTING!)
+   Aplikasi ini menggunakan sistem isolasi data regional. Agar data 
+   muncul sesuai wilayah, jalankan perintah:
+   > php artisan migrate:fresh --seed
+
+4. MENJALANKAN APLIKASI
+   > php artisan serve
+
+============================================================
+FITUR UTAMA YANG SUDAH SELESAI:
+============================================================
+
+1. ISOLASI DATA REGIONAL (ACL):
+   Sistem secara otomatis memfilter data berdasarkan Kantor Cabang
+   petugas yang login. Data tidak akan bocor antar cabang.
+
+2. OTOMATISASI FORM (PIL & BPJS KELILING):
+   Waktu pelaksanaan (Jam Mulai/Selesai) peserta otomatis terisi
+   berdasarkan jadwal kegiatan induk. Mempercepat entry data.
+
+3. STANDARISASI NOMOR MIGRASI:
+   Seluruh database migration sudah diurutkan secara sistematis
+   (000001 - 000021) untuk kemudahan maintenance.
+
+
+
+Terima kasih.
+============================================================
