@@ -33,7 +33,7 @@
 
             <div class="role-nav">
                 <button id="btn-member" class="active" onclick="switchRole('member')">Anggota</button>
-                <button id="btn-pengurus" onclick="switchRole('pengurus')">Pengurus</button>
+                <button id="btn-pengurus" onclick="switchRole('pengurus')" style="display: none;">Pengurus</button>
                 <button id="btn-petugas" onclick="switchRole('petugas')">Petugas</button>
             </div>
 
