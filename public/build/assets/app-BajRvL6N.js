@@ -1,0 +1,1 @@
+import{a}from"./index-C0Zqfgkc.js";window.axios=a;window.axios.defaults.baseURL="/api/";window.axios.defaults.headers.common["X-Requested-With"]="XMLHttpRequest";window.axios.defaults.headers.common.Accept="application/json";const o=localStorage.getItem("auth_token");o&&(window.axios.defaults.headers.common.Authorization=`Bearer ${o}`);

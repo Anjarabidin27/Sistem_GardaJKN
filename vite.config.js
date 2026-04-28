@@ -38,7 +38,12 @@ export default defineConfig({
                 'resources/css/pages/pengurus_informations.css',
                 'resources/js/pages/pengurus_informations.js',
                 'resources/css/pages/pengurus_members.css',
-                'resources/js/pages/pengurus_members.js'
+                'resources/js/pages/pengurus_members.js',
+                'resources/js/pages/admin_staff_index.js',
+                'resources/js/pages/admin_bpjs_keliling_laporan.js',
+                'resources/js/pages/auth_petugas_login.js',
+                'resources/js/pages/bpjs_keliling.js',
+                'resources/js/pages/pil.js'
             ],
             refresh: true,
         }),

@@ -1,4 +1,8 @@
 {
+  "_index-C0Zqfgkc.js": {
+    "file": "assets/index-C0Zqfgkc.js",
+    "name": "index"
+  },
   "resources/css/admin.css": {
     "file": "assets/admin-DoAlsgtT.css",
     "src": "resources/css/admin.css",
@@ -137,10 +141,13 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-BuTqi6to.js",
+    "file": "assets/app-BajRvL6N.js",
     "name": "app",
     "src": "resources/js/app.js",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_index-C0Zqfgkc.js"
+    ]
   },
   "resources/js/pages/admin-dashboard.js": {
     "file": "assets/admin-dashboard-cm3wNBr-.js",
@@ -166,6 +173,12 @@
     "src": "resources/js/pages/admin_bpjs_keliling_index.js",
     "isEntry": true
   },
+  "resources/js/pages/admin_bpjs_keliling_laporan.js": {
+    "file": "assets/admin_bpjs_keliling_laporan-C3nlmvjA.js",
+    "name": "admin_bpjs_keliling_laporan",
+    "src": "resources/js/pages/admin_bpjs_keliling_laporan.js",
+    "isEntry": true
+  },
   "resources/js/pages/admin_informations_index.js": {
     "file": "assets/admin_informations_index-BSG3Jmb9.js",
     "name": "admin_informations_index",
@@ -182,6 +195,12 @@
     "file": "assets/admin_pil_index-3d8aZ7ns.js",
     "name": "admin_pil_index",
     "src": "resources/js/pages/admin_pil_index.js",
+    "isEntry": true
+  },
+  "resources/js/pages/admin_staff_index.js": {
+    "file": "assets/admin_staff_index-rp9ZPHgJ.js",
+    "name": "admin_staff_index",
+    "src": "resources/js/pages/admin_staff_index.js",
     "isEntry": true
   },
   "resources/js/pages/apply_pengurus.js": {
@@ -202,10 +221,25 @@
     "src": "resources/js/pages/auth_login.js",
     "isEntry": true
   },
+  "resources/js/pages/auth_petugas_login.js": {
+    "file": "assets/auth_petugas_login-BjNJM6oA.js",
+    "name": "auth_petugas_login",
+    "src": "resources/js/pages/auth_petugas_login.js",
+    "isEntry": true,
+    "imports": [
+      "_index-C0Zqfgkc.js"
+    ]
+  },
   "resources/js/pages/auth_register.js": {
     "file": "assets/auth_register-DHqqeIH1.js",
     "name": "auth_register",
     "src": "resources/js/pages/auth_register.js",
+    "isEntry": true
+  },
+  "resources/js/pages/bpjs_keliling.js": {
+    "file": "assets/bpjs_keliling-DyYCnIo5.js",
+    "name": "bpjs_keliling",
+    "src": "resources/js/pages/bpjs_keliling.js",
     "isEntry": true
   },
   "resources/js/pages/common_settings.js": {
@@ -242,6 +276,12 @@
     "file": "assets/pengurus_members-sGX2VY6r.js",
     "name": "pengurus_members",
     "src": "resources/js/pages/pengurus_members.js",
+    "isEntry": true
+  },
+  "resources/js/pages/pil.js": {
+    "file": "assets/pil-D2mEaFMI.js",
+    "name": "pil",
+    "src": "resources/js/pages/pil.js",
     "isEntry": true
   }
 }
