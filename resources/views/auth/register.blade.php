@@ -70,8 +70,9 @@
                     <div class="section-title"><i data-lucide="user"></i> Data Identitas Utama</div>
                     <div class="input-grid">
                         <div class="form-group">
-                            <label class="form-label">NIK (16 Digit)</label>
-                            <input type="tel" id="nik" class="form-control" placeholder="Sesuai KTP" required minlength="16" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);">
+                            <label class="form-label">NIK (16 Digit) <span style="color: red;">*</span></label>
+                            <input type="tel" id="nik" class="form-control" placeholder="Sesuai KTP" required minlength="16" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16); document.getElementById('nik-error').style.display = 'none'; this.style.borderColor = '';">
+                            <div id="nik-error" style="color: #EF4444; font-size: 0.75rem; margin-top: 6px; display: none; font-weight: 600;"><i data-lucide="info" style="width: 12px; height: 12px; vertical-align: -2px; margin-right: 2px;"></i> <span id="nik-error-text">NIK ini sudah terdaftar.</span></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Nomor Kartu JKN</label>
@@ -80,31 +81,31 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Nama Lengkap</label>
+                        <label class="form-label">Nama Lengkap <span style="color: red;">*</span></label>
                         <input type="text" id="name" class="form-control" placeholder="Sesuai KTP (Tanpa Gelar)" required>
                     </div>
 
                     <div class="input-grid">
                         <div class="form-group">
-                            <label class="form-label">WhatsApp (Aktif)</label>
+                            <label class="form-label">WhatsApp (Aktif) <span style="color: red;">*</span></label>
                             <input type="text" id="phone" class="form-control" placeholder="0812..." required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Tanggal Lahir</label>
+                            <label class="form-label">Tanggal Lahir <span style="color: red;">*</span></label>
                             <input type="date" id="birth_date" class="form-control" required>
                         </div>
                     </div>
 
                     <div class="input-grid">
                         <div class="form-group">
-                            <label class="form-label">Jenis Kelamin</label>
+                            <label class="form-label">Jenis Kelamin <span style="color: red;">*</span></label>
                             <select id="gender" class="form-control" required>
                                 <option value="L">Laki-laki</option>
                                 <option value="P">Perempuan</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Pendidikan Terakhir</label>
+                            <label class="form-label">Pendidikan Terakhir <span style="color: red;">*</span></label>
                             <select id="education" class="form-control" required>
                                 <option value="SD">SD</option>
                                 <option value="SMP">SMP</option>
@@ -118,7 +119,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Jenis Pekerjaan</label>
+                        <label class="form-label">Jenis Pekerjaan <span style="color: red;">*</span></label>
                         <select id="occupation" class="form-control" required>
                             <option value="BELUM/TIDAK BEKERJA">BELUM/TIDAK BEKERJA</option>
                             <option value="MENGURUS RUMAH TANGGA">MENGURUS RUMAH TANGGA</option>
@@ -150,19 +151,19 @@
 
                     <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                         <div>
-                            <label class="form-label">Provinsi</label>
+                            <label class="form-label">Provinsi <span style="color: red;">*</span></label>
                             <select id="province" class="form-control" onchange="window.loadCities(this.value, 'city')" required>
                                 <option value="">Pilih...</option>
                             </select>
                         </div>
                         <div>
-                            <label class="form-label">Kota/Kab</label>
+                            <label class="form-label">Kota/Kab <span style="color: red;">*</span></label>
                             <select id="city" class="form-control" onchange="window.loadDistricts(this.value, 'district')" required disabled>
                                 <option value="">Pilih...</option>
                             </select>
                         </div>
                         <div>
-                            <label class="form-label">Kecamatan</label>
+                            <label class="form-label">Kecamatan <span style="color: red;">*</span></label>
                             <select id="district" class="form-control" required disabled>
                                 <option value="">Pilih...</option>
                             </select>
@@ -170,7 +171,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Alamat Lengkap (KTP)</label>
+                        <label class="form-label">Alamat Lengkap (KTP) <span style="color: red;">*</span></label>
                         <textarea id="address" class="form-control" rows="2" style="resize: none;" placeholder="Jl. Sudirman No. 123..." required></textarea>
                     </div>
 
@@ -205,37 +206,11 @@
                 <div class="form-step" id="step-3">
                     <div class="section-title"><i data-lucide="settings"></i> Peminatan & Keamanan</div>
                     
-                    <div class="form-group" style="background: #f0f9ff; padding: 14px; border-radius: 10px; border: 1px solid #bae6fd; margin-bottom: 20px;">
-                        <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
-                            <input type="checkbox" id="is_interested_pengurus" style="width: 18px; height: 18px; margin-top: 3px;" onchange="toggleStaffInterest(this.checked)">
-                            <div>
-                                <span style="font-size: 0.9rem; font-weight: 800; color: #0c4a6e; display: block;">Berminat jadi Pengurus?</span>
-                                <span style="font-size: 0.75rem; color: #0369a1;">Centang jika ingin bergabung di tim lapangan.</span>
-                            </div>
-                        </label>
 
-                        <div id="staff_detail_section" style="display: none; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #bae6fd;">
-                            <div class="form-group">
-                                <label class="form-label">Modul & Pengalaman</label>
-                                <div style="display: flex; gap: 15px; margin-bottom: 10px;">
-                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem;"><input type="checkbox" id="interest_pil"> PIL</label>
-                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem;"><input type="checkbox" id="interest_keliling"> Keliling</label>
-                                </div>
-                                <select id="has_org_experience" class="form-control" onchange="toggleOrgDetail(this.value)" style="padding: 8px 12px; font-size: 0.85rem;">
-                                    <option value="0">Tanpa Pengalaman Organisasi</option>
-                                    <option value="1">Ada Pengalaman Organisasi</option>
-                                </select>
-                            </div>
-                            <div id="org_detail_wrap" style="display: none;">
-                                <input type="text" id="org_name" class="form-control" placeholder="Nama Organisasi" style="margin-bottom: 8px;">
-                                <textarea id="pengurus_reason" class="form-control" rows="2" placeholder="Alasan bergabung..."></textarea>
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="input-grid">
                         <div class="form-group">
-                            <label class="form-label">Kata Sandi</label>
+                            <label class="form-label">Kata Sandi <span style="color: red;">*</span></label>
                             <div class="input-group-password" style="position: relative;">
                                 <input type="password" id="password" class="form-control" placeholder="Min. 8 Karakter" required>
                                 <button type="button" onclick="togglePassword('password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer;">
@@ -244,7 +219,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Konfirmasi</label>
+                            <label class="form-label">Konfirmasi <span style="color: red;">*</span></label>
                             <div class="input-group-password" style="position: relative;">
                                 <input type="password" id="password_confirmation" class="form-control" placeholder="Ulangi..." required>
                                 <button type="button" onclick="togglePassword('password_confirmation')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer;">
@@ -293,24 +268,7 @@
         }
     }
 
-    function toggleStaffInterest(isInterested) {
-        const section = document.getElementById('staff_detail_section');
-        if (section) {
-            section.style.display = isInterested ? 'block' : 'none';
-            
-            // Auto scroll to detail
-            if(isInterested) {
-                section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
-    }
 
-    function toggleOrgDetail(hasExp) {
-        const wrap = document.getElementById('org_detail_wrap');
-        if (wrap) {
-            wrap.style.display = (hasExp == "1") ? 'block' : 'none';
-        }
-    }
 
     // Fitur Auto-Save (Draft on Refresh)
     document.addEventListener('DOMContentLoaded', () => {

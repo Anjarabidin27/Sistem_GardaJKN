@@ -42,8 +42,8 @@ function renderTable(items) {
                         <i data-lucide="user-plus" style="width:14px;"></i>
                         <span>Entry Peserta</span>
                     </button>
-                    <button class="btn btn-sm btn-icon" style="background:#f1f5f9; color:#64748b;">
-                        <i data-lucide="eye" style="width:14px;"></i>
+                    <button class="btn btn-sm btn-icon" style="background:#f0fdf4; color:#16a34a; border: 1px solid #bbf7d0;" onclick="window.showQR('${item.id}', '${item.judul}')" title="Tampilkan QR Survei">
+                        <i data-lucide="qr-code" style="width:14px;"></i>
                     </button>
                 </td>
             </tr>
@@ -137,10 +137,16 @@ function initForms() {
                     document.getElementById('div_keterangan_gagal').style.display = 'none';
                     window.showToast('Data peserta tersimpan!', 'success');
                     loadData();
+                } else if (res.data.status === 'error') {
+                    alert(res.data.message);
                 }
             } catch (err) {
                 console.error(err);
-                alert('Gagal simpan peserta. Cek NIK (16 digit) dan kelengkapan data.');
+                if (err.response && err.response.data && err.response.data.message) {
+                    alert(err.response.data.message);
+                } else {
+                    alert('Gagal simpan peserta. Cek NIK (16 digit) dan kelengkapan data.');
+                }
             } finally {
                 btn.disabled = false; btn.innerText = 'Simpan & Input Peserta Lagi';
             }
@@ -207,4 +213,15 @@ window.showModal = (id) => {
 window.hideModal = (id) => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
+};
+
+window.showQR = (id, title) => {
+    const url = window.location.origin + '/survei/' + id;
+    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
+    
+    document.getElementById('qr-title').innerText = title;
+    document.getElementById('qr-image').src = qrUrl;
+    document.getElementById('qr-link').href = url;
+    
+    window.showModal('modalQR');
 };

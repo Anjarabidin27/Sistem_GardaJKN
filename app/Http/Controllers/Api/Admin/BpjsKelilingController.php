@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BpjsKeliling;
+use App\Models\BpjsKelilingParticipant;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class BpjsKelilingController extends Controller
 {
@@ -41,6 +43,92 @@ class BpjsKelilingController extends Controller
             'data' => $query->get()->append('status_label')
         ]);
     }
+
+    /**
+     * Export peserta BPJS Keliling berdasarkan rentang tanggal (max 31 hari)
+     */
+    public function exportByRange(Request $request)
+    {
+        $request->validate([
+            'dari'   => 'required|date',
+            'sampai' => 'required|date|after_or_equal:dari',
+        ]);
+
+        $dari   = Carbon::parse($request->dari)->startOfDay();
+        $sampai = Carbon::parse($request->sampai)->endOfDay();
+
+        // Validasi maksimal 31 hari
+        if ($dari->diffInDays($sampai) > 31) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Rentang waktu maksimal adalah 31 hari (1 bulan).',
+            ], 422);
+        }
+
+        $user = auth()->user() ?: auth('admin')->user();
+
+        // Query kegiatan dalam rentang
+        $query = BpjsKeliling::with(['participants', 'provinsi', 'kota'])
+            ->whereDate('tanggal', '>=', $dari)
+            ->whereDate('tanggal', '<=', $sampai);
+
+        // ACL — sama persis dengan index()
+        if ($user) {
+            $userRole = $user->role;
+            $userKC   = trim($user->kantor_cabang);
+            $userKW   = trim($user->kedeputian_wilayah);
+
+            if ($userRole === 'admin_wilayah' && $userKW) {
+                $query->where('kedeputian_wilayah', 'LIKE', '%' . $userKW . '%');
+            } elseif (in_array($userRole, ['petugas_keliling', 'petugas_pil', 'administrator', 'admin']) && $userKC) {
+                $cleanKC = str_ireplace('KC ', '', $userKC);
+                $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
+            }
+        }
+
+        $kegiatan = $query->orderBy('tanggal')->get();
+
+        // Flatten semua peserta dengan info kegiatan induk
+        $rows = [];
+        foreach ($kegiatan as $keg) {
+            foreach ($keg->participants as $p) {
+                // Skip dummy NIK dari QR survei (diawali dengan '99')
+                if (str_starts_with($p->nik, '99') && strlen($p->nik) === 16) continue;
+
+                $rows[] = [
+                    'tanggal'           => $keg->tanggal,
+                    'judul_kegiatan'    => $keg->judul,
+                    'jenis_kegiatan'    => $keg->jenis_kegiatan,
+                    'kuadran'           => $keg->kuadran,
+                    'kantor_cabang'     => $keg->kantor_cabang,
+                    'kota'              => $keg->kota?->name ?? '-',
+                    'nama_desa'         => $keg->nama_desa ?? '-',
+                    'jam_mulai'         => $p->jam_mulai,
+                    'jam_selesai'       => $p->jam_selesai,
+                    'nik'               => $p->nik,
+                    'name'              => $p->name ?? '-',
+                    'segmen_peserta'    => $p->segmen_peserta,
+                    'jenis_layanan'     => $p->jenis_layanan,
+                    'transaksi_layanan' => $p->transaksi_layanan ?? '-',
+                    'status'            => $p->status,
+                    'keterangan_gagal'  => $p->keterangan_gagal ?? '-',
+                    'suara_pelanggan'   => $p->suara_pelanggan ?? '-',
+                ];
+            }
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'meta'    => [
+                'dari'           => $dari->toDateString(),
+                'sampai'         => $sampai->toDateString(),
+                'total_kegiatan' => $kegiatan->count(),
+                'total_peserta'  => count($rows),
+            ],
+            'data'    => $rows,
+        ]);
+    }
+
 
     public function store(Request $request)
     {
@@ -168,6 +256,22 @@ class BpjsKelilingController extends Controller
             'keterangan_gagal'  => 'nullable|string',
             'suara_pelanggan'   => 'nullable|in:Puas,Tidak puas'
         ]);
+
+        $exists = \App\Models\BpjsKelilingParticipant::whereHas('activity', function($q) use ($kegiatan) {
+            $q->whereDate('tanggal', $kegiatan->tanggal);
+        })->where(function($q) use ($request) {
+            $q->where('nik', $request->nik);
+            if ($request->phone_number) {
+                $q->orWhere('phone_number', $request->phone_number);
+            }
+        })->exists();
+
+        if ($exists) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'NIK atau Nomor HP sudah terdaftar pada kegiatan di hari yang sama.'
+            ], 422);
+        }
 
         // Otomatis ubah header status menjadi completed jika mulai ngisi peserta (sesuai kemudahan) atau biarkan ongoing.
         if ($kegiatan->status === 'scheduled') {

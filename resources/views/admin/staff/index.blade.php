@@ -115,7 +115,6 @@
                                 <label class="v-label" style="display:block; margin-bottom: 6px;">Role / Akses</label>
                                 <select id="staffRole" class="form-input" style="width:100%; border-radius: 6px; border: 1px solid #E2E8F0; padding: 8px 12px; font-size: 0.85rem;">
                                     <option value="superadmin">Super Admin</option>
-                                    <option value="administrator">Administrator</option>
                                     <option value="admin_wilayah">Admin Wilayah</option>
                                     <option value="petugas_keliling">Petugas Keliling</option>
                                     <option value="petugas_pil">Petugas PIL</option>

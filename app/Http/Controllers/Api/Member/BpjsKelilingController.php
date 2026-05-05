@@ -61,6 +61,22 @@ class BpjsKelilingController extends Controller
             'keterangan_gagal'  => 'nullable|string',
         ]);
 
+        $exists = \App\Models\BpjsKelilingParticipant::whereHas('activity', function($q) use ($kegiatan) {
+            $q->whereDate('tanggal', $kegiatan->tanggal);
+        })->where(function($q) use ($request) {
+            $q->where('nik', $request->nik);
+            if ($request->phone_number) {
+                $q->orWhere('phone_number', $request->phone_number);
+            }
+        })->exists();
+
+        if ($exists) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'NIK atau Nomor HP sudah terdaftar pada kegiatan di hari yang sama.'
+            ], 422);
+        }
+
         $participant = $kegiatan->participants()->create($validated);
         
         // Recalculate summary in header

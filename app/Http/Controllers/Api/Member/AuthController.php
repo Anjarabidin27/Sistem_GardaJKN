@@ -30,6 +30,13 @@ class AuthController extends Controller
         return $this->successResponse('Pendaftaran berhasil! Silakan login.', $member, 201);
     }
 
+    public function checkNik(Request $request)
+    {
+        $request->validate(['nik' => 'required|numeric|digits:16']);
+        $exists = \App\Models\Member::where('nik', $request->nik)->exists();
+        return response()->json(['available' => !$exists]);
+    }
+
     public function login(LoginRequest $request)
     {
         // Secara default Laravel SoftDeletes akan meng-exclude record yang dihapus

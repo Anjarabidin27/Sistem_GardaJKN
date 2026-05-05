@@ -3,72 +3,74 @@
         <!-- Unified Profile Card -->
         <div class="table-card" style="border: none; background: white; padding: 0; border-radius: 28px; margin-bottom: 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden;">
             <!-- Header: Blue Strip -->
-            <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: white; padding: 40px; position: relative;">
+            <div class="profile-header-strip" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: white; padding: 40px; position: relative;">
                 <div style="position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
                 
-                <div class="flex items-center gap-8" style="position: relative; z-index: 2;">
-                    <div id="avatarContainer" class="overflow-hidden" style="width: 100px; height: 100px; background: rgba(255,255,255,0.15); border: 3px solid rgba(255,255,255,0.3); border-radius: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 8px 16px rgba(0,0,0,0.1);">
-                        <i data-lucide="user" style="width: 48px; height: 48px; opacity: 0.8;"></i>
+                <div class="flex items-center gap-8 profile-header-container" style="position: relative; z-index: 2;">
+                    <div id="avatarContainer" class="overflow-hidden" style="width: 100px; height: 100px; background: rgba(255,255,255,0.15); border: 3px solid rgba(255,255,255,0.3); border-radius: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 8px 16px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                        <i data-lucide="user" style="width: 48px; height: 48px; opacity: 0.8; transition: all 0.3s ease;"></i>
                     </div>
-                    <div style="flex: 1;">
+                    <div class="profile-header-text" style="flex: 1;">
                         <h1 id="nameDisplay" style="color: white; font-size: 1.85rem; font-weight: 800; margin: 0; letter-spacing: -0.01em;">Memuat...</h1>
-                        <div class="flex gap-6 mt-2" style="font-size: 0.95rem; opacity: 0.85; font-weight: 500;">
+                        <div class="flex gap-6 mt-2 profile-info-row" style="font-size: 0.95rem; opacity: 0.85; font-weight: 500;">
                             <span>NIK: <strong id="nikDisplay" style="font-weight: 700;">—</strong></span>
-                            <span style="opacity: 0.4;">|</span>
+                            <span class="info-separator" style="opacity: 0.4;">|</span>
                             <span>No. JKN: <strong id="jknDisplay" style="font-weight: 700;">—</strong></span>
                         </div>
                     </div>
-                    <button class="btn" onclick="window.openEditModal()" style="background: rgba(255,255,255,0.12); color: white; border: 1.5px solid rgba(255,255,255,0.25); border-radius: 14px; padding: 12px 24px; font-size: 0.875rem; font-weight: 700; backdrop-filter: blur(8px);">
-                        <i data-lucide="edit-3" style="width: 16px; height: 16px; margin-right: 10px;"></i> Edit Profil
+                    <button class="btn btn-edit-profile" onclick="window.openEditModal()" style="background: rgba(255,255,255,0.12); color: white; border: 1.5px solid rgba(255,255,255,0.25); border-radius: 14px; padding: 12px 24px; font-size: 0.875rem; font-weight: 700; backdrop-filter: blur(8px); transition: all 0.3s ease;">
+                        <i data-lucide="edit-3" style="width: 16px; height: 16px; margin-right: 8px;"></i> <span>Edit Profil</span>
                     </button>
                 </div>
             </div>
 
             <!-- Body: Data Grid -->
-            <div style="padding: 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; background: white;">
+            <div class="profile-body-grid" style="padding: 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; background: white;">
                 <div>
                     <div style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; letter-spacing: 0.05em;">
                         <i data-lucide="phone" style="width: 14px; opacity: 0.7;"></i> Kontak
                     </div>
-                    <div style="margin-bottom: 20px;"><div style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">No. WhatsApp</div><div id="phoneDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b;">—</div></div>
-                    <div style="margin-bottom: 20px;"><div style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Tanggal Lahir</div><div id="birthDateDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b;">—</div></div>
-                    <div><div style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Jenis Kelamin</div><div id="genderDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b;">—</div></div>
+                    <div style="margin-bottom: 20px;"><div class="data-label" style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">No. WhatsApp</div><div class="data-value" id="phoneDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b; word-break: break-all;">—</div></div>
+                    <div class="mobile-grid-2">
+                        <div style="margin-bottom: 20px;"><div class="data-label" style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Tanggal Lahir</div><div class="data-value" id="birthDateDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b;">—</div></div>
+                        <div><div class="data-label" style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Jenis Kelamin</div><div class="data-value" id="genderDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b;">—</div></div>
+                    </div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; letter-spacing: 0.05em;">
                         <i data-lucide="briefcase" style="width: 14px; opacity: 0.7;"></i> Pekerjaan
                     </div>
-                    <div style="margin-bottom: 24px;"><div style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Jenis Pekerjaan</div><div id="occupationDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b;">—</div></div>
-                    <div><div style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Pendidikan Terakhir</div><div id="educationDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b;">—</div></div>
+                    <div style="margin-bottom: 24px;"><div class="data-label" style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Jenis Pekerjaan</div><div class="data-value" id="occupationDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b; word-break: break-word;">—</div></div>
+                    <div><div class="data-label" style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Pendidikan Terakhir</div><div class="data-value" id="educationDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b; word-break: break-word;">—</div></div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; letter-spacing: 0.05em;">
                         <i data-lucide="map-pin" style="width: 14px; opacity: 0.7;"></i> Domisili
                     </div>
-                    <div style="margin-bottom: 24px;"><div style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Wilayah</div><div id="regionDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b; line-height: 1.3;">—</div></div>
-                    <div><div style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Alamat Lengkap</div><div id="addressDetail" style="font-size: 1.15rem; font-weight: 800; color: #1e293b; line-height: 1.4;">—</div></div>
+                    <div style="margin-bottom: 24px;"><div class="data-label" style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Wilayah</div><div class="data-value" id="regionDisplay" style="font-size: 1.15rem; font-weight: 800; color: #1e293b; line-height: 1.3;">—</div></div>
+                    <div><div class="data-label" style="font-size: 0.7rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; margin-bottom: 4px;">Alamat Lengkap</div><div class="data-value" id="addressDetail" style="font-size: 1.15rem; font-weight: 800; color: #1e293b; line-height: 1.4; word-break: break-word;">—</div></div>
                 </div>
             </div>
         </div>
 
         <!-- Pengurus Banner -->
-        <div id="pengurus-section" style="display:none; margin-bottom: 32px; border: 1px solid rgba(0, 74, 173, 0.1); background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); padding: 24px 32px; border-radius: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.02); border-left: 5px solid var(--primary);">
-            <div class="flex justify-between items-center gap-6">
-                <div style="display: flex; align-items: center; gap: 20px;">
-                    <div style="width: 52px; height: 52px; background: rgba(0, 74, 173, 0.08); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
+        <div id="pengurus-section" class="pengurus-banner" style="display:none; margin-bottom: 32px; border: 1px solid rgba(0, 74, 173, 0.1); background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); padding: 24px 32px; border-radius: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.02); border-left: 5px solid var(--primary);">
+            <div class="flex justify-between items-center gap-6 pengurus-flex">
+                <div class="pengurus-info" style="display: flex; align-items: center; gap: 20px;">
+                    <div class="pengurus-icon" style="width: 52px; height: 52px; background: rgba(0, 74, 173, 0.08); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
                         <i data-lucide="award" style="width: 26px; height: 26px;"></i>
                     </div>
-                    <div>
-                        <div style="font-weight: 800; font-size: 1.1rem; color: #1e293b; letter-spacing: -0.01em;">Ingin jadi Pengurus Garda JKN?</div>
-                        <div style="font-size: 0.875rem; color: #64748b; margin-top: 4px; line-height: 1.5;">Berkontribusi lebih bagi anggota dengan menjadi bagian dari kepengurusan formal kami.</div>
+                    <div class="pengurus-text">
+                        <div class="pengurus-title" style="font-weight: 800; font-size: 1.1rem; color: #1e293b; letter-spacing: -0.01em;">Ingin jadi Pengurus Garda JKN?</div>
+                        <div class="pengurus-desc" style="font-size: 0.875rem; color: #64748b; margin-top: 4px; line-height: 1.5;">Berkontribusi lebih bagi anggota dengan menjadi bagian dari kepengurusan formal kami.</div>
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="window.openPengurusModal()" style="padding: 12px 32px; font-size: 0.9rem; border-radius: 14px; box-shadow: 0 4px 12px rgba(0, 74, 173, 0.2); flex-shrink: 0;">Daftar Sekarang</button>
+                <button class="btn btn-primary btn-daftar" onclick="window.openPengurusModal()" style="padding: 12px 32px; font-size: 0.9rem; border-radius: 14px; box-shadow: 0 4px 12px rgba(0, 74, 173, 0.2); flex-shrink: 0;">Daftar Sekarang</button>
             </div>
         </div>
 
-        <div id="pengurus-status-section" style="display:none; background: white; border-radius: 16px; border: 1px solid #e5eaf2; padding: 24px; margin-bottom: 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);" class="table-card">
-            <div class="flex justify-between items-center">
+        <div id="pengurus-status-section" style="display:none; background: white; border-radius: 16px; border: 1px solid #e5eaf2; padding: 24px; margin-bottom: 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);" class="table-card pengurus-status-card">
+            <div class="flex justify-between items-center pengurus-status-flex">
                 <div>
                     <div style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.05em;">PERAN ORGANISASI</div>
                     <div id="memberRoleDisplay" style="font-size: 1.35rem; font-weight: 800; color: #1e293b;">—</div>
@@ -378,6 +380,121 @@
             border-color: var(--primary) !important;
             background: rgba(0, 74, 173, 0.05);
             color: var(--primary);
+        }
+
+        /* Mobile Responsiveness Premium */
+        @media (max-width: 768px) {
+            /* Header ID Card */
+            .profile-header-container {
+                flex-direction: row !important;
+                align-items: center !important;
+                text-align: left !important;
+                gap: 16px !important;
+            }
+            #avatarContainer {
+                width: 64px !important;
+                height: 64px !important;
+                border-radius: 16px !important;
+            }
+            #avatarContainer i {
+                width: 32px !important;
+                height: 32px !important;
+            }
+            .profile-header-text h1 {
+                font-size: 1.25rem !important;
+                margin-bottom: 2px !important;
+            }
+            .profile-info-row {
+                flex-direction: column !important;
+                gap: 2px !important;
+                font-size: 0.8rem !important;
+            }
+            .profile-info-row .info-separator {
+                display: none !important;
+            }
+            
+            /* Tombol Edit Melayang */
+            .btn-edit-profile {
+                position: absolute !important;
+                top: 0px !important;
+                right: 0px !important;
+                width: 40px !important;
+                height: 40px !important;
+                padding: 0 !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            .btn-edit-profile span {
+                display: none !important;
+            }
+            .btn-edit-profile i {
+                margin: 0 !important;
+            }
+            .profile-header-strip {
+                padding: 24px 20px !important;
+            }
+
+            /* Body Grid */
+            .profile-body-grid {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+                padding: 24px 20px !important;
+            }
+            .mobile-grid-2 {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 16px !important;
+            }
+            .data-label {
+                font-size: 0.65rem !important;
+            }
+            .data-value {
+                font-size: 0.95rem !important;
+            }
+
+            /* Pengurus Banner */
+            .pengurus-banner {
+                padding: 16px !important;
+                border-radius: 16px !important;
+            }
+            .pengurus-flex {
+                flex-direction: row !important;
+                text-align: left !important;
+                gap: 16px !important;
+                flex-wrap: wrap !important;
+            }
+            .pengurus-info {
+                flex-direction: row !important;
+                gap: 12px !important;
+                width: 100% !important;
+            }
+            .pengurus-icon {
+                width: 44px !important;
+                height: 44px !important;
+                border-radius: 12px !important;
+            }
+            .pengurus-icon i {
+                width: 22px !important;
+                height: 22px !important;
+            }
+            .pengurus-title {
+                font-size: 1rem !important;
+            }
+            .pengurus-desc {
+                font-size: 0.8rem !important;
+                margin-top: 2px !important;
+            }
+            .btn-daftar {
+                width: 100% !important;
+                padding: 12px !important;
+            }
+            .pengurus-status-flex {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 16px;
+            }
         }
     </style>
     @endpush

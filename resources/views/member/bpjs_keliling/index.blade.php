@@ -240,6 +240,26 @@
     </div>
 </div>
 
+<!-- Modal QR Code -->
+<div id="modalQR" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width:400px; text-align:center;">
+        <div class="modal-header">
+            <h2 class="modal-title">QR Survei Kepuasan</h2>
+            <button type="button" class="modal-close" style="z-index: 50; position: relative; pointer-events: auto;" onclick="document.getElementById('modalQR').style.display='none'">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="qr-title" style="font-weight:bold; margin-bottom:15px; color:#0f172a;"></p>
+            <div id="qr-container" style="display:flex; justify-content:center; margin-bottom:20px;">
+                <img id="qr-image" src="" alt="QR Code" style="width: 250px; height: 250px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">
+            </div>
+            <p style="font-size:0.875rem; color:#64748b;">Minta peserta memindai QR code ini untuk memberikan rating kepuasan secara anonim.</p>
+            <div style="margin-top: 15px;">
+                <a id="qr-link" href="#" target="_blank" style="font-size: 0.8rem; color: #0ea5e9; text-decoration: none;">Buka Link Survei Manual</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
     document.addEventListener('click', function(e) {

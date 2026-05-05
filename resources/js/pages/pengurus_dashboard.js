@@ -1,15 +1,14 @@
 const token = localStorage.getItem('auth_token');
     const role = localStorage.getItem('user_role');
     
-    // Auth Check
-    if (!token || (role !== 'pengurus' && role !== 'admin')) window.location.href = '/login';
+    const validRoles = ['pengurus', 'admin', 'superadmin', 'administrator', 'admin_wilayah', 'petugas_pil', 'petugas_keliling'];
+    if (!token || !validRoles.includes(role)) window.location.href = '/login';
 
     let mainChartObj = null;
     let genderChartObj = null;
     let occupationChartObj = null;
 
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('date-now').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         updateDashboard();
     });
 
@@ -37,7 +36,7 @@ const token = localStorage.getItem('auth_token');
             renderPieChart('occupationChart', Object.keys(d.distribution.occupation), Object.values(d.distribution.occupation), ['#6366f1', '#8b5cf6', '#ec4899', '#f97316', '#10b981', '#64748b', '#94a3b8']);
         } catch (e) {
             console.error(e);
-            showToast('Gagal memuat data dashboard', 'error');
+            window.showToast('Gagal memuat data dashboard', 'error');
         }
     }
 
@@ -103,7 +102,4 @@ const token = localStorage.getItem('auth_token');
         if (id === 'occupationChart') occupationChartObj = newChart;
     }
 
-    function logout() { 
-        localStorage.clear(); 
-        window.location.href = '/login'; 
-    }
+    // logout is handled globally by pengurus-layout

@@ -1,4 +1,4 @@
-<x-admin-layout title="Administrasi Keanggotaan - Garda JKN">
+<x-pengurus-layout title="Anggota Wilayah - Garda JKN">
     <style>
         :root {
             --v-black: #000;
@@ -111,4 +111,4 @@
         });
     </script>
     @endpush
-</x-admin-layout>
+</x-pengurus-layout>

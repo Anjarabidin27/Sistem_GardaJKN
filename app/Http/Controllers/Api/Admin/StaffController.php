@@ -35,7 +35,7 @@ class StaffController extends Controller
             'username' => 'required|unique:admin_users,username',
             'password' => 'required|min:6',
             'name' => 'required',
-            'role' => 'required|in:superadmin,administrator,admin_wilayah,petugas_keliling,petugas_pil',
+            'role' => 'required|in:superadmin,admin_wilayah,petugas_keliling,petugas_pil',
             'kantor_cabang_id' => 'required|exists:kantor_cabangs,id',
         ]);
 
@@ -70,27 +70,28 @@ class StaffController extends Controller
         $request->validate([
             'username' => ['required', Rule::unique('admin_users')->ignore($staff->id)],
             'name' => 'required',
-            'role' => 'required|in:superadmin,administrator,admin_wilayah,petugas_keliling,petugas_pil',
+            'role' => 'required|in:superadmin,admin_wilayah,petugas_keliling,petugas_pil',
             'kantor_cabang_id' => 'required|exists:kantor_cabangs,id',
             'password' => 'nullable|min:6',
         ]);
 
         $data = $request->only(['username', 'name', 'role', 'kantor_cabang_id']);
-        
-        // Sync strings if KC changed
-        if ($staff->kantor_cabang_id != $request->kantor_cabang_id) {
-            $kc = \App\Models\KantorCabang::with('kedeputianWilayah')->findOrFail($request->kantor_cabang_id);
-            $data['kantor_cabang'] = $kc->name;
-            $data['kedeputian_wilayah'] = $kc->kedeputianWilayah?->name ?? '-';
-        }
+
+        // Selalu sync string KC & KW agar konsisten dengan ID yang dipilih
+        $kc = \App\Models\KantorCabang::with('kedeputianWilayah')
+            ->findOrFail($request->kantor_cabang_id);
+        $data['kantor_cabang']     = $kc->name;
+        $data['kedeputian_wilayah'] = $kc->kedeputianWilayah?->name ?? '-';
+
 
         if ($request->password) {
             $data['password'] = $request->password;
         }
 
         $staff->update($data);
+        $staff->load('kantorCabang.kedeputianWilayah');
 
-        return $this->successResponse('Data petugas diperbarui', $staff);
+        return $this->successResponse('Data petugas diperbarui', new StaffResource($staff));
     }
 
     public function destroy($id)

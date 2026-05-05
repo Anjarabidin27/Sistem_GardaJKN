@@ -37,12 +37,23 @@
         </div>
     </div>
 
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobile-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,18,51,0.5); z-index: 999; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s;"></div>
+
     <div class="app-layout">
         
         <aside class="sidebar">
-            <div class="sb-brand">
-                <div class="sb-brand-name">Garda JKN</div>
-                <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight: 600; margin-top: 2px;">PORTAL ANGGOTA</div>
+            <!-- Sidebar Brand Header -->
+            <div class="sb-header" style="padding: 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 28px; height: 28px; background: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; transform: rotate(-5deg); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <i data-lucide="shield-check" style="width: 18px; height: 18px; color: var(--primary);"></i>
+                    </div>
+                    <div>
+                        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Garda JKN</div>
+                        <div style="font-size: 0.55rem; color: rgba(255,255,255,0.3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-top: -1px;">PORTAL ANGGOTA</div>
+                    </div>
+                </div>
             </div>
 
             <div class="sb-user-card" style="padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 4px;">
@@ -98,7 +109,12 @@
 
         <main class="main-body">
             <header class="top-header">
-                <div id="topbarTitle" class="topbar-title">{{ $title ?? 'Garda JKN' }}</div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button id="mobileMenuBtn" style="display: none; background: none; border: none; color: #1e293b; cursor: pointer; padding: 0;">
+                        <i data-lucide="menu" style="width: 24px; height: 24px;"></i>
+                    </button>
+                    <div id="topbarTitle" class="topbar-title" style="margin: 0;">{{ $title ?? 'Garda JKN' }}</div>
+                </div>
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <span class="topbar-date" id="date-now"></span>
                     <div id="user-initials" style="width: 36px; height: 36px; background: var(--bg-surface); color: var(--primary); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem;">U</div>
@@ -300,6 +316,41 @@
             
             const dateEl = document.getElementById('date-now');
             if (dateEl) dateEl.innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            // --- Mobile Sidebar Logic ---
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            const mobileOverlay = document.getElementById('mobile-overlay');
+
+            if (mobileMenuBtn && sidebar && mobileOverlay) {
+                function toggleSidebar() {
+                    sidebar.classList.toggle('open');
+                    if (sidebar.classList.contains('open')) {
+                        mobileOverlay.style.display = 'block';
+                        setTimeout(() => {
+                            mobileOverlay.style.opacity = '1';
+                        }, 10);
+                    } else {
+                        mobileOverlay.style.opacity = '0';
+                        setTimeout(() => {
+                            mobileOverlay.style.display = 'none';
+                        }, 300);
+                    }
+                }
+
+                mobileMenuBtn.addEventListener('click', toggleSidebar);
+                mobileOverlay.addEventListener('click', toggleSidebar);
+                
+                // Auto close when clicking links on mobile
+                const sbLinks = document.querySelectorAll('.sb-link');
+                sbLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                            toggleSidebar();
+                        }
+                    });
+                });
+            }
         });
 
         window.showToast = showToast;
@@ -307,6 +358,13 @@
         window.formatNumber = formatNumber;
         window.logout = logout;
     </script>
+    <style>
+        @media (max-width: 768px) {
+            #mobileMenuBtn { display: block !important; }
+            .topbar-date { display: none !important; }
+            .top-header { padding: 0 16px !important; }
+        }
+    </style>
     @stack('scripts')
 </body>
 </html>

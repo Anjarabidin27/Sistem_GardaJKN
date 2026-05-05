@@ -13,7 +13,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Halaman Login (Public - Member & Pengurus)
+// Route Survei Publik (QR Code)
+Route::get('/survei/{id}', [\App\Http\Controllers\Web\SurveiController::class, 'index'])->name('survei.index');
+Route::post('/survei/{id}', [\App\Http\Controllers\Web\SurveiController::class, 'store'])->name('survei.store');
+
+// Halaman Publik
 Route::get('/', function () {
     return view('welcome');
 });
@@ -34,11 +38,6 @@ Route::get('/login/petugas', function () {
 Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
-
-// Redirect root ke login
-Route::get('/', function () {
-    return redirect()->route('login');
-});
 
 // Settings (Separated per role for 100% consistency)
 Route::get('/admin/settings', function () { return view('admin.settings'); })->name('admin.settings');
@@ -124,6 +123,14 @@ Route::prefix('pengurus')->group(function () {
 
     Route::get('/informations', function () {
         return view('pengurus.informations');
+    });
+
+    Route::get('/bpjs-keliling', function () {
+        return view('member.bpjs_keliling.index');
+    });
+
+    Route::get('/pil', function () {
+        return view('member.pil.index');
     });
 });
 

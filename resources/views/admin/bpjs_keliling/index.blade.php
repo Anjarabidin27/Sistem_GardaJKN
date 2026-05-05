@@ -235,24 +235,43 @@
     <!-- INDOMARET-STYLE FEEDBACK MODAL -->
     <div id="feedback-overlay" class="feedback-overlay" style="display:none;">
         <div class="feedback-card">
-            <i data-lucide="heart" style="width: 48px; height: 48px; color: var(--primary); margin-bottom: 16px;"></i>
-            <h2 class="feedback-title">Konfirmasi Kepuasan</h2>
-            <p class="feedback-subtitle">Bagaimana tingkat kepuasan peserta terhadap layanan yang diberikan?</p>
-            
-            <div class="feedback-options">
-                <button type="button" class="comfort-btn puas" onclick="window.submitWithFeedback('Puas')">
-                    <i data-lucide="smile"></i>
-                    <span>Puas</span>
-                </button>
-                <button type="button" class="comfort-btn tidak-puas" onclick="window.submitWithFeedback('Tidak puas')">
-                    <i data-lucide="frown"></i>
-                    <span>Tidak Puas</span>
-                </button>
+            <div style="margin-bottom: 24px;">
+                <div style="width: 64px; height: 64px; background: #f0fdf4; color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <i data-lucide="check" style="width: 32px; height: 32px;"></i>
+                </div>
+                <h2 class="feedback-title">Data Berhasil Tersimpan</h2>
+                <p class="feedback-subtitle">Silakan arahkan peserta untuk memindai QR Code di bawah ini untuk mengisi survei kepuasan.</p>
+            </div>
+
+            <!-- Area QR Code Utama -->
+            <div style="background: #f8fafc; padding: 32px; border-radius: 24px; border: 2px dashed #e2e8f0; display: inline-block; margin-bottom: 24px;">
+                <img id="feedback-qr-img" src="" alt="QR Code" style="width: 220px; height: 220px; display: block; margin: 0 auto;">
+                <div style="margin-top: 16px; font-weight: 800; color: var(--primary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em;">Pindai Untuk Survei</div>
             </div>
             
-            <button type="button" class="btn btn-secondary w-full mt-4" onclick="document.getElementById('feedback-overlay').style.display='none'">
-                Batal / Perbaiki Data
-            </button>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                <button type="button" class="btn btn-primary" style="height: 50px; font-size: 1rem;" onclick="window.closeFeedbackAndReset()">
+                    Selesai & Input Peserta Baru
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal QR Code -->
+    <div id="modalQR" class="modal-overlay" style="display:none; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999;">
+        <div class="modal-content" style="max-width:400px; background:#fff; padding:20px; border-radius:10px; text-align:center;">
+            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 class="modal-title" style="margin:0;">QR Survei Kepuasan</h3>
+                <button type="button" class="modal-close" style="background:none; border:none; font-size:1.5rem; cursor:pointer;" onclick="document.getElementById('modalQR').style.display='none'">&times;</button>
+            </div>
+            <p id="qr-title" style="font-weight:bold; margin-bottom:15px;"></p>
+            <div id="qr-container" style="display:flex; justify-content:center; margin-bottom:20px;">
+                <img id="qr-image" src="" alt="QR Code" style="width: 250px; height: 250px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">
+            </div>
+            <p style="font-size:0.875rem; color:#64748b;">Minta peserta memindai QR code ini untuk mengisi survei kepuasan secara anonim.</p>
+            <div style="margin-top: 15px;">
+                <a id="qr-link" href="#" target="_blank" style="font-size: 0.8rem; color: #0ea5e9; text-decoration: none;">Buka Link Survei Manual</a>
+            </div>
         </div>
     </div>
 

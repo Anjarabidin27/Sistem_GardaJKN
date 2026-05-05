@@ -213,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="btn ${isCompleted ? 'btn-secondary' : 'btn-primary'}" onclick="handleLaporan(${event.id})" style="padding: 6px 10px; font-size: 0.75rem;">
                             ${isCompleted ? 'Lihat/Edit Laporan' : '+ Input Laporan'}
                         </button>
+                        <button class="btn btn-info" onclick="window.showQR(${event.id}, '${event.judul}')" style="padding: 6px 10px; font-size: 0.75rem; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;" title="Tampilkan QR Survei"><i data-lucide="qr-code" style="width:14px; height:14px"></i></button>
                         <button class="btn btn-danger" onclick="deleteEvent(${event.id})" style="padding: 6px 10px; font-size: 0.75rem;"><i data-lucide="trash-2" style="width:14px; height:14px"></i></button>
                     </div>
                 </td>
@@ -387,12 +388,31 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if(mainContentArea) mainContentArea.style.display = 'none';
         if(commandCenterUI) commandCenterUI.style.display = 'block';
+
+        // Hide sidebar for focus and to prevent accidental navigation
+        const sidebar = document.getElementById('garda-sidebar');
+        const mainBody = document.querySelector('.main-body');
+        if (sidebar) sidebar.style.display = 'none';
+        if (mainBody) mainBody.style.marginLeft = '0';
+
         if(window.lucide) window.lucide.createIcons();
     };
 
     window.exitCommandCenter = () => {
         if(commandCenterUI) commandCenterUI.style.display = 'none';
         if(mainContentArea) mainContentArea.style.display = 'block';
+        
+        // Show sidebar back
+        const sidebar = document.getElementById('garda-sidebar');
+        const mainBody = document.querySelector('.main-body');
+        if (sidebar) sidebar.style.display = 'flex';
+        if (mainBody) {
+            // Restore margin only if not on mobile
+            if (window.innerWidth > 768) {
+                mainBody.style.marginLeft = 'var(--sb-width)';
+            }
+        }
+
         loadData(); // Refresh table status
     };
 
@@ -463,53 +483,61 @@ document.addEventListener('DOMContentLoaded', () => {
     if(pesertaForm) {
         pesertaForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            document.getElementById('feedback-overlay').style.display = 'flex';
-            if(window.lucide) window.lucide.createIcons();
+            
+            const id = entryKegiatanId ? entryKegiatanId.value : '';
+            const data = Object.fromEntries(new FormData(pesertaForm).entries());
+            const btn = document.getElementById('btn-save-peserta');
+            
+            if(btn) { btn.disabled = true; btn.innerText = 'Menyimpan...'; }
+
+            window.axios.post(`admin/bpjs-keliling/${id}/participants`, data)
+                .then(res => {
+                    // 1. Success Message
+                    window.showToast(res.data.message, 'success');
+                    
+                    // 2. Generate QR Code for this activity
+                    const url = window.location.origin + '/survei/' + id;
+                    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
+                    const qrImg = document.getElementById('feedback-qr-img');
+                    if (qrImg) qrImg.src = qrUrl;
+
+                    // 3. Show QR Modal
+                    document.getElementById('feedback-overlay').style.display = 'flex';
+                    if(window.lucide) window.lucide.createIcons();
+                    
+                    // 4. Update stats & List
+                    loadParticipants(id);
+                    loadData();
+                })
+                .catch(err => window.showToast("Gagal simpan peserta. Cek form.", 'error'))
+                .finally(() => { 
+                    if(btn) {
+                        btn.disabled = false; 
+                        btn.innerHTML = '<i data-lucide="save"></i> Simpan & Entry Baru'; 
+                    }
+                    if(window.lucide) window.lucide.createIcons();
+                });
         });
     }
 
-    window.submitWithFeedback = (rating) => {
-        const elSuara = document.getElementById('suara_pelanggan');
-        if(elSuara) elSuara.value = rating;
-        
+    window.closeFeedbackAndReset = () => {
         const id = entryKegiatanId ? entryKegiatanId.value : '';
-        const data = Object.fromEntries(new FormData(pesertaForm).entries());
+        document.getElementById('feedback-overlay').style.display = 'none';
 
-        const btn = document.getElementById('btn-save-peserta');
-        const overlay = document.getElementById('feedback-overlay');
+        // Maintain activity times after reset
+        const curMulai = document.getElementById('peserta_jam_mulai')?.value;
+        const curSelesai = document.getElementById('peserta_jam_selesai')?.value;
         
-        if(btn) { btn.disabled = true; btn.innerText = 'Menyimpan...'; }
-        if(overlay) overlay.style.display = 'none';
+        if(pesertaForm) pesertaForm.reset();
+        
+        if(curMulai) document.getElementById('peserta_jam_mulai').value = curMulai;
+        if(curSelesai) document.getElementById('peserta_jam_selesai').value = curSelesai;
 
-        window.axios.post(`admin/bpjs-keliling/${id}/participants`, data)
-            .then(res => {
-                window.showToast(res.data.message, 'success');
-                
-                // Maintain activity times after reset
-                const curMulai = document.getElementById('peserta_jam_mulai')?.value;
-                const curSelesai = document.getElementById('peserta_jam_selesai')?.value;
-                
-                if(pesertaForm) pesertaForm.reset();
-                
-                if(curMulai) document.getElementById('peserta_jam_mulai').value = curMulai;
-                if(curSelesai) document.getElementById('peserta_jam_selesai').value = curSelesai;
-
-                if(wrapTransaksi) wrapTransaksi.style.display = 'none';
-                if(wrapKeterangan) wrapKeterangan.style.display = 'none';
-                window.scrollTo({top:0, behavior:'smooth'});
-                if(document.getElementById('nik')) document.getElementById('nik').focus();
-                
-                loadParticipants(id);
-                loadData();
-            })
-            .catch(err => window.showToast("Gagal simpan peserta. Cek form.", 'error'))
-            .finally(() => { 
-                if(btn) {
-                    btn.disabled = false; 
-                    btn.innerHTML = '<i data-lucide="save"></i> Simpan & Entry Baru'; 
-                }
-                if(window.lucide) window.lucide.createIcons();
-            });
+        if(wrapTransaksi) wrapTransaksi.style.display = 'none';
+        if(wrapKeterangan) wrapKeterangan.style.display = 'none';
+        
+        window.scrollTo({top:0, behavior:'smooth'});
+        if(document.getElementById('nik')) document.getElementById('nik').focus();
     };
 
     window.deleteParticipant = (p_id) => {
@@ -642,3 +670,15 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProvinces();
     loadData();
 });
+
+window.showQR = (id, title) => {
+    const url = window.location.origin + '/survei/' + id;
+    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
+    
+    document.getElementById('qr-title').innerText = title;
+    document.getElementById('qr-image').src = qrUrl;
+    document.getElementById('qr-link').href = url;
+    
+    const el = document.getElementById('modalQR');
+    if(el) el.style.display = 'flex';
+};

@@ -8,14 +8,50 @@ document.addEventListener('DOMContentLoaded', () => {
 function initRegistration() {
     if (typeof window.axios !== 'undefined') {
         loadProvinces();
+        setupNikAutoCheck();
     } else {
         // Cek lagi dalam 50 milidetik jika belum siap
         setTimeout(initRegistration, 50);
     }
 }
 
+function setupNikAutoCheck() {
+    const nikInput = document.getElementById('nik');
+    if (!nikInput) return;
+
+    let timeoutId;
+    nikInput.addEventListener('input', () => {
+        // Hapus pesan error saat user mengetik
+        const errEl = document.getElementById('nik-error');
+        if (errEl) errEl.style.display = 'none';
+        nikInput.style.borderColor = '';
+
+        clearTimeout(timeoutId);
+        
+        // Hanya cek jika tepat 16 digit
+        if (nikInput.value.length === 16) {
+            timeoutId = setTimeout(async () => {
+                try {
+                    const res = await window.axios.post('member/check-nik', { nik: nikInput.value });
+                    if (!res.data.available) {
+                        if (errEl) {
+                            const errText = document.getElementById('nik-error-text');
+                            if (errText) errText.innerText = 'NIK ini sudah terdaftar di sistem. Silakan gunakan NIK lain.';
+                            errEl.style.display = 'block';
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        }
+                        nikInput.style.borderColor = '#EF4444';
+                    }
+                } catch (e) {
+                    console.error('Auto-check NIK failed', e);
+                }
+            }, 500); // Debounce 500ms
+        }
+    });
+}
+
 // Global scope for navigation
-window.nextStep = function(step) {
+window.nextStep = async function(step) {
     // Validate current step before proceeding
     const currentStep = document.querySelector('.form-step.active');
     const inputs = currentStep.querySelectorAll('input[required], select[required], textarea[required]');
@@ -29,7 +65,61 @@ window.nextStep = function(step) {
         }
     });
 
-    if (!isValid && step > parseInt(currentStep.id.split('-')[1])) return;
+    const isMovingForward = step > parseInt(currentStep.id.split('-')[1]);
+    if (!isValid && isMovingForward) return;
+
+    // AJAX Check NIK khusus untuk Step 1 -> Step 2
+    if (isMovingForward && currentStep.id === 'step-1') {
+        const nikInput = document.getElementById('nik');
+        if (nikInput && nikInput.value) {
+            // Wajib Mutlak 16 Digit
+            if (nikInput.value.length < 16) {
+                const errEl = document.getElementById('nik-error');
+                const errText = document.getElementById('nik-error-text');
+                if (errText) errText.innerText = 'NIK wajib diisi lengkap 16 digit angka.';
+                if (errEl) {
+                    errEl.style.display = 'block';
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }
+                nikInput.style.borderColor = '#EF4444';
+                window.showToast('NIK wajib diisi lengkap 16 digit angka.', 'error');
+                return; // Blokir
+            }
+
+            try {
+                // Tampilkan indikator loading di tombol Lanjut (opsional)
+                const btn = currentStep.querySelector('button[onclick="nextStep(2)"]');
+                const oldText = btn ? btn.innerHTML : '';
+                if (btn) { btn.disabled = true; btn.innerHTML = 'Mengecek NIK...'; }
+
+                const res = await window.axios.post('member/check-nik', { nik: nikInput.value });
+                
+                if (btn) { btn.disabled = false; btn.innerHTML = oldText; }
+
+                if (!res.data.available) {
+                    const errEl = document.getElementById('nik-error');
+                    const errText = document.getElementById('nik-error-text');
+                    if (errText) errText.innerText = 'NIK ini sudah terdaftar di sistem. Silakan gunakan NIK lain.';
+                    if (errEl) {
+                        errEl.style.display = 'block';
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                    nikInput.style.borderColor = '#EF4444';
+                    window.showToast('NIK ini sudah terdaftar di sistem. Silakan gunakan NIK lain.', 'error');
+                    return; // Hentikan agar tidak pindah ke Step 2
+                } else {
+                    const errEl = document.getElementById('nik-error');
+                    if (errEl) errEl.style.display = 'none';
+                    nikInput.style.borderColor = '';
+                }
+            } catch (err) {
+                // Jika error server/jaringan, biarkan lanjut
+                const btn = currentStep.querySelector('button[onclick="nextStep(2)"]');
+                if (btn) { btn.disabled = false; btn.innerHTML = 'Selanjutnya <i data-lucide="arrow-right"></i>'; }
+                console.error('Gagal mengecek NIK:', err);
+            }
+        }
+    }
 
     // Hide all steps
     document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
@@ -161,14 +251,6 @@ if (regForm) {
             dom_city_id: sameAsKtp ? getValue('city') : getValue('dom_city'),
             dom_district_id: sameAsKtp ? getValue('district') : getValue('dom_district'),
             dom_address_detail: sameAsKtp ? getValue('address') : getValue('dom_address'),
-            
-            // Pengurus Interest
-            is_interested_pengurus: isChecked('is_interested_pengurus'),
-            interest_pil: isChecked('interest_pil'),
-            interest_keliling: isChecked('interest_keliling'),
-            has_org_experience: getValue('has_org_experience') === "1",
-            org_name: getValue('org_name') || null,
-            pengurus_reason: getValue('pengurus_reason') || null,
         };
 
         if (payload.password !== payload.password_confirmation) {

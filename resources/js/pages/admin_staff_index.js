@@ -145,7 +145,6 @@ async function fetchKWName(kwId) {
         const kw = res.data.data.find(k => k.id == kwId);
         if (kw) {
             document.getElementById('staffKW').value = kw.name;
-            document.getElementById('staffKW_id').value = kw.id;
         }
     } catch (e) {}
 }
@@ -166,12 +165,33 @@ window.openEditStaff = function(staff) {
     document.getElementById('passwordLabel').innerText = 'Ganti Kata Sandi';
     document.getElementById('passwordNote').style.display = 'block';
     document.getElementById('staffPassword').required = false;
+    document.getElementById('staffPassword').value = '';
 
-    document.getElementById('staffName').value = staff.name;
+    document.getElementById('staffName').value     = staff.name;
     document.getElementById('staffUsername').value = staff.username;
-    document.getElementById('staffRole').value = staff.role;
-    document.getElementById('staffKC').value = staff.kantor_cabang_id || '';
-    window.handleKCChange();
+    document.getElementById('staffRole').value     = staff.role;
+
+    // Set dropdown KC — tunggu sampai options sudah ada
+    const setKC = () => {
+        const sel = document.getElementById('staffKC');
+        if (sel.options.length > 1 && staff.kantor_cabang_id) {
+            sel.value = staff.kantor_cabang_id;
+            // Tampilkan nama KW sesuai KC yang dipilih
+            const selected = allKCs.find(k => k.id == staff.kantor_cabang_id);
+            if (selected && selected.kedeputian_wilayah_id) {
+                fetchKWName(selected.kedeputian_wilayah_id);
+            } else {
+                document.getElementById('staffKW').value = staff.kedeputian_wilayah || '';
+            }
+        } else if (sel.options.length <= 1) {
+            // KC belum selesai load, coba lagi 300ms kemudian
+            setTimeout(setKC, 300);
+        } else {
+            // Tidak ada kantor_cabang_id, isi KW dari data langsung
+            document.getElementById('staffKW').value = staff.kedeputian_wilayah || '';
+        }
+    };
+    setKC();
 
     document.getElementById('staffModal').style.display = 'flex';
 }

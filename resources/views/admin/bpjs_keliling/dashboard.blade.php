@@ -104,20 +104,72 @@
             font-weight: 900;
             text-transform: uppercase;
         }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .page-header-responsive {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 1.5rem !important;
+            }
+            .page-title-responsive {
+                font-size: 1.5rem !important;
+            }
+            .header-actions-responsive {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .smart-filter-responsive {
+                flex-direction: column !important;
+                padding: 0 !important;
+                background: transparent !important;
+                border: none !important;
+                gap: 1rem !important;
+            }
+            .filter-group-responsive {
+                background: var(--v-white);
+                border: 1px solid var(--v-gray-100) !important;
+                border-radius: 0.75rem !important;
+                width: 100%;
+            }
+            .filter-group-responsive + .filter-group-responsive {
+                border-left: 1px solid var(--v-gray-100) !important;
+            }
+            .filter-icon-hide {
+                display: none !important;
+            }
+            .v-value-xl {
+                font-size: 3.5rem !important;
+            }
+            .v-value-md {
+                font-size: 1.75rem !important;
+            }
+            .card-total-peserta {
+                grid-row: span 1 !important;
+                padding: 2rem 1.5rem !important;
+            }
+            .icon-bg-responsive {
+                width: 120px !important;
+                height: 120px !important;
+            }
+            .v-card {
+                padding: 1.25rem !important;
+            }
+        }
     </style>
 
     <!-- Page Header -->
-    <div class="v-flex v-justify-between v-items-center v-gap-4" style="margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--v-gray-100);">
+    <div class="v-flex v-justify-between v-items-center v-gap-4 page-header-responsive" style="margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--v-gray-100);">
         <div class="v-flex v-flex-col">
             <nav class="v-flex v-items-center v-gap-2" style="margin-bottom: 0.5rem;">
                 <span class="v-label-caps">Analytics</span>
                 <i data-lucide="chevron-right" style="width: 12px; height: 12px; color: var(--v-gray-400);"></i>
                 <span class="v-label-caps" style="color: var(--v-black);">OP - BPJS Keliling</span>
             </nav>
-            <h1 style="font-size: 1.875rem; font-weight: 900; letter-spacing: -0.025em; color: var(--v-black); margin: 0;">Performance Monitoring</h1>
+            <h1 style="font-size: 1.875rem; font-weight: 900; letter-spacing: -0.025em; color: var(--v-black); margin: 0;" class="page-title-responsive">Performance Monitoring</h1>
             <p style="margin: 0.25rem 0 0; font-size: 0.875rem; color: var(--v-gray-500);">Data real-time diselaraskan dengan spesifikasi pelaporan (Excel).</p>
         </div>
-        <div class="v-flex v-items-center v-gap-3">
+        <div class="v-flex v-items-center v-gap-3 header-actions-responsive">
             <div class="v-flex v-items-center v-gap-2" style="background: var(--v-gray-50); padding: 0.375rem 1rem; border-radius: 9999px; border: 1px solid var(--v-gray-200);">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--v-emerald-500);"></span>
                 <span id="ui-context" class="v-label-caps" style="color: var(--v-black);">Nasional</span>
@@ -127,8 +179,8 @@
     </div>
 
     <!-- Smart Filter -->
-    <div class="v-flex v-filter-bar">
-        <div class="v-filter-group">
+    <div class="v-flex v-filter-bar smart-filter-responsive">
+        <div class="v-filter-group filter-group-responsive">
             <label class="v-label-caps" style="display: block; margin-bottom: 0.5rem;">Periode</label>
             <div class="v-flex v-items-center v-gap-2">
                 <input type="date" id="filter-dari" class="v-input">
@@ -136,7 +188,7 @@
                 <input type="date" id="filter-sampai" class="v-input">
             </div>
         </div>
-        <div class="v-filter-group filter-admin-only" style="display:none;">
+        <div class="v-filter-group filter-admin-only filter-group-responsive" style="display:none;">
             <label class="v-label-caps" style="display: block; margin-bottom: 0.5rem;">Wilayah Kerja</label>
             <select id="filter-kw" class="v-input" style="cursor: pointer;">
                 <option value="">Seluruh Indonesia</option>
@@ -145,7 +197,7 @@
                 @endfor
             </select>
         </div>
-        <div class="v-filter-group">
+        <div class="v-filter-group filter-group-responsive">
             <label class="v-label-caps" style="display: block; margin-bottom: 0.5rem;">Jenis Layanan</label>
             <select id="filter-jenis" class="v-input" style="cursor: pointer;">
                 <option value="">Semua Jenis</option>
@@ -153,7 +205,7 @@
                 <option value="Mandiri">BPJS Keliling Mandiri</option>
             </select>
         </div>
-        <div class="v-flex v-items-center" style="padding: 0 1.5rem;">
+        <div class="v-flex v-items-center filter-icon-hide" style="padding: 0 1.5rem;">
             <div style="padding: 0.5rem; background: var(--v-gray-50); border-radius: 50%;">
                 <i data-lucide="filter" style="width: 16px; height: 16px; color: var(--v-black);"></i>
             </div>
@@ -163,13 +215,13 @@
     <!-- KPI Grid (Specs 1, 2, 3, 4) -->
     <div class="v-grid v-grid-4 v-gap-6" style="margin-bottom: 2rem;">
         <!-- Specs 4: Jumlah Peserta (Total) -->
-        <div class="v-card v-card-dark v-flex-col v-justify-between" style="position: relative; overflow: hidden; grid-row: span 2;">
+        <div class="v-card v-card-dark v-flex-col v-justify-between card-total-peserta" style="position: relative; overflow: hidden; grid-row: span 2;">
             <div style="position: relative; z-index: 10;">
                 <p class="v-label-caps" style="color: var(--v-gray-400); margin-bottom: 0.25rem;">4. Jumlah Peserta</p>
-                <h3 style="font-size: 5rem; font-weight: 900; letter-spacing: -0.05em; margin: 1rem 0;" id="tot-peserta">0</h3>
+                <h3 style="font-size: 5rem; font-weight: 900; letter-spacing: -0.05em; margin: 1rem 0;" id="tot-peserta" class="v-value-xl">0</h3>
                 <span class="v-label-caps" style="color: var(--v-gray-500);">Total terlayani</span>
             </div>
-            <i data-lucide="users" style="position: absolute; right: -2rem; bottom: -2rem; width: 180px; height: 180px; opacity: 0.1; color: var(--v-white);"></i>
+            <i data-lucide="users" style="position: absolute; right: -2rem; bottom: -2rem; width: 180px; height: 180px; opacity: 0.1; color: var(--v-white);" class="icon-bg-responsive"></i>
         </div>
 
         <!-- Specs 1: Informasi -->

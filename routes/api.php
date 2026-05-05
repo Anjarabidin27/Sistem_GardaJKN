@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->prefix('master')->group(function () {
 
 // --- Member Portal ---
 Route::prefix('member')->group(function () {
+    Route::post('check-nik', [MemberAuthController::class, 'checkNik']);
     Route::post('register', [MemberAuthController::class, 'register']);
     Route::post('login', [MemberAuthController::class, 'login']);
 
@@ -126,6 +127,7 @@ Route::prefix('admin')->group(function () {
 
         Route::prefix('bpjs-keliling')->controller(AdminBpjsController::class)->group(function () {
             Route::get('dashboard', 'dashboard');
+            Route::get('export', 'exportByRange');   // ← Export by date range (max 31 hari)
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::get('{id}', 'show');
