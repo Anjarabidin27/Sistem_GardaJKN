@@ -74,6 +74,24 @@ Route::prefix('member')->group(function () {
         });
     });
 
+    // --- Shared Member & Pengurus Area ---
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('dashboard', [DashboardController::class, 'index']);
+        
+        // Informations Management for both Admin & Pengurus (filtered by region in controller)
+        Route::prefix('manage/informations')->controller(\App\Http\Controllers\Api\Admin\InformationController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('{id}', 'show');
+            Route::match(['put', 'post'], '{id}', 'update');
+            Route::delete('{id}', 'destroy');
+            Route::patch('{id}/toggle-status', 'toggleStatus');
+        });
+
+        // Members list for Pengurus (filtered by region in controller)
+        Route::get('members', [AdminMemberController::class, 'index']);
+    });
+
     // BPJS Keliling (Pengurus, Write)
     Route::middleware(['auth:sanctum', 'role:pengurus'])->group(function () {
         Route::prefix('bpjs-keliling')->controller(MemberBpjsController::class)->group(function () {
@@ -93,7 +111,7 @@ Route::prefix('member')->group(function () {
 
 // --- Admin Panel ---
 Route::prefix('admin')->group(function () {
-    Route::post('login', [AdminAuthController::class, 'login']);
+    Route::post('login', [AdminAuthController::class, 'login'])->middleware('web');
 
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('logout', [AdminAuthController::class, 'logout']);

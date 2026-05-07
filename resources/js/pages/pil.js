@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
     initForms();
+    if (window.loadProvinces) window.loadProvinces(null, 'provinsi_id');
 });
 
 const getAxios = () => window.axios;

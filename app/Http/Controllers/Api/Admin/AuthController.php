@@ -32,6 +32,9 @@ class AuthController extends Controller
         }
 
         $token = $admin->createToken('admin-token')->plainTextToken;
+        
+        // Buat Session PHP agar Blade dapat mengenali user (Sync API & Web)
+        \Illuminate\Support\Facades\Auth::guard('admin')->login($admin);
 
         try {
             $this->auditService->log('login_admin', 'admin', $admin->id, [
@@ -60,6 +63,9 @@ class AuthController extends Controller
             try {
                 $this->auditService->log('logout_admin', 'admin', $user->id);
                 $user->currentAccessToken()->delete();
+                
+                // Hapus Sesi Web juga
+                \Illuminate\Support\Facades\Auth::guard('admin')->logout();
             } catch (\Exception $e) {}
         }
         return $this->successResponse('Logout Admin Berhasil');

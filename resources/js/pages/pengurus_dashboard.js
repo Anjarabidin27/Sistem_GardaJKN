@@ -1,7 +1,7 @@
 const token = localStorage.getItem('auth_token');
     const role = localStorage.getItem('user_role');
     
-    const validRoles = ['pengurus', 'admin', 'superadmin', 'administrator', 'admin_wilayah', 'petugas_pil', 'petugas_keliling'];
+    const validRoles = ['admin', 'admin_wilayah', 'petugas', 'pengurus'];
     if (!token || !validRoles.includes(role)) window.location.href = '/login';
 
     let mainChartObj = null;
@@ -16,8 +16,8 @@ const token = localStorage.getItem('auth_token');
 
     async function updateDashboard() {
         try {
-            // Kita akan gunakan API admin dashboard sementara atau buat API khusus pengurus nanti
-            const res = await axios.get(`admin/dashboard?range=12`);
+            // Gunakan API dashboard bersama (dengan prefix member/)
+            const res = await axios.get(`member/dashboard?range=12`);
             const d = res.data.data;
             
             // Set initials

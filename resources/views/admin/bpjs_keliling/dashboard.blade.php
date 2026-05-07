@@ -59,8 +59,9 @@
             letter-spacing: 0.2em;
             color: var(--v-gray-400);
         }
-        .v-value-lg { font-size: 3rem; font-weight: 900; letter-spacing: -0.05em; }
-        .v-value-md { font-size: 2.25rem; font-weight: 900; letter-spacing: -0.05em; }
+        .v-value-xl { font-size: 4rem; font-weight: 900; letter-spacing: -0.05em; }
+        .v-value-lg { font-size: 2.25rem; font-weight: 900; letter-spacing: -0.05em; }
+        .v-value-md { font-size: 1.75rem; font-weight: 900; letter-spacing: -0.05em; }
         
         .v-progress-bg { background: var(--v-gray-100); height: 8px; border-radius: 9999px; overflow: hidden; width: 100%; }
         .v-progress-bar { height: 100%; transition: width 1s ease-out; }
@@ -79,13 +80,23 @@
         
         .v-filter-bar {
             background: var(--v-white);
-            padding: 0.5rem;
-            border-radius: 0.75rem;
-            border: 1px solid var(--v-gray-100);
+            padding: 0.25rem;
+            border-radius: 1rem;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
             margin-bottom: 2rem;
+            display: flex;
+            align-items: stretch;
         }
-        .v-filter-group { padding: 0.75rem; flex: 1; }
-        .v-filter-group + .v-filter-group { border-left: 1px solid var(--v-gray-100); }
+        .v-filter-group { 
+            padding: 1rem 1.5rem; 
+            flex: 1; 
+            transition: background 0.2s;
+        }
+        .v-filter-group:hover {
+            background: #f8fafc;
+        }
+        .v-filter-group + .v-filter-group { border-left: 2px solid #f1f5f9; }
         .v-input {
             width: 100%;
             font-size: 0.75rem;
@@ -110,47 +121,78 @@
             .page-header-responsive {
                 flex-direction: column !important;
                 align-items: flex-start !important;
-                gap: 1.5rem !important;
+                gap: 0.5rem !important;
+                margin-bottom: 0.75rem !important;
+                padding-bottom: 0.75rem !important;
             }
             .page-title-responsive {
-                font-size: 1.5rem !important;
+                font-size: 1.25rem !important;
+                letter-spacing: -0.02em !important;
             }
             .header-actions-responsive {
                 width: 100%;
                 justify-content: space-between;
+                gap: 8px !important;
             }
             .smart-filter-responsive {
+                display: flex !important;
                 flex-direction: column !important;
-                padding: 0 !important;
-                background: transparent !important;
-                border: none !important;
-                gap: 1rem !important;
+                padding: 12px !important;
+                background: var(--v-white) !important;
+                border: 1px solid var(--v-gray-100) !important;
+                border-radius: 12px !important;
+                gap: 10px !important;
+                margin-bottom: 16px !important;
             }
             .filter-group-responsive {
-                background: var(--v-white);
-                border: 1px solid var(--v-gray-100) !important;
-                border-radius: 0.75rem !important;
+                background: transparent !important;
+                border: none !important;
                 width: 100%;
+                padding: 0 !important;
             }
             .filter-group-responsive + .filter-group-responsive {
-                border-left: 1px solid var(--v-gray-100) !important;
+                border-left: none !important;
+                border-top: 1px solid #f1f5f9 !important;
+                padding-top: 8px !important;
             }
+            .v-label-caps { font-size: 9px !important; }
+            .v-value-xl { font-size: 2.5rem !important; }
+            .v-value-md { font-size: 1.5rem !important; }
+            .card-total-peserta { grid-row: span 1 !important; }
+            .icon-bg-responsive { width: 100px !important; height: 100px !important; right: -1rem !important; bottom: -1rem !important; }
+            .v-table-wrap { margin-top: 1rem; border-radius: 8px; border: 1px solid var(--v-gray-100); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .v-table { font-size: 0.8rem !important; min-width: 600px !important; }
+            .v-table td, .v-table th { padding: 0.75rem !important; }
+            .smart-filter-responsive .v-input {
+                border: 1px solid var(--v-gray-200) !important;
+                padding: 10px 12px !important;
+                border-radius: 8px !important;
+                background: #f8fafc !important;
+            }
+            .date-filter-group {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px !important;
+            }
+            .date-filter-group span { display: none; }
             .filter-icon-hide {
                 display: none !important;
             }
             .v-value-xl {
-                font-size: 3.5rem !important;
+                font-size: 2.5rem !important; /* Smaller on mobile so it doesn't look cut off or disproportionate */
             }
             .v-value-md {
-                font-size: 1.75rem !important;
+                font-size: 1.5rem !important;
             }
             .card-total-peserta {
                 grid-row: span 1 !important;
-                padding: 2rem 1.5rem !important;
+                padding: 1.5rem !important;
             }
             .icon-bg-responsive {
-                width: 120px !important;
-                height: 120px !important;
+                width: 100px !important;
+                height: 100px !important;
+                right: -1rem !important;
+                bottom: -1rem !important;
             }
             .v-card {
                 padding: 1.25rem !important;
@@ -159,15 +201,16 @@
     </style>
 
     <!-- Page Header -->
-    <div class="v-flex v-justify-between v-items-center v-gap-4 page-header-responsive" style="margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--v-gray-100);">
+    <div class="v-flex v-justify-between v-items-center v-gap-4 page-header-responsive" style="margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 3px solid #000; position: relative;">
+        <div style="position: absolute; bottom: -3px; left: 0; width: 80px; height: 3px; background: #2563eb; z-index: 10;"></div>
         <div class="v-flex v-flex-col">
-            <nav class="v-flex v-items-center v-gap-2" style="margin-bottom: 0.5rem;">
-                <span class="v-label-caps">Analytics</span>
-                <i data-lucide="chevron-right" style="width: 12px; height: 12px; color: var(--v-gray-400);"></i>
-                <span class="v-label-caps" style="color: var(--v-black);">OP - BPJS Keliling</span>
+            <nav class="v-flex v-items-center v-gap-2" style="margin-bottom: 0.75rem;">
+                <span class="v-label-caps" style="color: #64748b;">Performance Analytics</span>
+                <i data-lucide="chevron-right" style="width: 12px; height: 12px; color: #cbd5e1;"></i>
+                <span class="v-label-caps" style="color: #000; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">OP - BPJS Keliling</span>
             </nav>
-            <h1 style="font-size: 1.875rem; font-weight: 900; letter-spacing: -0.025em; color: var(--v-black); margin: 0;" class="page-title-responsive">Performance Monitoring</h1>
-            <p style="margin: 0.25rem 0 0; font-size: 0.875rem; color: var(--v-gray-500);">Data real-time diselaraskan dengan spesifikasi pelaporan (Excel).</p>
+            <h1 class="page-title-responsive" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: #000; margin: 0; line-height: 1;">Performance Monitoring</h1>
+            <p style="margin: 0.75rem 0 0; font-size: 0.95rem; color: #475569; font-weight: 500;">Pantau data real-time capaian operasional BPJS Keliling secara akurat dan transparan.</p>
         </div>
         <div class="v-flex v-items-center v-gap-3 header-actions-responsive">
             <div class="v-flex v-items-center v-gap-2" style="background: var(--v-gray-50); padding: 0.375rem 1rem; border-radius: 9999px; border: 1px solid var(--v-gray-200);">
@@ -182,7 +225,7 @@
     <div class="v-flex v-filter-bar smart-filter-responsive">
         <div class="v-filter-group filter-group-responsive">
             <label class="v-label-caps" style="display: block; margin-bottom: 0.5rem;">Periode</label>
-            <div class="v-flex v-items-center v-gap-2">
+            <div class="v-flex v-items-center v-gap-2 date-filter-group">
                 <input type="date" id="filter-dari" class="v-input">
                 <span style="color: var(--v-gray-200);">/</span>
                 <input type="date" id="filter-sampai" class="v-input">
@@ -198,11 +241,24 @@
             </select>
         </div>
         <div class="v-filter-group filter-group-responsive">
-            <label class="v-label-caps" style="display: block; margin-bottom: 0.5rem;">Jenis Layanan</label>
+            <label class="v-label-caps" style="display: block; margin-bottom: 0.5rem;">Cari Kegiatan</label>
+            <input type="text" id="filter-judul" class="v-input" placeholder="Ketik nama kegiatan..." list="judul-list-bpjs">
+            <datalist id="judul-list-bpjs"></datalist>
+        </div>
+        <div class="v-filter-group filter-group-responsive">
+            <label class="v-label-caps" style="display: block; margin-bottom: 0.5rem;">Jam Mulai</label>
+            <input type="time" id="filter-jam" class="v-input">
+        </div>
+        <div class="v-filter-group filter-group-responsive">
+            <label class="v-label-caps" style="display: block; margin-bottom: 0.5rem;">Jenis Kegiatan</label>
             <select id="filter-jenis" class="v-input" style="cursor: pointer;">
                 <option value="">Semua Jenis</option>
-                <option value="MCS">MCS Sinergi</option>
-                <option value="Mandiri">BPJS Keliling Mandiri</option>
+                <option value="goes_to_village">Goes To Village</option>
+                <option value="around_city">Around City</option>
+                <option value="hi_customer">Hi Customer</option>
+                <option value="corporate_gathering">Corporate Gathering</option>
+                <option value="cfd">CFD</option>
+                <option value="other">Lainnya</option>
             </select>
         </div>
         <div class="v-flex v-items-center filter-icon-hide" style="padding: 0 1.5rem;">
@@ -334,6 +390,26 @@
         </div>
     </div>
 
+    <!-- Activity List Section -->
+    <div class="v-card" style="margin-bottom: 3rem;">
+        <p class="v-label-caps" style="margin-bottom: 1.5rem;">Daftar Kegiatan Terbaru (Hasil Filter)</p>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--v-gray-100); text-align: left;">
+                        <th style="padding: 12px 8px;" class="v-label-caps">Judul Kegiatan</th>
+                        <th style="padding: 12px 8px;" class="v-label-caps">Waktu</th>
+                        <th style="padding: 12px 8px;" class="v-label-caps">Lokasi</th>
+                        <th style="padding: 12px 8px;" class="v-label-caps">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="table-kegiatan-body">
+                    <!-- Data will be rendered here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -378,7 +454,9 @@
                     dari: document.getElementById('filter-dari').value,
                     sampai: document.getElementById('filter-sampai').value,
                     kedeputian_wilayah: document.getElementById('filter-kw').value,
-                    jenis_layanan: document.getElementById('filter-jenis').value
+                    jenis_kegiatan: document.getElementById('filter-jenis').value,
+                    judul: document.getElementById('filter-judul').value,
+                    jam_mulai: document.getElementById('filter-jam').value
                 };
 
                 // FIXED ROUTE: 'admin/bpjs-keliling/dashboard' matches routes/api.php
@@ -420,6 +498,31 @@
                         updateChart('chart-lokasi', 'bar', Object.keys(d.per_lokasi), Object.values(d.per_lokasi), '#000');
                         
                         if(window.lucide) window.lucide.createIcons();
+
+                        // Render Autocomplete Suggestions
+                        const datalist = document.getElementById('judul-list-bpjs');
+                        if (datalist && d.available_titles) {
+                            datalist.innerHTML = '';
+                            d.available_titles.forEach(title => {
+                                datalist.innerHTML += `<option value="${title}">`;
+                            });
+                        }
+
+                        // Render Table
+                        const tbody = document.getElementById('table-kegiatan-body');
+                        if (tbody) {
+                            tbody.innerHTML = d.kegiatan_list.length > 0 ? '' : '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--v-gray-400);">Tidak ada kegiatan yang sesuai filter</td></tr>';
+                            d.kegiatan_list.forEach(k => {
+                                tbody.innerHTML += `
+                                    <tr style="border-bottom: 1px solid var(--v-gray-100);">
+                                        <td style="padding: 12px 8px; font-weight: 700;">${k.judul}</td>
+                                        <td style="padding: 12px 8px; color: var(--v-gray-500);">${k.tanggal} | ${k.jam}</td>
+                                        <td style="padding: 12px 8px;">${k.lokasi}</td>
+                                        <td style="padding: 12px 8px;"><span class="v-badge" style="background:var(--v-gray-100);">${k.status}</span></td>
+                                    </tr>
+                                `;
+                            });
+                        }
                     })
                     .catch(err => {
                         console.error("Dashboard Fetch Error:", err);
@@ -428,12 +531,21 @@
             }
 
             // Listeners
-            ['filter-dari', 'filter-sampai', 'filter-kw', 'filter-jenis'].forEach(id => {
+            ['filter-dari', 'filter-sampai', 'filter-kw', 'filter-jenis', 'filter-jam'].forEach(id => {
                 const el = document.getElementById(id); if (el) el.addEventListener('change', fetchDashboardData);
             });
+            
+            const filterJudul = document.getElementById('filter-judul');
+            if(filterJudul) {
+                let typingTimer;
+                filterJudul.addEventListener('input', () => {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(fetchDashboardData, 500);
+                });
+            }
 
             document.getElementById('btn-reset-filter').addEventListener('click', () => {
-                ['filter-dari', 'filter-sampai', 'filter-kw', 'filter-jenis'].forEach(id => {
+                ['filter-dari', 'filter-sampai', 'filter-kw', 'filter-jenis', 'filter-judul', 'filter-jam'].forEach(id => {
                     const el = document.getElementById(id); if (el) el.value = '';
                 });
                 fetchDashboardData();

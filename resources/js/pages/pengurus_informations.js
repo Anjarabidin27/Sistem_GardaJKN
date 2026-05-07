@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function fetchData(page = 1) {
     try {
-        const res = await window.axios.get(`admin/informations?page=${page}`);
+        const res = await window.axios.get(`member/manage/informations?page=${page}`);
         renderTable(res.data.data.data);
         renderPagination(res.data.data);
     } catch (e) {
@@ -71,7 +71,7 @@ window.openAddModal = function() {
 
 window.openEditModal = async function(id) {
     try {
-        const res = await window.axios.get(`admin/informations/${id}`);
+        const res = await window.axios.get(`member/manage/informations/${id}`);
         const item = res.data.data;
         document.getElementById('infoId').value = item.id;
         document.getElementById('title').value = item.title;
@@ -109,7 +109,7 @@ window.submitForm = async function(e) {
     if (id) formData.append('_method', 'PUT');
 
     try {
-        const url = id ? `admin/informations/${id}` : 'admin/informations';
+        const url = id ? `member/manage/informations/${id}` : 'member/manage/informations';
         await window.axios.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         window.showToast('Informasi berhasil disimpan!', 'success');
         document.getElementById('infoModal').style.display = 'none';

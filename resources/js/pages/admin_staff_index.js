@@ -23,11 +23,27 @@ window.fetchStaff = async function() {
 }
 
 window.handleFilterChange = function() {
-    const filterValue = document.getElementById('filterSource').value;
+    const filterSource = document.getElementById('filterSource') ? document.getElementById('filterSource').value : 'all';
+    const filterRole = document.getElementById('filterRole') ? document.getElementById('filterRole').value : 'all';
+    const searchQuery = document.getElementById('searchStaff') ? document.getElementById('searchStaff').value.toLowerCase() : '';
+    
     let filtered = rawStaff;
-    if (filterValue !== 'all') {
-        filtered = rawStaff.filter(s => s.source === filterValue);
+    
+    if (filterSource !== 'all') {
+        filtered = filtered.filter(s => s.source === filterSource);
     }
+    
+    if (filterRole !== 'all') {
+        filtered = filtered.filter(s => s.role === filterRole);
+    }
+    
+    if (searchQuery) {
+        filtered = filtered.filter(s => 
+            s.name.toLowerCase().includes(searchQuery) || 
+            s.username.toLowerCase().includes(searchQuery)
+        );
+    }
+    
     renderStaffTable(filtered);
 }
 
@@ -83,8 +99,7 @@ function formatRole(role) {
         'superadmin': 'Super Admin',
         'administrator': 'Admin Sistem',
         'admin_wilayah': 'Admin Wilayah',
-        'petugas_keliling': 'Petugas Keliling',
-        'petugas_pil': 'Petugas PIL'
+        'petugas': 'Petugas'
     };
     return map[role] || role;
 }
@@ -93,21 +108,19 @@ function updateCounters(staff) {
     const counts = {
         'superadmin': 0,
         'wilayah': 0,
-        'keliling': 0,
-        'pil': 0
+        'petugas': 0
     };
 
     staff.forEach(s => {
         if (s.role === 'superadmin') counts.superadmin++;
         else if (s.role === 'admin_wilayah') counts.wilayah++;
-        else if (s.role === 'petugas_keliling') counts.keliling++;
-        else if (s.role === 'petugas_pil') counts.pil++;
+        else if (s.role === 'petugas') counts.petugas++;
     });
 
     document.getElementById('count-superadmin').innerText = counts.superadmin;
     document.getElementById('count-wilayah').innerText = counts.wilayah;
-    document.getElementById('count-keliling').innerText = counts.keliling;
-    document.getElementById('count-pil').innerText = counts.pil;
+    const petEl = document.getElementById('count-petugas');
+    if (petEl) petEl.innerText = counts.petugas;
 }
 
 window.loadKCs = async function() {

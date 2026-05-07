@@ -1,5 +1,5 @@
 <x-member-layout title="Profil Saya - Garda JKN">
-    <div id="section-profile" class="tab-content active">
+    <div id="section-profil" class="tab-content active">
         <!-- Unified Profile Card -->
         <div class="table-card" style="border: none; background: white; padding: 0; border-radius: 28px; margin-bottom: 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden;">
             <!-- Header: Blue Strip -->
@@ -74,6 +74,7 @@
                 <div>
                     <div style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.05em;">PERAN ORGANISASI</div>
                     <div id="memberRoleDisplay" style="font-size: 1.35rem; font-weight: 800; color: #1e293b;">—</div>
+                    <p id="statusHelpText" style="font-size: 0.85rem; color: #64748b; margin-top: 4px; line-height: 1.4;">Memuat informasi peran...</p>
                 </div>
                 <div id="statusPengurusBadge"></div>
             </div>
@@ -140,27 +141,27 @@
 
     <!-- 5. Section Survey -->
     <div id="section-survey" class="tab-content">
-        <div class="table-card" style="margin: 0; padding: 0; border-radius: 28px; overflow: hidden; border: 1px solid #e5eaf2; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1);">
-            <div style="background: #f8fafc; padding: 40px; border-bottom: 1px solid #e5eaf2; text-align: center;">
-                <i data-lucide="clipboard-check" style="width: 48px; height: 48px; color: var(--primary); margin-bottom: 16px;"></i>
-                <h3 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin: 0;">Survey Kepuasan Anggota</h3>
-                <p style="color: #64748b; margin-top: 8px;">Bantu kami meningkatkan layanan dengan mengisi survey singkat berikut.</p>
+        <div class="table-card" style="margin: 0; padding: 0; border-radius: 20px; overflow: hidden; border: 1px solid #e5eaf2; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+            <div style="background: #f8fafc; padding: 24px; border-bottom: 1px solid #e5eaf2; text-align: center;">
+                <i data-lucide="clipboard-check" style="width: 32px; height: 32px; color: var(--primary); margin-bottom: 12px;"></i>
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: #1e293b; margin: 0;">Survey Kepuasan</h3>
+                <p style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Bantu kami meningkatkan layanan Garda JKN.</p>
             </div>
-            <form id="surveyForm" style="padding: 40px;">
-                <div class="form-group" style="margin-bottom: 32px;">
-                    <label class="form-label" style="font-weight: 700; color: #475569; margin-bottom: 16px; display: block;">1. Bagaimana penilaian Anda terhadap kecepatan respon pengurus?</label>
-                    <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 12px; display: grid;">
-                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="5" style="opacity:0; position:absolute; z-index:-1;" required> Sangat Puas</label>
-                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="4" style="opacity:0; position:absolute; z-index:-1;"> Puas</label>
-                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="3" style="opacity:0; position:absolute; z-index:-1;"> Cukup</label>
-                         <label class="btn-pill" style="cursor:pointer; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-weight: 600;"><input type="radio" name="q1" value="2" style="opacity:0; position:absolute; z-index:-1;"> Buruk</label>
+            <form id="surveyForm" style="padding: 24px;">
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label class="form-label" style="font-weight: 700; color: #475569; margin-bottom: 12px; display: block; font-size: 0.9rem;">1. Bagaimana penilaian Anda terhadap kecepatan respon pengurus?</label>
+                    <div class="grid" style="grid-template-columns: repeat(2, 1fr); gap: 8px; display: grid;">
+                         <label class="btn-pill" style="cursor:pointer; padding: 10px; border: 1.5px solid #e2e8f0; border-radius: 10px; text-align: center; font-weight: 700; font-size: 0.8rem;"><input type="radio" name="q1" value="5" style="opacity:0; position:absolute; z-index:-1;" required> Sangat Puas</label>
+                         <label class="btn-pill" style="cursor:pointer; padding: 10px; border: 1.5px solid #e2e8f0; border-radius: 10px; text-align: center; font-weight: 700; font-size: 0.8rem;"><input type="radio" name="q1" value="4" style="opacity:0; position:absolute; z-index:-1;"> Puas</label>
+                         <label class="btn-pill" style="cursor:pointer; padding: 10px; border: 1.5px solid #e2e8f0; border-radius: 10px; text-align: center; font-weight: 700; font-size: 0.8rem;"><input type="radio" name="q1" value="3" style="opacity:0; position:absolute; z-index:-1;"> Cukup</label>
+                         <label class="btn-pill" style="cursor:pointer; padding: 10px; border: 1.5px solid #e2e8f0; border-radius: 10px; text-align: center; font-weight: 700; font-size: 0.8rem;"><input type="radio" name="q1" value="2" style="opacity:0; position:absolute; z-index:-1;"> Buruk</label>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" style="font-weight: 700; color: #475569;">2. Apa saran perbaikan utama untuk Garda JKN kedepannya?</label>
-                    <textarea class="form-input" rows="4" style="resize: none; padding: 12px; border-radius: 12px; margin-top: 8px;" placeholder="Tuliskan saran anda di sini..."></textarea>
+                    <label class="form-label" style="font-weight: 700; color: #475569; font-size: 0.9rem;">2. Apa saran perbaikan utama Anda?</label>
+                    <textarea class="form-input" rows="2" style="resize: none; padding: 12px; border-radius: 10px; margin-top: 8px; font-size: 0.85rem;" placeholder="Tuliskan saran singkat anda..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary w-full mt-8" style="padding: 16px; border-radius: 14px; font-weight: 700;">Kirim Survey</button>
+                <button type="submit" class="btn btn-primary w-full mt-6" style="padding: 12px; border-radius: 12px; font-weight: 800; font-size: 0.9rem;">Kirim Survey</button>
             </form>
         </div>
     </div>
@@ -372,6 +373,12 @@
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(32px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
         }
 
         .border-top { border-top: 1px solid var(--border); }

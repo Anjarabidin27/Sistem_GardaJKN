@@ -1,62 +1,123 @@
-@extends('layouts.app')
+<x-pengurus-layout title="Laporan PIL - Garda JKN">
+    <style>
+        :root {
+            --v-black: #000;
+            --v-white: #fff;
+            --v-gray-50: #fbfbfc;
+            --v-gray-100: #f3f4f6;
+            --v-gray-200: #e5e7eb;
+            --v-gray-400: #9ca3af;
+            --v-gray-500: #6b7280;
+            --v-emerald-500: #10b981;
+            --v-blue-600: #2ea0fb;
+        }
 
-@section('title', 'Laporan PIL - Garda JKN')
+        .header-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; }
+        .v-title { font-size: 1.75rem; font-weight: 900; letter-spacing: -0.04em; color: var(--v-black); margin: 0; }
+        .v-subtitle { font-size: 0.875rem; color: var(--v-gray-500); margin-top: 4px; }
 
-@section('content')
-<div class="main-layout">
-    <div class="page-header">
+        .btn-primary {
+            background: var(--v-black); color: var(--v-white);
+            padding: 12px 24px; border-radius: 12px; border: none;
+            font-size: 0.875rem; font-weight: 800; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: all 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
+
+        .v-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .v-stat-card {
+            background: var(--v-white); padding: 1.5rem; border-radius: 1.25rem;
+            border: 1px solid var(--v-gray-100); display: flex; align-items: center; gap: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .v-stat-icon {
+            width: 44px; height: 44px; border-radius: 12px; background: var(--v-gray-50);
+            display: flex; align-items: center; justify-content: center; color: var(--v-black);
+        }
+        .v-stat-val { font-size: 1.5rem; font-weight: 900; color: var(--v-black); line-height: 1; }
+        .v-label-caps {
+            font-size: 9px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--v-gray-400); display: block; margin-bottom: 2px;
+        }
+
+        .v-card {
+            background: var(--v-white); border-radius: 1.25rem; border: 1px solid var(--v-gray-100);
+            overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .v-table { width: 100%; border-collapse: collapse; }
+        .v-table th { 
+            text-align: left; padding: 1rem 1.5rem; background: var(--v-gray-50);
+            font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--v-gray-400); border-bottom: 1px solid var(--v-gray-100);
+        }
+        .v-table td { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--v-gray-50); vertical-align: middle; }
+        .v-table tr:last-child td { border-bottom: none; }
+        .v-table tr:hover { background: #fafbfc; }
+
+        @media (max-width: 768px) {
+            .header-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .v-summary-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+
+    <div class="header-row">
         <div>
-            <h1 class="page-title">Pemberian Informasi Langsung (PIL)</h1>
-            <p class="page-subtitle">Pencatatan sesi sosialisasi dan survei NPS kepada masyarakat.</p>
+            <h1 class="v-title">Sesi Sosialisasi (PIL)</h1>
+            <p class="v-subtitle">Edukasi masyarakat dan pengukuran NPS secara langsung di wilayah koordinasi Anda.</p>
         </div>
-        <button class="btn btn-primary" onclick="showModal('modalKegiatan')">
-            <i data-lucide="mic" style="width:18px;"></i>
-            <span>Sosialisasi Baru</span>
+        <button class="btn-primary" onclick="showModal('modalKegiatan')">
+            <i data-lucide="mic" style="width: 18px; height: 18px;"></i>
+            <span>Mulai Sosialisasi Baru</span>
         </button>
     </div>
 
-    <!-- Stats Row -->
-    <div class="stats-grid mb-4">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#e0f2fe; color:#0369a1;"><i data-lucide="megaphone"></i></div>
-            <div class="stat-value" id="count-kegiatan">0</div>
-            <div class="stat-label">Total Sesi</div>
+    <!-- Summary Stats -->
+    <div class="v-summary-grid">
+        <div class="v-stat-card">
+            <div class="v-stat-icon"><i data-lucide="megaphone"></i></div>
+            <div>
+                <span class="v-label-caps">Total Sesi</span>
+                <div class="v-stat-val" id="count-kegiatan">0</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#f0fdf4; color:#15803d;"><i data-lucide="users"></i></div>
-            <div class="stat-value" id="count-peserta">0</div>
-            <div class="stat-label">Peserta Hadir</div>
+        <div class="v-stat-card">
+            <div class="v-stat-icon" style="color: var(--v-emerald-500);"><i data-lucide="users"></i></div>
+            <div>
+                <span class="v-label-caps">Peserta Hadir</span>
+                <div class="v-stat-val" id="count-peserta">0</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fff7ed; color:#c2410c;"><i data-lucide="star"></i></div>
-            <div class="stat-value" id="avg-nps">-</div>
-            <div class="stat-label">Rata-rata NPS</div>
+        <div class="v-stat-card">
+            <div class="v-stat-icon" style="color: #f59e0b;"><i data-lucide="star"></i></div>
+            <div>
+                <span class="v-label-caps">Rata-rata NPS</span>
+                <div class="v-stat-val" id="avg-nps">-</div>
+            </div>
         </div>
     </div>
 
     <!-- Table List -->
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th class="ps-4">Tanggal</th>
-                            <th>Kegiatan</th>
-                            <th>Frontliner</th>
-                            <th>Peserta</th>
-                            <th>Rata NPS</th>
-                            <th class="text-end pe-4">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="list-pil">
-                        <!-- Loaded by JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="v-card">
+        <table class="v-table">
+            <thead>
+                <tr>
+                    <th width="15%">Tanggal</th>
+                    <th width="35%">Judul Sosialisasi</th>
+                    <th width="20%">Frontliner</th>
+                    <th width="15%">Peserta</th>
+                    <th width="15%" style="text-align: right;">Rata NPS</th>
+                </tr>
+            </thead>
+            <tbody id="list-pil">
+                <tr>
+                    <td colspan="5" style="padding: 4rem; text-align: center;">
+                        <span class="loading-spinner"></span>
+                        <p class="v-label-caps" style="margin-top: 1rem;">Menghubungkan ke Command Hub...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-</div>
 
 <!-- Modal Header PIL -->
 <div id="modalKegiatan" class="modal-overlay" style="display:none;">
@@ -217,4 +278,4 @@
 </script>
 @vite(['resources/js/pages/pil.js', 'resources/js/pages/member.js'])
 @endpush
-@endsection
+</x-pengurus-layout>

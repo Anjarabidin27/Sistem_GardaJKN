@@ -15,6 +15,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterStatus = document.getElementById('filter-status');
     const btnAdd = document.getElementById('btn-add');
     
+    // Drive UI Elements
+    const gridView = document.getElementById('grid-view');
+    const listView = document.getElementById('list-view');
+    const toggleGrid = document.getElementById('toggle-grid');
+    const toggleList = document.getElementById('toggle-list');
+    const statusChips = document.getElementById('status-chips');
+
+    let currentViewMode = localStorage.getItem('bpjs_view_mode') || 'list'; // Default to list
+    let selectedStatus = '';
+    
     // BPJS Modal (Kegiatan)
     const bpjsModal = document.getElementById('bpjsModal');
     const bpjsForm = document.getElementById('bpjsForm');
@@ -35,61 +45,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Master Data wilayah (Contextual Loading) ---
     // --- Master Data wilayah (Contextual Loading) ---
-    async function loadProvinces() {
+    let userContext = null;
+
+    // --- Master Data wilayah (Contextual Loading) ---
+    async function initRegionContext() {
         try {
             const ctxRes = await window.axios.get('master/get-context');
-            const ctx = ctxRes.data.data;
+            userContext = ctxRes.data.data;
             
-            // 1. Context Display
+            // Context Display in UI
             const kwName = document.getElementById('ui-kw-name');
             const kcName = document.getElementById('ui-kc-name');
-            if (ctx) {
-                if (kwName) kwName.innerText = ctx.kantor_cabang?.kedeputian_wilayah || ctx.unit_name || '-';
-                if (kcName) kcName.innerText = ctx.kantor_cabang?.name || ctx.unit_name || '-';
+            if (userContext) {
+                if (kwName) kwName.innerText = userContext.kantor_cabang?.kedeputian_wilayah || userContext.unit_name || '-';
+                if (kcName) kcName.innerText = userContext.kantor_cabang?.name || userContext.unit_name || '-';
             }
 
-            // 2. Load API
+            await loadProvinces();
+        } catch (err) {
+            console.error("Gagal load context wilayah", err);
+        }
+    }
+
+    async function loadProvinces() {
+        try {
             const provRes = await window.axios.get('master/provinces');
             if(provSelect) {
-                provSelect.disabled = false;
                 provSelect.innerHTML = '<option value="">Pilih Provinsi...</option>';
                 provRes.data.data.forEach(p => {
                     provSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
                 });
 
-                // 3. Auto-fill logic
-                if (ctx.kantor_cabang && ctx.kantor_cabang.province_id) {
-                    provSelect.value = ctx.kantor_cabang.province_id;
-                    provSelect.disabled = true; // Lock it
-                    
-                    // Trigger cities loading
-                    komaSelectReset();
-                    const cityRes = await window.axios.get(`master/cities?province_id=${ctx.kantor_cabang.province_id}`);
-                    if(kotaSelect) {
-                        kotaSelect.innerHTML = '<option value="">Kota/Kab...</option>';
-                        cityRes.data.data.forEach(c => {
-                            kotaSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                        });
-
-                        if (ctx.kantor_cabang.city_id) {
-                            kotaSelect.value = ctx.kantor_cabang.city_id;
-                            kotaSelect.disabled = true; // Lock it
-                            
-                            // Trigger districts
-                            kecSelectReset();
-                            const distRes = await window.axios.get(`master/districts?city_id=${ctx.kantor_cabang.city_id}`);
-                            if(kecSelect) {
-                                kecSelect.disabled = false;
-                                distRes.data.data.forEach(d => {
-                                    kecSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
-                                });
-                            }
-                        }
-                    }
+                // If only 1 province (Filtered by backend for KC staff)
+                if (provRes.data.data.length === 1) {
+                    provSelect.value = provRes.data.data[0].id;
+                    if (userContext?.scope_type === 'branch') provSelect.disabled = true;
+                    await loadCities(provSelect.value);
                 }
             }
         } catch (err) {
-            console.error("Gagal load context wilayah BPJS Keliling", err);
+            console.error("Gagal load provinces", err);
+        }
+    }
+
+    async function loadCities(provinceId) {
+        if (!provinceId || !kotaSelect) return;
+        try {
+            const res = await window.axios.get(`master/cities?province_id=${provinceId}`);
+            kotaSelect.innerHTML = '<option value="">Kota/Kab...</option>';
+            res.data.data.forEach(c => {
+                kotaSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+            kotaSelect.disabled = false;
+
+            // If only 1 city (Filtered by backend)
+            if (res.data.data.length === 1) {
+                kotaSelect.value = res.data.data[0].id;
+                if (userContext?.scope_type === 'branch') kotaSelect.disabled = true;
+                await loadDistricts(kotaSelect.value);
+            }
+        } catch (err) {
+            console.error("Gagal load cities", err);
+        }
+    }
+
+    async function loadDistricts(cityId) {
+        if (!cityId || !kecSelect) return;
+        try {
+            const res = await window.axios.get(`master/districts?city_id=${cityId}`);
+            kecSelect.innerHTML = '<option value="">Kecamatan...</option>';
+            res.data.data.forEach(d => {
+                kecSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+            });
+            kecSelect.disabled = false;
+        } catch (err) {
+            console.error("Gagal load districts", err);
         }
     }
 
@@ -97,14 +127,14 @@ document.addEventListener('DOMContentLoaded', () => {
         provSelect.addEventListener('change', (e) => {
             komaSelectReset();
             kecSelectReset();
-            if(!e.target.value) return;
-            window.axios.get(`master/cities?province_id=${e.target.value}`)
-                .then(res => {
-                    if(kotaSelect) {
-                        kotaSelect.disabled = false;
-                        res.data.data.forEach(c => kotaSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`);
-                    }
-                });
+            if(e.target.value) loadCities(e.target.value);
+        });
+    }
+
+    if(kotaSelect) {
+        kotaSelect.addEventListener('change', (e) => {
+            kecSelectReset();
+            if(e.target.value) loadDistricts(e.target.value);
         });
     }
 
@@ -127,30 +157,118 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Load Data Jadwal ---
     function loadData() {
-        if(!tableBody) return;
         const params = new URLSearchParams(window.location.search);
-        const statusVal = params.get('status') || (filterStatus ? filterStatus.value : '') || '';
         
-        // Update filter UI to match URL if different
-        if (statusVal && filterStatus && filterStatus.value !== statusVal) {
-            filterStatus.value = statusVal;
+        const statusVal = selectedStatus || params.get('status') || '';
+        const judulVal = document.getElementById('filter-judul') ? document.getElementById('filter-judul').value : '';
+        const jamVal = document.getElementById('filter-jam') ? document.getElementById('filter-jam').value : '';
+        const dariVal = document.getElementById('filter-dari') ? document.getElementById('filter-dari').value : '';
+        const sampaiVal = document.getElementById('filter-sampai') ? document.getElementById('filter-sampai').value : '';
+
+        // Sync Chips UI
+        if (statusChips) {
+            statusChips.querySelectorAll('.chip').forEach(c => {
+                c.classList.toggle('active', c.dataset.status === statusVal);
+            });
         }
 
-        let qs = statusVal ? `?status=${statusVal}` : '';
+        const queryParams = new URLSearchParams();
+        if (statusVal) queryParams.set('status', statusVal);
+        if (judulVal) queryParams.set('judul', judulVal);
+        if (jamVal) queryParams.set('jam_mulai', jamVal);
+        if (dariVal) queryParams.set('dari', dariVal);
+        if (sampaiVal) queryParams.set('sampai', sampaiVal);
+
+        const qs = queryParams.toString() ? '?' + queryParams.toString() : '';
         
         // Update URL
-        const newUrl = window.location.pathname + (qs ? qs : '');
+        const newUrl = window.location.pathname + qs;
         window.history.replaceState({}, '', newUrl);
 
         window.axios.get('admin/bpjs-keliling' + qs)
             .then(res => {
                 eventsData = res.data.data;
-                renderTable();
+
+                // Render Autocomplete Suggestions for Index
+                const datalist = document.getElementById('judul-list-index');
+                if (datalist && eventsData) {
+                    const titles = [...new Set(eventsData.map(e => e.judul))].filter(Boolean);
+                    datalist.innerHTML = '';
+                    titles.forEach(t => datalist.innerHTML += `<option value="${t}">`);
+                }
+
+                renderData();
             })
             .catch(err => console.error("Gagal load jadwal", err));
     }
 
-    function renderTable() {
+    const filterJudul = document.getElementById('filter-judul');
+    if(filterJudul) {
+        let typingTimer;
+        filterJudul.addEventListener('input', () => {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(loadData, 500);
+        });
+    }
+
+    const filterJam = document.getElementById('filter-jam');
+    if(filterJam) filterJam.addEventListener('change', loadData);
+
+    const filterDari = document.getElementById('filter-dari');
+    if(filterDari) filterDari.addEventListener('change', loadData);
+
+    const filterSampai = document.getElementById('filter-sampai');
+    if(filterSampai) filterSampai.addEventListener('change', loadData);
+
+    // View Toggling Logic
+    function setViewMode(mode) {
+        currentViewMode = mode;
+        localStorage.setItem('bpjs_view_mode', mode);
+        
+        if (mode === 'grid') {
+            if (gridView) gridView.style.display = 'grid';
+            if (listView) listView.style.display = 'none';
+            if (toggleGrid) toggleGrid.classList.add('active');
+            if (toggleList) toggleList.classList.remove('active');
+        } else {
+            if (gridView) gridView.style.display = 'none';
+            if (listView) listView.style.display = 'block';
+            if (toggleGrid) toggleGrid.classList.remove('active');
+            if (toggleList) toggleList.classList.add('active');
+        }
+        renderData();
+    }
+
+    if (toggleGrid) toggleGrid.addEventListener('click', () => setViewMode('grid'));
+    if (toggleList) toggleList.addEventListener('click', () => setViewMode('list'));
+
+    if (statusChips) {
+        statusChips.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                selectedStatus = chip.dataset.status;
+                loadData();
+            });
+        });
+    }
+
+    function renderData() {
+        if (currentViewMode === 'grid') {
+            renderGridView();
+        } else {
+            renderTableView();
+        }
+    }
+
+    const mapJenis = {
+        'goes_to_village': 'Goes To Village',
+        'around_city': 'Around City',
+        'goes_to_office': 'Goes To Office',
+        'institusi': 'Institusi',
+        'pameran': 'Pameran',
+        'other': 'Lainnya'
+    };
+
+    function renderTableView() {
         if(!tableBody) return;
         tableBody.innerHTML = '';
         if (eventsData.length === 0) {
@@ -158,21 +276,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const mapJenis = {
-            'goes_to_village': 'Goes To Village',
-            'around_city': 'Around City',
-            'goes_to_office': 'Goes To Office',
-            'institusi': 'Institusi',
-            'pameran': 'Pameran',
-            'other': 'Lainnya'
-        };
-
         eventsData.forEach(event => {
             const hasLaporan = (event.jumlah_peserta > 0 || event.layanan_informasi > 0) || event.status === 'completed';
             const isCompleted = event.status === 'completed';
             const jns = mapJenis[event.jenis_kegiatan] || event.jenis_kegiatan;
             
-            // Lokasi string
             let locParts = [];
             if(event.nama_desa) locParts.push(event.nama_desa);
             if(event.kota) locParts.push(event.kota.name);
@@ -224,6 +332,112 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.lucide) window.lucide.createIcons();
     }
 
+    function renderGridView() {
+        if(!gridView) return;
+        gridView.innerHTML = '';
+        if (eventsData.length === 0) {
+            gridView.innerHTML = '<div class="text-center p-8 text-muted" style="grid-column: 1/-1;">Belum ada agenda kegiatan.</div>';
+            return;
+        }
+
+        eventsData.forEach(event => {
+            const isCompleted = event.status === 'completed';
+            const jns = mapJenis[event.jenis_kegiatan] || event.jenis_kegiatan;
+            
+            let locParts = [];
+            if(event.nama_desa) locParts.push(event.nama_desa);
+            if(event.kota) locParts.push(event.kota.name);
+            let locStr = locParts.length > 0 ? locParts.join(', ') : 'Lokasi Belum di set';
+
+            let statusColor = '#3b82f6'; // info
+            const statusText = event.status_label;
+            if (statusText === 'Berlangsung') statusColor = '#f59e0b';
+            else if (statusText === 'Selesai') statusColor = '#10b981';
+            else if (statusText === 'Dibatalkan') statusColor = '#ef4444';
+
+            const card = document.createElement('div');
+            card.className = 'drive-card';
+            card.innerHTML = `
+                <div class="card-dots" onclick="toggleContextMenu(event, ${event.id})">
+                    <i data-lucide="more-vertical" style="width:20px; height:20px;"></i>
+                </div>
+                
+                <div class="context-menu" id="ctx-${event.id}">
+                    <div class="menu-item" onclick="editEvent(${event.id})">
+                        <i data-lucide="edit-2" style="width:14px;"></i> Edit Jadwal
+                    </div>
+                    <div class="menu-item" onclick="handleLaporan(${event.id})">
+                        <i data-lucide="clipboard-list" style="width:14px;"></i> ${isCompleted ? 'Lihat Laporan' : 'Input Laporan'}
+                    </div>
+                    <div class="menu-item" onclick="window.showQR(${event.id}, '${event.judul}')">
+                        <i data-lucide="qr-code" style="width:14px;"></i> Tampilkan QR
+                    </div>
+                    <div class="menu-item danger" onclick="deleteEvent(${event.id})">
+                        <i data-lucide="trash-2" style="width:14px;"></i> Hapus Jadwal
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 mb-3">
+                    <div style="background: ${statusColor}15; color: ${statusColor}; padding: 10px; border-radius: 10px;">
+                        <i data-lucide="calendar" style="width:24px; height:24px;"></i>
+                    </div>
+                    <div style="flex: 1; padding-right: 20px;">
+                        <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 2px; line-height:1.2;">${event.judul}</div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">${jns}</div>
+                    </div>
+                </div>
+
+                <div style="background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="map-pin" style="width:14px; color: #94a3b8;"></i>
+                        <span style="font-size: 0.8rem; font-weight: 600; color: #475569;">${locStr}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="clock" style="width:14px; color: #94a3b8;"></i>
+                        <span style="font-size: 0.8rem; font-weight: 600; color: #475569;">
+                            ${new Date(event.tanggal).toLocaleDateString('id-ID', {day:'numeric', month:'short'})} 
+                            ${event.jam_mulai ? ' • ' + event.jam_mulai.slice(0,5) : ''}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <span style="background: ${statusColor}15; color: ${statusColor}; padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">
+                        ${statusText}
+                    </span>
+                    ${event.jumlah_peserta > 0 ? `
+                        <span style="font-size: 0.7rem; font-weight: 700; color: #10b981;">
+                            ${event.jumlah_peserta} Peserta
+                        </span>
+                    ` : ''}
+                </div>
+            `;
+            gridView.appendChild(card);
+        });
+
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    window.toggleContextMenu = (e, id) => {
+        e.stopPropagation();
+        const allMenus = document.querySelectorAll('.context-menu');
+        const targetMenu = document.getElementById(`ctx-${id}`);
+        
+        const isAlreadyOpen = targetMenu.style.display === 'block';
+        
+        allMenus.forEach(m => m.style.display = 'none');
+        if (!isAlreadyOpen) {
+            targetMenu.style.display = 'block';
+        }
+    };
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.context-menu').forEach(m => m.style.display = 'none');
+    });
+
+    // Initial View Mode
+    setViewMode(currentViewMode);
+
     if(filterStatus) filterStatus.addEventListener('change', loadData);
 
     // --- Modal Kegiatan ---
@@ -231,8 +445,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btnAdd.addEventListener('click', () => {
             if(bpjsForm) bpjsForm.reset();
             if(bpjsId) bpjsId.value = '';
-            komaSelectReset();
-            kecSelectReset();
+            
+            // Re-apply context loading to ensure locked fields are restored
+            loadProvinces(); 
+
             if(modalTitle) modalTitle.innerText = "Tambah Jadwal Kegiatan";
             if(bpjsModal) bpjsModal.style.display = 'flex';
         });
@@ -389,11 +605,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if(mainContentArea) mainContentArea.style.display = 'none';
         if(commandCenterUI) commandCenterUI.style.display = 'block';
 
-        // Hide sidebar for focus and to prevent accidental navigation
-        const sidebar = document.getElementById('garda-sidebar');
-        const mainBody = document.querySelector('.main-body');
-        if (sidebar) sidebar.style.display = 'none';
-        if (mainBody) mainBody.style.marginLeft = '0';
+        // Unified Sidebar Hide
+        document.querySelector('.app-layout')?.classList.add('sidebar-hidden');
+
+        // Show back button at top, hide other title btns
+        if(document.getElementById('btn-back-top')) document.getElementById('btn-back-top').style.display = 'flex';
+        if(document.getElementById('btn-to-dashboard')) document.getElementById('btn-to-dashboard').style.display = 'none';
+        if(btnAdd) btnAdd.style.display = 'none';
 
         if(window.lucide) window.lucide.createIcons();
     };
@@ -402,16 +620,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if(commandCenterUI) commandCenterUI.style.display = 'none';
         if(mainContentArea) mainContentArea.style.display = 'block';
         
-        // Show sidebar back
-        const sidebar = document.getElementById('garda-sidebar');
-        const mainBody = document.querySelector('.main-body');
-        if (sidebar) sidebar.style.display = 'flex';
-        if (mainBody) {
-            // Restore margin only if not on mobile
-            if (window.innerWidth > 768) {
-                mainBody.style.marginLeft = 'var(--sb-width)';
-            }
-        }
+        // Restore Sidebar
+        document.querySelector('.app-layout')?.classList.remove('sidebar-hidden');
+
+        // Restore title btns
+        if(document.getElementById('btn-back-top')) document.getElementById('btn-back-top').style.display = 'none';
+        if(document.getElementById('btn-to-dashboard')) document.getElementById('btn-to-dashboard').style.display = 'inline-flex';
+        if(btnAdd) btnAdd.style.display = 'inline-flex';
 
         loadData(); // Refresh table status
     };
@@ -467,13 +682,25 @@ document.addEventListener('DOMContentLoaded', () => {
             let infoStr = p.jenis_layanan;
             let statusClr = p.status === 'Berhasil' ? 'var(--success)' : 'var(--danger)';
             pesertaListWrap.innerHTML += `
-                <div style="border:1px solid var(--border); border-radius:6px; padding:10px; background:#fff; position: relative;">
-                    <div style="font-weight:700; font-size:0.85rem;">NIK: ${p.nik}</div>
-                    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom: 5px;">${p.segmen_peserta} | ${p.jam_mulai} - ${p.jam_selesai}</div>
-                    <div style="font-size:0.75rem; font-weight:600; color:var(--primary);">${infoStr}</div>
-                    ${p.transaksi_layanan ? `<div style="font-size:0.7rem;">${p.transaksi_layanan}</div>` : ''}
-                    <div style="font-size:0.75rem; font-weight:700; color:${statusClr}; margin-top:5px;">${p.status}</div>
-                    <button type="button" onclick="deleteParticipant(${p.id})" style="position: absolute; right: 10px; top: 10px; background:none; border:none; color:var(--danger); cursor:pointer;"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+                <div style="border:1px solid var(--border); border-radius:12px; padding:15px; background:#fff; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    <div style="font-weight:800; font-size:0.9rem; color:var(--v-black);">NIK: ${p.nik}</div>
+                    <div style="font-size:0.75rem; color:var(--v-gray-500); margin-bottom: 8px; font-weight: 600;">${p.segmen_peserta} | ${p.jam_mulai} - ${p.jam_selesai}</div>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                        <div>
+                            <div style="font-size:0.75rem; font-weight:800; color:var(--v-blue-600); text-transform:uppercase; letter-spacing:0.05em;">${infoStr}</div>
+                            ${p.transaksi_layanan ? `<div style="font-size:0.75rem; color:#64748b; margin-top:2px;">${p.transaksi_layanan}</div>` : ''}
+                            <div style="font-size:0.75rem; font-weight:800; color:${statusClr}; margin-top:6px;">${p.status}</div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button type="button" class="btn-compact" onclick="window.showParticipantQR(${p.id}, '${p.nik}')" style="background:#f0f9ff; color:#0369a1; border:1px solid #bae6fd; padding:6px 10px;">
+                                <i data-lucide="qr-code" style="width:14px; height:14px;"></i>
+                            </button>
+                            <button type="button" class="btn-compact" onclick="deleteParticipant(${p.id})" style="background:#fff1f2; color:#be123c; border:1px solid #fecaca; padding:6px 10px;">
+                                <i data-lucide="trash-2" style="width:14px; height:14px;"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             `;
         });
@@ -491,25 +718,43 @@ document.addEventListener('DOMContentLoaded', () => {
             if(btn) { btn.disabled = true; btn.innerText = 'Menyimpan...'; }
 
             window.axios.post(`admin/bpjs-keliling/${id}/participants`, data)
-                .then(res => {
+                .then(async (res) => {
                     // 1. Success Message
                     window.showToast(res.data.message, 'success');
                     
-                    // 2. Generate QR Code for this activity
-                    const url = window.location.origin + '/survei/' + id;
-                    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
+                    // 2. Base Survey URL
+                    let surveyUrl = window.location.origin + '/survei/' + id;
+                    const nik = document.getElementById('nik')?.value;
+                    
+                    // 3. Generate Token using the NIK provided in form
+                    if (nik) {
+                        try {
+                            const tokenRes = await window.axios.post('admin/bpjs-keliling/generate-survey-token', {
+                                nik: nik,
+                                activity_id: id
+                            });
+                            if (tokenRes.data.status === 'success') {
+                                surveyUrl += '?token=' + encodeURIComponent(tokenRes.data.token);
+                            }
+                        } catch (e) { console.error("Fail to gen survey token:", e); }
+                    }
+
+                    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(surveyUrl);
                     const qrImg = document.getElementById('feedback-qr-img');
                     if (qrImg) qrImg.src = qrUrl;
 
-                    // 3. Show QR Modal
+                    // 4. Show QR Modal
                     document.getElementById('feedback-overlay').style.display = 'flex';
                     if(window.lucide) window.lucide.createIcons();
                     
-                    // 4. Update stats & List
+                    // 5. Update stats & List
                     loadParticipants(id);
                     loadData();
                 })
-                .catch(err => window.showToast("Gagal simpan peserta. Cek form.", 'error'))
+                .catch(err => {
+                    const msg = err.response?.data?.message || "Gagal simpan peserta. Cek form.";
+                    window.showToast(msg, 'error');
+                })
                 .finally(() => { 
                     if(btn) {
                         btn.disabled = false; 
@@ -667,7 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(el) el.addEventListener('change', updateStatusAuto);
     });
 
-    loadProvinces();
+    initRegionContext();
     loadData();
 });
 
@@ -678,6 +923,31 @@ window.showQR = (id, title) => {
     document.getElementById('qr-title').innerText = title;
     document.getElementById('qr-image').src = qrUrl;
     document.getElementById('qr-link').href = url;
+    
+    const el = document.getElementById('modalQR');
+    if(el) el.style.display = 'flex';
+};
+
+window.showParticipantQR = async (p_id, nik) => {
+    const activity_id = entryKegiatanId ? entryKegiatanId.value : '';
+    let surveyUrl = window.location.origin + '/survei/' + activity_id;
+    
+    // Show loading state in modal if you want, or just wait for axios
+    try {
+        const tokenRes = await window.axios.post('admin/bpjs-keliling/generate-survey-token', {
+            nik: nik,
+            activity_id: activity_id
+        });
+        if (tokenRes.data.status === 'success') {
+            surveyUrl += '?token=' + encodeURIComponent(tokenRes.data.token);
+        }
+    } catch (e) { console.error("Fail to gen survey token:", e); }
+
+    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(surveyUrl);
+    
+    document.getElementById('qr-title').innerText = "Survei NIK: " + nik;
+    document.getElementById('qr-image').src = qrUrl;
+    document.getElementById('qr-link').href = surveyUrl;
     
     const el = document.getElementById('modalQR');
     if(el) el.style.display = 'flex';

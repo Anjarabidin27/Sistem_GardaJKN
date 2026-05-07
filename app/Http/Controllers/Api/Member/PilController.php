@@ -11,14 +11,26 @@ class PilController extends Controller
 {
     public function index(Request $request)
     {
-        $data = Pil::with(['provinsi', 'kota', 'participants'])
-            ->where('member_id', Auth::id())
-            ->orderByDesc('tanggal')
-            ->get();
+        $user = $request->user();
+        $query = Pil::with(['provinsi', 'kota', 'participants'])
+            ->orderByDesc('tanggal');
+
+        // If Pengurus, filter by their branch
+        if ($user && $user->role === 'pengurus') {
+            $user->load('kantorCabang');
+            if ($user->kantorCabang) {
+                $cleanKC = str_ireplace('KC ', '', $user->kantorCabang->name);
+                $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
+            } else {
+                $query->where('member_id', $user->id);
+            }
+        } else if ($user) {
+            $query->where('member_id', $user->id);
+        }
 
         return response()->json([
             'status' => 'success',
-            'data' => $data
+            'data' => $query->get()
         ]);
     }
 
@@ -39,9 +51,18 @@ class PilController extends Controller
             'nama_frontliner'=> 'required|string',
         ]);
 
+        // Auto-fill from User Profile (Admin/Pengurus)
         $validated['member_id'] = $user->id;
-        $validated['kedeputian_wilayah'] = $user->kedeputian_wilayah ?? null;
-        $validated['kantor_cabang'] = $user->kantor_cabang ?? null;
+        
+        if ($user->role === 'pengurus') {
+            $user->load(['kantorCabang.kedeputianWilayah']);
+            $validated['kantor_cabang'] = $user->kantorCabang?->name;
+            $validated['kedeputian_wilayah'] = $user->kantorCabang?->kedeputianWilayah?->name;
+        } else {
+            $validated['kedeputian_wilayah'] = $user->kedeputian_wilayah ?? null;
+            $validated['kantor_cabang'] = $user->kantor_cabang ?? null;
+        }
+
         $validated['zona_waktu'] = $user->zona_waktu ?? 'WIB';
 
         $item = Pil::create($validated);
@@ -55,7 +76,22 @@ class PilController extends Controller
 
     public function addParticipant(Request $request, $id)
     {
-        $kegiatan = Pil::where('member_id', $request->user()->id)->findOrFail($id);
+        $user = $request->user();
+        $query = Pil::query();
+
+        if ($user->role === 'pengurus') {
+            $user->load('kantorCabang');
+            if ($user->kantorCabang) {
+                $cleanKC = str_ireplace('KC ', '', $user->kantorCabang->name);
+                $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
+            } else {
+                $query->where('member_id', $user->id);
+            }
+        } else {
+            $query->where('member_id', $user->id);
+        }
+
+        $kegiatan = $query->findOrFail($id);
 
         $validated = $request->validate([
             'nik'               => 'required|string|digits:16',
@@ -82,11 +118,24 @@ class PilController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $item = Pil::with(['provinsi', 'kota', 'participants'])
-            ->where('member_id', Auth::id())
-            ->findOrFail($id);
+        $user = $request->user();
+        $query = Pil::with(['provinsi', 'kota', 'participants']);
+
+        if ($user->role === 'pengurus') {
+            $user->load('kantorCabang');
+            if ($user->kantorCabang) {
+                $cleanKC = str_ireplace('KC ', '', $user->kantorCabang->name);
+                $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
+            } else {
+                $query->where('member_id', $user->id);
+            }
+        } else {
+            $query->where('member_id', $user->id);
+        }
+
+        $item = $query->findOrFail($id);
             
         return response()->json([
             'status' => 'success',

@@ -101,10 +101,38 @@
             font-weight: 900;
             text-transform: uppercase;
         }
+
+        /* Mobile Compact Layout */
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 12px;
+            }
+            .v-filter-bar {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 16px;
+            }
+            .v-filter-bar > div {
+                max-width: 100% !important;
+                width: 100%;
+                margin-left: 0 !important;
+            }
+            .date-filter-group {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px !important;
+            }
+            .date-filter-group > span { display: none; } /* Hide slash on mobile */
+            .v-input, #btn-reset { width: 100% !important; }
+            .v-card { overflow-x: auto; }
+        }
     </style>
 
     <!-- Header Section -->
-    <div class="v-flex v-justify-between v-items-center" style="margin-bottom: 1.5rem;">
+    <div class="v-flex v-justify-between v-items-center page-header" style="margin-bottom: 1.5rem;">
         <div>
             <h1 style="font-size: 1.5rem; font-weight: 900; letter-spacing: -0.03em; color: var(--v-black); margin: 0;">Persetujuan Pengurus</h1>
             <p style="font-size: 0.85rem; color: var(--v-gray-500); margin-top: 2px;">Tinjau pengajuan baru dalam antrian sistem.</p>
@@ -119,23 +147,23 @@
         <div class="v-filter-bar">
             <div>
                 <span class="v-label-caps">Periode Daftar</span>
-                <div class="v-flex v-items-center v-gap-2">
+                <div class="v-flex v-items-center v-gap-2 date-filter-group">
                     <input type="date" id="filter-dari" class="v-input">
                     <span style="color: var(--v-gray-200);">/</span>
                     <input type="date" id="filter-sampai" class="v-input">
                 </div>
             </div>
-            <div style="flex: 1; max-width: 300px;">
+            <div style="max-width: 300px;">
                 <span class="v-label-caps">Pencarian</span>
                 <input type="text" id="filter-search" class="v-input" placeholder="Cari NIK atau Nama..." style="width: 100%;">
             </div>
-            <div style="margin-left: auto;">
-                <button class="v-input" style="cursor:pointer;" id="btn-reset">Reset</button>
+            <div style="display: flex; align-items: flex-end;">
+                <button class="v-input" style="cursor:pointer; background: var(--v-black); color: white; border: none; font-weight: 800; padding: 0.5rem;" id="btn-reset">Reset</button>
             </div>
         </div>
 
         <!-- Compact Table -->
-        <table class="v-table">
+        <table class="v-table" style="min-width: 700px;">
             <thead>
                 <tr>
                     <th width="25%">Calon Pengurus</th>
@@ -147,15 +175,19 @@
             </thead>
             <tbody id="applicant-tbody">
                 @forelse($applicants as $app)
-                    <tr class="app-row" data-date="{{ $app->created_at->format('Y-m-d') }}">
+                    <tr class="app-row" data-date="{{ $app->created_at ? $app->created_at->format('Y-m-d') : '' }}">
                         <td>
                             <div class="v-flex v-items-center v-gap-3">
                                 <div style="width: 32px; height: 32px; background: var(--v-gray-50); border: 1px solid var(--v-gray-100); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.7rem; color: var(--v-gray-500);">
-                                    {{ substr($app->name, 0, 1) }}
+                                    {{ $app->name ? substr($app->name, 0, 1) : '?' }}
                                 </div>
                                 <div class="v-flex-col">
-                                    <span style="font-weight: 800; color: var(--v-black); display: block;">{{ $app->name }}</span>
-                                    <span style="font-size: 10px; color: var(--v-gray-400); font-weight: 700;">{{ $app->nik }}</span>
+                                    <span style="font-weight: 800; color: var(--v-black); display: block;">{{ $app->name ?? 'Tanpa Nama' }}</span>
+                                    <div class="v-flex v-items-center v-gap-2" style="margin-top: 2px;">
+                                        <span style="font-size: 10px; color: var(--v-gray-400); font-weight: 700;">{{ $app->nik ?? '-' }}</span>
+                                        <span style="color: var(--v-gray-200); font-size: 10px;">•</span>
+                                        <span style="font-size: 9px; color: var(--v-blue-600); font-weight: 800; text-transform: uppercase;">{{ optional($app->city)->name ?? '-' }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -214,6 +246,23 @@
 
     @push('scripts')
     <script>
+        // Global Confirmation Handler
+        window.confirmAction = function(formId, message, type = 'success') {
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            if (window.showConfirm) {
+                // Use custom theme confirm if available
+                window.showConfirm('Konfirmasi', message, { type: type })
+                    .then(ok => { if(ok) form.submit(); });
+            } else {
+                // Fallback to native browser confirm
+                if (confirm(message)) {
+                    form.submit();
+                }
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             const dari = document.getElementById('filter-dari');
             const sampai = document.getElementById('filter-sampai');

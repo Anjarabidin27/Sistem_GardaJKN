@@ -1,16 +1,52 @@
 let currentPage = 1;
 let searchVal = '';
-
-console.log('Admin Informations JS Loaded');
+let currentViewMode = localStorage.getItem('info_view_mode') || 'list';
+let selectedType = '';
+let informationsData = [];
 
 document.addEventListener('DOMContentLoaded', () => { 
-    console.log('Admin Informations DOM Ready');
+    // Drive UI Elements
+    const gridView = document.getElementById('grid-view');
+    const listView = document.getElementById('list-view');
+    const toggleGrid = document.getElementById('toggle-grid');
+    const toggleList = document.getElementById('toggle-list');
+    const statusChips = document.getElementById('status-chips');
+
+    if (toggleGrid) toggleGrid.addEventListener('click', () => setViewMode('grid'));
+    if (toggleList) toggleList.addEventListener('click', () => setViewMode('list'));
+
+    if (statusChips) {
+        statusChips.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                selectedType = chip.dataset.type;
+                window.fetchData(1);
+            });
+        });
+    }
+
+    // View Toggling Logic
+    function setViewMode(mode) {
+        currentViewMode = mode;
+        localStorage.setItem('info_view_mode', mode);
+        
+        if (mode === 'grid') {
+            if (gridView) gridView.style.display = 'grid';
+            if (listView) listView.style.display = 'none';
+            if (toggleGrid) toggleGrid.classList.add('active');
+            if (toggleList) toggleList.classList.remove('active');
+        } else {
+            if (gridView) gridView.style.display = 'none';
+            if (listView) listView.style.display = 'block';
+            if (toggleGrid) toggleGrid.classList.remove('active');
+            if (toggleList) toggleList.classList.add('active');
+        }
+        renderData();
+    }
     
     // Attach listener to Add button
     const btnOpenAdd = document.getElementById('btnOpenAddModal');
     if (btnOpenAdd) {
         btnOpenAdd.addEventListener('click', () => {
-            console.log('Add Modal Button Clicked');
             window.openAddModal();
         });
     }
@@ -38,17 +74,32 @@ document.addEventListener('DOMContentLoaded', () => {
         typeSelect.addEventListener('change', () => window.toggleAttachmentField());
     }
 
+    // Initial View Mode
+    setViewMode(currentViewMode);
     window.fetchData();
 });
 
     window.fetchData = async function(page = 1, search = searchVal) {
-        currentPage = page;
-        searchVal = search;
-        try {
-            const res = await window.axios.get(`admin/informations?page=${page}&search=${search}`);
-            renderTable(res.data.data.data);
-            renderPagination(res.data.data);
-        } catch (e) {
+    currentPage = page;
+    searchVal = search;
+    
+    // Sync Chips UI
+    const statusChips = document.getElementById('status-chips');
+    if (statusChips) {
+        statusChips.querySelectorAll('.chip').forEach(c => {
+            c.classList.toggle('active', c.dataset.type === selectedType);
+        });
+    }
+
+    try {
+        let url = `admin/informations?page=${page}&search=${search}`;
+        if (selectedType) url += `&type=${selectedType}`;
+        
+        const res = await window.axios.get(url);
+        informationsData = res.data.data.data;
+        renderData();
+        renderPagination(res.data.data);
+    } catch (e) {
         console.error('Fetch Error:', e);
         if (typeof showToast !== 'undefined') showToast('Gagal memuat data', 'error');
     }
@@ -63,17 +114,25 @@ window.handleSearch = function(val) {
     }, 500);
 }
 
-function renderTable(items) {
+function renderData() {
+    if (currentViewMode === 'grid') {
+        renderGridView();
+    } else {
+        renderTableView();
+    }
+}
+
+function renderTableView() {
     const body = document.getElementById('infoTableBody');
     if (!body) return;
     body.innerHTML = '';
     
-    if (items.length === 0) {
+    if (informationsData.length === 0) {
         body.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">Tidak ada data informasi ditemukan.</td></tr>';
         return;
     }
 
-    items.forEach(item => {
+    informationsData.forEach(item => {
         const row = `
             <tr class="transition-all">
                 <td class="ps-4">
@@ -350,3 +409,85 @@ function formatTime(dateStr) {
     const d = new Date(dateStr);
     return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 }
+
+function renderGridView() {
+    const grid = document.getElementById('grid-view');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    if (informationsData.length === 0) {
+        grid.innerHTML = '<div class="text-center p-8 text-muted" style="grid-column: 1/-1;">Tidak ada data informasi ditemukan.</div>';
+        return;
+    }
+
+    informationsData.forEach(item => {
+        let previewHtml = '';
+        if (item.type === 'image' && item.attachment_url) {
+            previewHtml = `<img src="${item.attachment_url}" alt="Preview">`;
+        } else if (item.type === 'pdf') {
+            previewHtml = '<i data-lucide="file-text" style="width:48px; height:48px;"></i>';
+        } else {
+            previewHtml = '<i data-lucide="align-left" style="width:48px; height:48px;"></i>';
+        }
+
+        const card = document.createElement('div');
+        card.className = 'drive-card';
+        card.innerHTML = `
+            <div class="card-dots" onclick="toggleContextMenu(event, ${item.id})">
+                <i data-lucide="more-vertical" style="width:20px; height:20px;"></i>
+            </div>
+
+            <div class="context-menu" id="ctx-${item.id}">
+                <div class="menu-item" onclick="window.openEditModal(${item.id})">
+                    <i data-lucide="edit-2" style="width:14px;"></i> Edit Informasi
+                </div>
+                <div class="menu-item" onclick="window.toggleStatus(${item.id})">
+                    <i data-lucide="${item.is_active ? 'eye-off' : 'eye'}" style="width:14px;"></i> ${item.is_active ? 'Sembunyikan' : 'Tampilkan'}
+                </div>
+                <div class="menu-item danger" onclick="window.deleteInfo(${item.id})">
+                    <i data-lucide="trash-2" style="width:14px;"></i> Hapus Permanen
+                </div>
+            </div>
+
+            <div class="info-preview">
+                ${previewHtml}
+            </div>
+
+            <div style="padding-right: 24px;">
+                <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${item.title}</div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span style="font-size: 0.7rem; color: #64748b; font-weight: 600;">${formatDateShort(item.created_at)}</span>
+                    <span style="width: 4px; height: 4px; background: #cbd5e1; border-radius: 50%;"></span>
+                    <span style="font-size: 0.7rem; color: #64748b; font-weight: 600;">${item.type.toUpperCase()}</span>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mt-auto pt-2 border-t border-slate-100">
+                <span style="background: ${item.is_active ? '#10b981' : '#64748b'}15; color: ${item.is_active ? '#10b981' : '#64748b'}; padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">
+                    ${item.is_active ? 'PUBLIK' : 'DRAFT'}
+                </span>
+                ${item.attachment_path ? `<i data-lucide="paperclip" style="width:14px; color: #94a3b8;"></i>` : ''}
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+window.toggleContextMenu = (e, id) => {
+    e.stopPropagation();
+    const allMenus = document.querySelectorAll('.context-menu');
+    const targetMenu = document.getElementById(`ctx-${id}`);
+    
+    const isAlreadyOpen = targetMenu.style.display === 'block';
+    
+    allMenus.forEach(m => m.style.display = 'none');
+    if (!isAlreadyOpen) {
+        targetMenu.style.display = 'block';
+    }
+};
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.context-menu').forEach(m => m.style.display = 'none');
+});

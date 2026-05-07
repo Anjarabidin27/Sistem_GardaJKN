@@ -11,16 +11,31 @@ let currentPage = 1;
 
     async function fetchLogs(page = 1) {
         try {
-            const res = await window.axios.get(`admin/audit-logs?page=${page}`);
+            const actor = document.getElementById('filter-actor')?.value || '';
+            const action = document.getElementById('filter-action')?.value || '';
+            const start = document.getElementById('filter-start')?.value || '';
+            const end = document.getElementById('filter-end')?.value || '';
+
+            let url = `admin/audit-logs?page=${page}&actor=${actor}&action=${action}&start_date=${start}&end_date=${end}`;
+            
+            const res = await window.axios.get(url);
             const data = res.data.data;
             currentPage = page;
             renderLogs(data.data);
             renderPagination(data);
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         } catch (e) {
             console.error(e);
-            showToast('Gagal memuat log audit: ' + (e.response?.data?.message || e.message), 'error');
+            if (typeof showToast !== 'undefined') showToast('Gagal memuat log audit', 'error');
         }
+    }
+
+    window.resetFilter = function() {
+        if (document.getElementById('filter-actor')) document.getElementById('filter-actor').value = '';
+        if (document.getElementById('filter-action')) document.getElementById('filter-action').value = '';
+        if (document.getElementById('filter-start')) document.getElementById('filter-start').value = '';
+        if (document.getElementById('filter-end')) document.getElementById('filter-end').value = '';
+        fetchLogs(1);
     }
 
     function renderPagination(meta) {

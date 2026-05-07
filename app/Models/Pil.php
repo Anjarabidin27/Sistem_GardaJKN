@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Pil extends Model
 {
     protected $guarded = ['id'];
+    
+    protected $casts = [
+        'tanggal' => 'date',
+    ];
 
     public function participants()
     {
@@ -15,8 +19,9 @@ class Pil extends Model
 
     public function recalculateSummaries()
     {
-        $participants = $this->participants;
-        $count = $participants->count();
+        // Use count query directly to avoid stale collection issues
+        $count = $this->participants()->count();
+        $participants = $this->participants()->get();
 
         if ($count > 0) {
             $this->update([

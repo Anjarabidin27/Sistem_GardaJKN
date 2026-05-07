@@ -9,6 +9,7 @@
             padding: 8px 20px; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
             border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b;
             cursor: pointer; transition: all 0.2s;
+            flex: 1; text-align: center;
         }
         .tab-btn.active {
             background: #0f172a; color: #fff; border-color: #0f172a;
@@ -18,15 +19,34 @@
             border: 1px solid #fde68a; padding: 6px 12px; border-radius: 6px;
             display: none; margin-top: 8px;
         }
+        
+        /* Mobile Compact Layout */
+        @media (max-width: 768px) {
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 12px; }
+            .header-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+            .header-actions .btn { width: 100%; justify-content: center; padding: 10px !important; }
+            
+            .tab-container { flex-direction: column; gap: 8px; border-bottom: none !important; padding-bottom: 0 !important; }
+            .tab-btn { width: 100%; }
+            
+            .filter-form { flex-direction: column; align-items: stretch !important; gap: 12px !important; }
+            .filter-form > div { width: 100% !important; min-width: 100% !important; }
+            .filter-form button { width: 100%; padding: 12px !important; }
+            
+            #stats-container { grid-template-columns: 1fr 1fr !important; }
+            
+            .v-table-wrapper { overflow-x: auto; }
+            .v-table { min-width: 700px; }
+        }
     </style>
 
     <!-- Page Header -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
         <div>
             <h1 style="font-size: 1.5rem; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; margin: 0;">Daftar Terinput</h1>
             <p style="font-size: 0.875rem; color: #64748B; margin-top: 4px;">Rekapitulasi laporan operasional BPJS Keliling.</p>
         </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
             <button class="btn" style="background: #fff; border: 1px solid #E2E8F0; color: #0F172A; padding: 9px 16px; font-size: 0.8rem; font-weight: 600;" onclick="window.printReport()">
                 <i data-lucide="printer" style="width:14px;height:14px"></i> Cetak
             </button>
@@ -38,7 +58,7 @@
 
     <!-- Filter Mode Tabs -->
     <div style="background: #fff; border: 1px solid #E2E8F0; border-radius: 14px; padding: 20px 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-        <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px;">
+        <div class="tab-container" style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px;">
             <button class="tab-btn active" id="tab-kegiatan" onclick="switchTab('kegiatan')">
                 <i data-lucide="calendar-check" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-right:4px;"></i> Per Kegiatan
             </button>
@@ -52,7 +72,7 @@
 
         <!-- Filter: Per Kegiatan -->
         <div id="panel-kegiatan">
-            <form id="filterForm" style="display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;">
+            <form id="filterForm" class="filter-form" style="display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 200px;">
                     <label style="display: block; font-size: 0.65rem; font-weight: 800; color: #64748B; text-transform: uppercase; margin-bottom: 6px;">Pilih Kegiatan</label>
                     <select id="kegiatan_id" class="form-input" style="height: 40px; font-size: 0.85rem; border-color: #E2E8F0;" required>
@@ -80,7 +100,7 @@
         <!-- Filter: Rentang Tanggal (untuk Export) -->
         <!-- Filter: Per Bulan -->
         <div id="panel-month" style="display: none;">
-            <form id="monthForm" style="display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;">
+            <form id="monthForm" class="filter-form" style="display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;">
                 <div style="width: 170px;">
                     <label style="display: block; font-size: 0.65rem; font-weight: 800; color: #64748B; text-transform: uppercase; margin-bottom: 6px;">Pilih Bulan <span style="color:#ef4444;">*</span></label>
                     <select id="filter_bulan" class="form-input" style="height: 40px; font-size: 0.85rem;" required>
@@ -145,7 +165,7 @@
     </div>
 
     <!-- Metric Cards -->
-    <div id="stats-container" style="display: none; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+    <div id="stats-container" style="display: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
         <div style="background: #fff; border: 1px solid #E2E8F0; padding: 16px 20px; border-radius: 12px;">
             <div style="font-size: 0.68rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 6px;">Total Peserta</div>
             <div id="stat-total" style="font-size: 1.75rem; font-weight: 900; color: #0F172A; font-family: 'Outfit', sans-serif; letter-spacing: -0.02em;">0</div>

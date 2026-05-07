@@ -26,8 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('kedeputian_wilayah', res.data.data.kedeputian_wilayah);
                     
                     let targetUrl = '/admin/dashboard';
-                    if (res.data.data.role === 'petugas_keliling') targetUrl = '/admin/bpjs-keliling/dashboard';
-                    else if (res.data.data.role === 'petugas_pil') targetUrl = '/admin/pil/dashboard';
+                    if (res.data.data.role === 'petugas') targetUrl = '/admin/bpjs-keliling/dashboard';
 
                     setTimeout(() => {
                         window.location.href = targetUrl;

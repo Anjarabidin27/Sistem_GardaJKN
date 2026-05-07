@@ -118,10 +118,19 @@
         <p>Anda dapat menutup halaman ini sekarang.</p>
     @else
         <h1>Survei Kepuasan Layanan</h1>
-        <p>Bagaimana tingkat kepuasan Anda terhadap layanan <strong>{{ $kegiatan->judul }}</strong> hari ini?</p>
+        
+        @if($participant)
+            <p>Halo, <strong>{{ $participant->name }}</strong> (NIK: {{ substr($participant->nik, 0, 4) }}****). Bagaimana tingkat kepuasan Anda terhadap layanan <strong>{{ $kegiatan->judul }}</strong> hari ini?</p>
+        @else
+            <p>Bagaimana tingkat kepuasan Anda terhadap layanan <strong>{{ $kegiatan->judul }}</strong> hari ini?</p>
+        @endif
 
         <form method="POST" action="{{ route('survei.store', $kegiatan->id) }}">
             @csrf
+            @if($participant)
+                <input type="hidden" name="nik" value="{{ $participant->nik }}">
+            @endif
+            
             <button type="submit" name="suara_pelanggan" value="Puas" class="btn-puas">
                 <i data-lucide="smile" style="width: 48px; height: 48px;"></i>
                 <span>PUAS</span>

@@ -103,6 +103,14 @@ window.fetchData = async function() {
         updatePagination(res.data.data);
     } catch (e) { 
         console.error('Fetch Members Error:', e); 
+        const tbody = document.getElementById('memberTableBody');
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color: #ef4444; font-weight: 600;">
+                <i data-lucide="alert-triangle" style="width:24px;height:24px;margin:0 auto 10px;"></i><br>
+                Gagal memuat data anggota. Silakan coba segarkan halaman.
+            </td></tr>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
     }
 }
 
@@ -238,8 +246,8 @@ window.openEdit = async function(id) {
             approvalSection.style.display = 'block';
             approvalInfo.innerHTML = `
                 <div style="margin-bottom:4px;"><strong>Ketertarikan:</strong> ${m.interest_pil ? 'PIL' : ''} ${m.interest_pil && m.interest_keliling ? ' & ' : ''} ${m.interest_keliling ? 'BPJS Keliling' : ''}</div>
-                <div style="margin-bottom:4px;"><strong>Pengalaman Org:</strong> ${m.has_org_experience ? 'Ya' : 'Tidak Telepas'}</div>
-                <div style="margin-bottom:4px;"><strong>Alasan:</strong> ${m.pengurus_reason || '-'}</div>
+                <div style="margin-bottom:4px;"><strong>Pengalaman Org:</strong> ${m.has_org_experience ? 'Ya' : 'Tidak'}</div>
+                <div style="margin-bottom:4px;"><strong>Alasan:</strong> ${m.reason_pengurus || '-'}</div>
             `;
         } else if (approvalSection) {
             approvalSection.style.display = 'none';

@@ -31,7 +31,7 @@
     <div class="app-layout">
         <aside class="sidebar" id="garda-sidebar">
             <!-- Sidebar Brand Header -->
-            <div class="sb-header" style="padding: 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px;">
+            <div class="sb-header" style="padding: 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 8px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="width: 28px; height: 28px; background: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; transform: rotate(-5deg); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                         <i data-lucide="shield-check" style="width: 18px; height: 18px; color: var(--primary);"></i>
@@ -44,8 +44,8 @@
             </div>
 
             <!-- Profile Widget -->
-            <div class="sb-profile-widget" style="padding: 0 12px 16px;">
-                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px;">
+            <div class="sb-profile-widget" style="padding: 0 12px 10px;">
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; gap: 10px;">
                     <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #3B82F6, #1D4ED8); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans'; font-weight: 800; color: #fff; font-size: 0.95rem; border: 1.5px solid rgba(255,255,255,0.15);" id="sb-initials">A</div>
                     <div style="flex: 1; overflow: hidden;">
                         <div style="font-size: 0.775rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="sb-user-name">Administrator</div>
@@ -55,21 +55,23 @@
             </div>
 
             <!-- Institutional Context -->
-            <div style="padding: 0 12px 20px;">
-                <div style="background: linear-gradient(to right, rgba(16, 185, 129, 0.08), transparent); border-left: 2px solid #10B981; border-radius: 0 6px 6px 0; padding: 8px 12px;">
+            <div style="padding: 0 12px 12px;">
+                <div style="background: linear-gradient(to right, rgba(16, 185, 129, 0.08), transparent); border-left: 2px solid #10B981; border-radius: 0 6px 6px 0; padding: 6px 12px;">
                     <div style="font-size: 0.55rem; color: rgba(255,255,255,0.3); font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px;">Unit Kerja Aktif</div>
                     <div class="flex items-center gap-2">
                         <i data-lucide="building-2" style="width: 12px; height: 12px; color: #10B981;"></i>
+                    <div class="flex-col">
                         <div id="sb-kc-name" style="font-size: 0.775rem; color: #fff; font-weight: 800; letter-spacing: 0.02em;">-</div>
+                        <div id="sb-kw-name" style="font-size: 0.6rem; color: #10B981; font-weight: 700; text-transform: uppercase; margin-top: 1px;">-</div>
+                    </div>
                     </div>
                 </div>
             </div>
 
                 <!-- Navigation Links -->
                 <nav class="sb-menu" style="padding: 0 12px;">
-                    <div class="sb-nav-section-title" style="font-size: 0.65rem; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 16px 10px;">Menu Utama</div>
-                    
-                    <div class="menu-group" data-role-allow="superadmin,administrator">
+                    <div class="menu-group" data-role-allow="superadmin,administrator,admin_wilayah">
+                        <div class="sb-nav-section-title" style="font-size: 0.65rem; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 16px 10px;">Menu Utama</div>
                         <a href="/admin/dashboard" class="sb-link @if(Request::is('admin/dashboard')) active @endif">
                             <i data-lucide="layout-dashboard" class="sb-link-icon"></i> <span>Dashboard Sentral</span>
                         </a>
@@ -84,10 +86,10 @@
                         </a>
                     </div>
 
-                    <div class="sb-nav-section-title" style="font-size: 0.65rem; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; padding: 24px 16px 10px;">Pelayanan Lapangan</div>
+                    <div class="sb-nav-section-title" style="font-size: 0.65rem; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 16px 10px;">Pelayanan Lapangan</div>
 
                     <!-- Modul BPJS Keliling -->
-                    <div class="menu-group" data-role-allow="superadmin,administrator,admin_wilayah,petugas_keliling">
+                    <div class="menu-group" data-role-allow="superadmin,administrator,admin_wilayah,petugas,petugas_keliling">
                         <div class="sb-folding-menu @if(Request::is('admin/bpjs-keliling*')) active @endif">
                             <div class="sb-folding-header">
                                 <i data-lucide="truck" class="sb-link-icon"></i> <span>BPJS Keliling</span>
@@ -101,14 +103,14 @@
                     </div>
 
                     <!-- Modul PIL -->
-                    <div class="menu-group" data-role-allow="superadmin,administrator,admin_wilayah,petugas_pil">
+                    <div class="menu-group" data-role-allow="superadmin,administrator,admin_wilayah,petugas,petugas_pil">
                         <div class="sb-folding-menu @if(Request::is('admin/pil*')) active @endif">
                             <div class="sb-folding-header">
                                 <i data-lucide="mic" class="sb-link-icon"></i> <span>Penyuluhan (PIL)</span>
                             </div>
                             <div class="sb-folding-items">
-                                <a href="/admin/pil" class="sb-sub-link">📅 Jadwal PIL</a>
-                                <a href="/admin/pil/dashboard" class="sb-sub-link">📈 Dashboard PIL</a>
+                                <a href="/admin/pil" class="sb-sub-link @if(Request::is('admin/pil') && !Request::is('admin/pil/*')) active @endif">📅 Jadwal PIL</a>
+                                <a href="/admin/pil/dashboard" class="sb-sub-link @if(Request::is('admin/pil/dashboard')) active @endif">📈 Dashboard PIL</a>
                             </div>
                         </div>
                     </div>
@@ -137,7 +139,7 @@
         <main class="main-body">
             <header class="top-header">
                 <div style="display: flex; align-items: center; gap: 16px;">
-                    <button id="mobileMenuBtn" style="display: none; background: none; border: none; color: #1e293b; cursor: pointer; padding: 0;">
+                    <button id="mobileMenuBtn" style="background: none; border: none; color: #1e293b; cursor: pointer; padding: 0;">
                         <i data-lucide="menu" style="width: 24px; height: 24px;"></i>
                     </button>
                     <div class="topbar-title">Sistem Garda JKN</div>
@@ -276,7 +278,7 @@
             const roleEl = document.getElementById('sb-user-role');
             if (roleEl) {
                 // Sesuai permintaan USER: Hilangkan keterangan role jika akun adalah Petugas BPJS Keliling (Redundansi)
-                if (role.includes('petugas_keliling')) {
+                if (role.includes('petugas')) {
                     roleEl.style.display = 'none';
                 } else {
                     roleEl.innerText = role.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -286,8 +288,13 @@
             if (document.getElementById('user-initials')) document.getElementById('user-initials').innerText = initial;
 
             // Sync Institutional Context
-            const kc = localStorage.getItem('kantor_cabang') || '-';
-            const kw = localStorage.getItem('kedeputian_wilayah') || '-';
+            let kc = localStorage.getItem('kantor_cabang');
+            let kw = localStorage.getItem('kedeputian_wilayah');
+            
+            // Clean up 'null' strings from localStorage
+            if (kc === 'null' || !kc) kc = (role === 'superadmin') ? 'NASIONAL' : '-';
+            if (kw === 'null' || !kw) kw = (role === 'superadmin') ? 'PUSAT' : '-';
+
             if (document.getElementById('sb-kc-name')) document.getElementById('sb-kc-name').innerText = kc;
             if (document.getElementById('sb-kw-name')) document.getElementById('sb-kw-name').innerText = kw;
             if (document.getElementById('ui-kc-name')) document.getElementById('ui-kc-name').innerText = kc;
@@ -349,10 +356,53 @@
         window.logout = () => { localStorage.clear(); window.location.href = '/login'; };
     </script>
     <style>
-        @media (max-width: 768px) {
-            #mobileMenuBtn { display: block !important; }
-            .topbar-date { display: none !important; }
-            .top-header { padding: 0 16px !important; }
+        /* Sidebar Toggle for Fullscreen Input */
+        .app-layout.sidebar-hidden .sidebar {
+            transform: translateX(-100%);
+            width: 0;
+            padding: 0;
+            margin: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* Force Reset Top Gaps */
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden;
+        }
+        .app-layout.sidebar-hidden .main-body {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding-top: 40px !important; /* Thinner for new header */
+            margin-top: 0 !important;
+        }
+        .app-layout.sidebar-hidden .top-header {
+            position: fixed !important; 
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 40px !important; /* Even thinner header */
+            display: flex;
+            align-items: center; /* Keep centered but in smaller box */
+            margin-top: 0 !important;
+            padding: 0 15px !important;
+            z-index: 1001;
+            box-shadow: none !important;
+            border-bottom: 1px solid #e2e8f0;
+            background: #fff;
+        }
+        .app-layout.sidebar-hidden #title-section {
+            margin-bottom: 8px !important; /* Minimal margin */
+        }
+        .app-layout.sidebar-hidden .topbar-title {
+            font-size: 1.25rem !important; /* Smaller title */
+        }
+        .app-layout.sidebar-hidden .text-muted {
+            display: none; /* Hide subtitle to save space */
+        }
+        .sidebar, .main-body, .top-header {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
     

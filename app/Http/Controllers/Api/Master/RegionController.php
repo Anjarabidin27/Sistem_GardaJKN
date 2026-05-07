@@ -15,59 +15,102 @@ class RegionController extends Controller
 
     public function provinces()
     {
-        $user = auth()->user();
+        $user = request()->user('sanctum');
         
-        // Audit: Filter by User Context (KC Staff only see their Province)
-        if ($user && $user->kantor_cabang_id) {
-            $kc = $user->kantorCabang;
-            if ($kc && $kc->province_id) {
-                $data = Province::where('id', $kc->province_id)->get(['id', 'code', 'name']);
-                return $this->successResponse('Data Provinsi (Filtered)', $data);
+        $scope = $this->getUserRegionScope($user);
+        if ($scope) {
+            $data = Province::whereIn('id', $scope['province_ids'])->get(['id', 'code', 'name']);
+            return $this->successResponse('Data Provinsi (Filtered)', $data);
+        }
+
+        $provinces = Province::select('id', 'code', 'name')->orderBy('name')->get();
+
+        // Auto-fetch if data is incomplete (Indonesia has 38 provinces)
+        if ($provinces->count() < 30) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::withOptions(['verify' => false, 'timeout' => 10])
+                    ->get("https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json");
+                
+                if ($response->successful()) {
+                    $apiData = $response->json();
+                    foreach ($apiData as $d) {
+                        Province::updateOrCreate(
+                            ['code' => $d['id']],
+                            ['name' => strtoupper($d['name'])]
+                        );
+                    }
+                    $provinces = Province::select('id', 'code', 'name')->orderBy('name')->get();
+                }
+            } catch (\Exception $e) {
+                // If API fails, just return what we have
             }
         }
 
-        $data = \Illuminate\Support\Facades\Cache::rememberForever('provinces_all', function() {
-            return Province::select('id', 'code', 'name')->orderBy('name')->get();
-        });
-        return $this->successResponse('Data Provinsi', $data);
+        return $this->successResponse('Data Provinsi', $provinces);
     }
 
     public function cities(Request $request)
     {
-        $user = auth()->user();
+        $user = $request->user('sanctum');
         $provinceId = $request->province_id;
 
-        // Audit: Filter by User Context (KC Staff only see their City)
-        if ($user && $user->kantor_cabang_id) {
-            $kc = $user->kantorCabang;
-            if ($kc && $kc->city_id) {
-                $data = City::where('id', $kc->city_id)->get(['id', 'province_id', 'code', 'name', 'type']);
-                return $this->successResponse('Data Kota (Filtered)', $data);
+        $scope = $this->getUserRegionScope($user);
+        if ($scope) {
+            $query = City::whereIn('id', $scope['city_ids']);
+            if ($provinceId) {
+                $query->where('province_id', $provinceId);
             }
+            $data = $query->get(['id', 'province_id', 'code', 'name', 'type']);
+            return $this->successResponse('Data Kota (Filtered)', $data);
         }
 
         if (!$provinceId) return $this->successResponse('Data Kota', []);
 
-        $data = \Illuminate\Support\Facades\Cache::rememberForever("cities_prov_{$provinceId}", function() use ($provinceId) {
-            return City::select('id', 'province_id', 'code', 'name', 'type')
+        $province = Province::find($provinceId);
+        if (!$province) return $this->errorResponse('Provinsi tidak ditemukan', null, 404);
+
+        $cities = City::select('id', 'province_id', 'code', 'name', 'type')
                 ->where('province_id', $provinceId)
                 ->orderBy('name')
                 ->get();
-        });
+
+        // Auto-fetch cities if incomplete (A province usually has > 10 cities/regencies)
+        if ($cities->count() < 10) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::withOptions(['verify' => false, 'timeout' => 10])
+                    ->get("https://emsifa.github.io/api-wilayah-indonesia/api/regencies/{$province->code}.json");
+                
+                if ($response->successful()) {
+                    $apiData = $response->json();
+                    foreach ($apiData as $d) {
+                        City::updateOrCreate(
+                            ['code' => $d['id']],
+                            [
+                                'province_id' => $provinceId,
+                                'name' => strtoupper($d['name']),
+                                'type' => str_contains(strtoupper($d['name']), 'KOTA') ? 'KOTA' : 'KABUPATEN'
+                            ]
+                        );
+                    }
+                    $cities = City::select('id', 'province_id', 'code', 'name', 'type')
+                        ->where('province_id', $provinceId)
+                        ->orderBy('name')
+                        ->get();
+                }
+            } catch (\Exception $e) { }
+        }
         
-        return $this->successResponse('Data Kota', $data);
+        return $this->successResponse('Data Kota', $cities);
     }
 
     public function districts(Request $request)
     {
+        $user = $request->user('sanctum');
         $cityId = $request->city_id;
         
-        // If no cityId provided but user is a KC staff, auto-detect their city
-        if (!$cityId) {
-            $user = auth()->user();
-            if ($user && $user->kantor_cabang_id) {
-                $cityId = $user->kantorCabang?->city_id;
-            }
+        // Audit: If no cityId provided but user is a KC staff, auto-detect their city
+        if (!$cityId && $user && $user->role !== 'anggota' && $user->kantor_cabang_id) {
+            $cityId = $user->kantorCabang?->city_id;
         }
 
         if (!$cityId) return $this->successResponse('Data Kecamatan', []);
@@ -77,7 +120,8 @@ class RegionController extends Controller
 
         $districts = District::where('city_id', $cityId)->orderBy('name')->get();
 
-        if ($districts->isEmpty()) {
+        // Auto-fetch if incomplete
+        if ($districts->count() < 5) {
             try {
                 $response = \Illuminate\Support\Facades\Http::withOptions(['verify' => false, 'timeout' => 10])
                     ->get("https://emsifa.github.io/api-wilayah-indonesia/api/districts/{$city->code}.json");
@@ -121,9 +165,12 @@ class RegionController extends Controller
             $kc = \App\Models\KantorCabang::where('city_id', $user->city_id)->first();
         }
 
+        $scope = $this->getUserRegionScope($user);
+        
         return $this->successResponse('User Context', [
             'role' => $user->role,
             'unit_name' => $user->kantor_cabang ?? ($kc?->name ?? 'NASIONAL'),
+            'scope_type' => $scope ? $scope['type'] : 'global',
             'kantor_cabang' => [
                 'id' => $kc?->id,
                 'name' => $kc?->name,
@@ -132,5 +179,43 @@ class RegionController extends Controller
             ],
             'auto_fill' => (bool)(($kc?->province_id && $kc?->city_id) || ($user->province_id && $user->city_id))
         ]);
+    }
+
+    private function getUserRegionScope($user)
+    {
+        if (!$user || $user->role === 'superadmin' || $user->role === 'anggota') {
+            return null;
+        }
+
+        // 1. Branch Scope (via ID or Name fallback)
+        $kc = null;
+        if ($user->kantor_cabang_id) {
+            $kc = $user->kantorCabang;
+        } elseif ($user->kantor_cabang) {
+            $kc = \App\Models\KantorCabang::where('name', 'LIKE', '%' . $user->kantor_cabang . '%')->first();
+        }
+
+        if ($kc) {
+            return [
+                'type' => 'branch',
+                'province_ids' => [$kc->province_id],
+                'city_ids' => [$kc->city_id]
+            ];
+        }
+
+        // 2. Kenwil Scope
+        if ($user->kedeputian_wilayah) {
+            $kenwil = \App\Models\KedeputianWilayah::where('name', 'LIKE', '%' . $user->kedeputian_wilayah . '%')->first();
+            if ($kenwil) {
+                $kcs = $kenwil->kantorCabangs;
+                return [
+                    'type' => 'kenwil',
+                    'province_ids' => $kcs->pluck('province_id')->unique()->toArray(),
+                    'city_ids' => $kcs->pluck('city_id')->unique()->toArray()
+                ];
+            }
+        }
+
+        return null;
     }
 }

@@ -12,8 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
     window.axios.defaults.headers.common['Accept'] = 'application/json';
 
     const tableBody = document.getElementById('table-body');
-    const filterStatus = document.getElementById('filter-status');
     const btnAdd = document.getElementById('btn-add');
+    
+    // Drive UI Elements
+    const gridView = document.getElementById('grid-view');
+    const listView = document.getElementById('list-view');
+    const toggleGrid = document.getElementById('toggle-grid');
+    const toggleList = document.getElementById('toggle-list');
+    const statusChips = document.getElementById('status-chips');
+
+    let currentViewMode = localStorage.getItem('pil_view_mode') || 'list';
+    let selectedStatus = '';
     
     // PIL Modal (Kegiatan)
     const pilModal = document.getElementById('pilModal');
@@ -34,61 +43,87 @@ document.addEventListener('DOMContentLoaded', () => {
     let eventsData = [];
 
     // --- Master Data wilayah (Contextual Loading) ---
-    async function loadProvinces() {
+    let userContext = null;
+
+    // --- Master Data wilayah (Contextual Loading) ---
+    async function initRegionContext() {
         try {
             const ctxRes = await window.axios.get('master/get-context');
-            const ctx = ctxRes.data.data;
+            userContext = ctxRes.data.data;
             
-            // 1. Context Display
+            // Context Display in UI
             const kwName = document.getElementById('ui-kw-name');
             const kcName = document.getElementById('ui-kc-name');
-            if (ctx) {
-                if (kwName) kwName.innerText = ctx.kantor_cabang?.kedeputian_wilayah || ctx.unit_name || '-';
-                if (kcName) kcName.innerText = ctx.kantor_cabang?.name || ctx.unit_name || '-';
+            if (userContext) {
+                if (kwName) kwName.innerText = userContext.kantor_cabang?.kedeputian_wilayah || userContext.unit_name || '-';
+                if (kcName) kcName.innerText = userContext.kantor_cabang?.name || userContext.unit_name || '-';
             }
 
-            // 2. Load API
+            await loadProvinces();
+        } catch (err) {
+            console.error("Gagal load context wilayah", err);
+        }
+    }
+
+    async function loadProvinces() {
+        try {
             const provRes = await window.axios.get('master/provinces');
             if(provSelect) {
-                provSelect.disabled = false;
                 provSelect.innerHTML = '<option value="">Pilih Provinsi...</option>';
                 provRes.data.data.forEach(p => {
                     provSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
                 });
 
-                // 3. Auto-fill logic
-                if (ctx.kantor_cabang && ctx.kantor_cabang.province_id) {
-                    provSelect.value = ctx.kantor_cabang.province_id;
-                    provSelect.disabled = true; // Lock it
-                    
-                    // Trigger cities loading
-                    komaSelectReset();
-                    const cityRes = await window.axios.get(`master/cities?province_id=${ctx.kantor_cabang.province_id}`);
-                    if(kotaSelect) {
-                        kotaSelect.innerHTML = '<option value="">Kota/Kab...</option>';
-                        cityRes.data.data.forEach(c => {
-                            kotaSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                        });
-
-                        if (ctx.kantor_cabang.city_id) {
-                            kotaSelect.value = ctx.kantor_cabang.city_id;
-                            kotaSelect.disabled = true; // Lock it
-                            
-                            // Trigger districts
-                            kecSelectReset();
-                            const distRes = await window.axios.get(`master/districts?city_id=${ctx.kantor_cabang.city_id}`);
-                            if(kecSelect) {
-                                kecSelect.disabled = false;
-                                distRes.data.data.forEach(d => {
-                                    kecSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
-                                });
-                            }
-                        }
+                // If only 1 province (Filtered by backend for KC staff)
+                if (provRes.data.data.length === 1) {
+                    provSelect.value = provRes.data.data[0].id;
+                    if (userContext?.scope_type === 'branch') {
+                        provSelect.disabled = true;
+                        provSelect.style.display = 'none'; // Hide if redundant
                     }
+                    await loadCities(provSelect.value);
                 }
             }
         } catch (err) {
-            console.error("Gagal load context wilayah PIL", err);
+            console.error("Gagal load provinces", err);
+        }
+    }
+
+    async function loadCities(provinceId) {
+        if (!provinceId || !kotaSelect) return;
+        try {
+            const res = await window.axios.get(`master/cities?province_id=${provinceId}`);
+            kotaSelect.innerHTML = '<option value="">Kota/Kab...</option>';
+            res.data.data.forEach(c => {
+                kotaSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+            kotaSelect.disabled = false;
+
+            // If only 1 city (Filtered by backend)
+            if (res.data.data.length === 1) {
+                kotaSelect.value = res.data.data[0].id;
+                if (userContext?.scope_type === 'branch') {
+                    kotaSelect.disabled = true;
+                    kotaSelect.style.display = 'none'; // Hide if redundant
+                }
+                await loadDistricts(kotaSelect.value);
+            }
+        } catch (err) {
+            console.error("Gagal load cities", err);
+        }
+    }
+
+    async function loadDistricts(cityId) {
+        if (!cityId || !kecSelect) return;
+        try {
+            const res = await window.axios.get(`master/districts?city_id=${cityId}`);
+            kecSelect.innerHTML = '<option value="">Kecamatan...</option>';
+            res.data.data.forEach(d => {
+                kecSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+            });
+            kecSelect.disabled = false;
+        } catch (err) {
+            console.error("Gagal load districts", err);
         }
     }
 
@@ -96,14 +131,14 @@ document.addEventListener('DOMContentLoaded', () => {
         provSelect.addEventListener('change', (e) => {
             komaSelectReset();
             kecSelectReset();
-            if(!e.target.value) return;
-            window.axios.get(`master/cities?province_id=${e.target.value}`)
-                .then(res => {
-                    if(kotaSelect) {
-                        kotaSelect.disabled = false;
-                        res.data.data.forEach(c => kotaSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`);
-                    }
-                });
+            if(e.target.value) loadCities(e.target.value);
+        });
+    }
+
+    if(kotaSelect) {
+        kotaSelect.addEventListener('change', (e) => {
+            kecSelectReset();
+            if(e.target.value) loadDistricts(e.target.value);
         });
     }
 
@@ -124,19 +159,115 @@ document.addEventListener('DOMContentLoaded', () => {
     function komaSelectReset() { if(kotaSelect) { kotaSelect.innerHTML = '<option value="">Kota/Kab...</option>'; kotaSelect.disabled = true; } }
     function kecSelectReset() { if(kecSelect) { kecSelect.innerHTML = '<option value="">Kecamatan...</option>'; kecSelect.disabled = true; } }
 
-    // --- Load Data Jadwal ---
+    const filterJudul = document.getElementById('filter-judul');
+    if(filterJudul) {
+        let typingTimer;
+        filterJudul.addEventListener('input', (e) => {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                loadData();
+            }, 500);
+        });
+    }
+
+    const filterJam = document.getElementById('filter-jam');
+    if(filterJam) filterJam.addEventListener('change', loadData);
+
+    const filterDari = document.getElementById('filter-dari');
+    if(filterDari) filterDari.addEventListener('change', loadData);
+
+    const filterSampai = document.getElementById('filter-sampai');
+    if(filterSampai) filterSampai.addEventListener('change', loadData);
+
     function loadData() {
-        if(!tableBody) return;
-        let qs = filterStatus && filterStatus.value ? `?status=${filterStatus.value}` : '';
+        const params = new URLSearchParams(window.location.search);
+        
+        const statusVal = selectedStatus || (document.getElementById('filter-status') ? document.getElementById('filter-status').value : '') || params.get('status') || '';
+        const judulVal = document.getElementById('filter-judul') ? document.getElementById('filter-judul').value : '';
+        const jamVal = document.getElementById('filter-jam') ? document.getElementById('filter-jam').value : '';
+        const dariVal = document.getElementById('filter-dari') ? document.getElementById('filter-dari').value : '';
+        const sampaiVal = document.getElementById('filter-sampai') ? document.getElementById('filter-sampai').value : '';
+
+        // Sync Chips UI
+        if (statusChips) {
+            statusChips.querySelectorAll('.chip').forEach(c => {
+                c.classList.toggle('active', c.dataset.status === statusVal);
+            });
+        }
+
+        const queryParams = new URLSearchParams();
+        if (statusVal) queryParams.set('status', statusVal);
+        if (judulVal) queryParams.set('judul', judulVal);
+        if (jamVal) queryParams.set('jam_mulai', jamVal);
+        if (dariVal) queryParams.set('dari', dariVal);
+        if (sampaiVal) queryParams.set('sampai', sampaiVal);
+
+        const qs = queryParams.toString() ? '?' + queryParams.toString() : '';
+        console.log("PIL LoadData Query:", qs);
+        
+        // Update URL
+        const newUrl = window.location.pathname + qs;
+        window.history.replaceState({}, '', newUrl);
+
         window.axios.get('admin/pil' + qs)
             .then(res => {
-                eventsData = res.data.data;
-                renderTable();
+                console.log("PIL API Response:", res.data);
+                eventsData = res.data.data || [];
+                console.log("Items to render:", eventsData.length);
+
+                // Render Autocomplete Suggestions for Index
+                const datalist = document.getElementById('judul-list-index');
+                if (datalist && eventsData.length > 0) {
+                    const titles = [...new Set(eventsData.map(e => e.judul))].filter(Boolean);
+                    datalist.innerHTML = '';
+                    titles.forEach(t => datalist.innerHTML += `<option value="${t}">`);
+                }
+
+                renderData();
             })
             .catch(err => console.error("Gagal load jadwal", err));
     }
 
-    function renderTable() {
+    // View Toggling Logic
+    function setViewMode(mode) {
+        currentViewMode = mode;
+        localStorage.setItem('pil_view_mode', mode);
+        
+        if (mode === 'grid') {
+            if (gridView) gridView.style.display = 'grid';
+            if (listView) listView.style.display = 'none';
+            if (toggleGrid) toggleGrid.classList.add('active');
+            if (toggleList) toggleList.classList.remove('active');
+        } else {
+            if (gridView) gridView.style.display = 'none';
+            if (listView) listView.style.display = 'block';
+            if (toggleGrid) toggleGrid.classList.remove('active');
+            if (toggleList) toggleList.classList.add('active');
+        }
+        renderData();
+    }
+
+    if (toggleGrid) toggleGrid.addEventListener('click', () => setViewMode('grid'));
+    if (toggleList) toggleList.addEventListener('click', () => setViewMode('list'));
+
+    if (statusChips) {
+        statusChips.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                selectedStatus = chip.dataset.status;
+                loadData();
+            });
+        });
+    }
+
+    function renderData() {
+        if (currentViewMode === 'grid') {
+            renderGridView();
+        } else {
+            renderTableView();
+        }
+    }
+
+    function renderTableView() {
         if(!tableBody) return;
         tableBody.innerHTML = '';
         if (eventsData.length === 0) {
@@ -148,10 +279,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const hasLaporan = event.jumlah_peserta > 0;
             const isCompleted = event.status === 'completed';
             
-            // Lokasi string
             let locParts = [];
-            if(event.nama_desa) locParts.push(event.nama_desa);
-            if(event.kota) locParts.push(event.kota.name);
+            if(event.lokasi_kegiatan) locParts.push(event.lokasi_kegiatan);
+            if(event.kecamatan?.name) locParts.push(event.kecamatan.name);
+            else if(event.nama_desa) locParts.push(event.nama_desa);
+            
+            if(event.kota?.name && locParts.length < 2) locParts.push(event.kota.name);
+            
             let locStr = locParts.length > 0 ? locParts.join(', ') : 'Belum di set';
 
             let statusBadge = '';
@@ -198,15 +332,120 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.lucide) window.lucide.createIcons();
     }
 
-    if(filterStatus) filterStatus.addEventListener('change', loadData);
+    function renderGridView() {
+        if(!gridView) return;
+        gridView.innerHTML = '';
+        if (eventsData.length === 0) {
+            gridView.innerHTML = '<div class="text-center p-8 text-muted" style="grid-column: 1/-1;">Belum ada agenda kegiatan PIL.</div>';
+            return;
+        }
+
+        eventsData.forEach(event => {
+            const hasLaporan = event.jumlah_peserta > 0;
+            const isCompleted = event.status === 'completed';
+            
+            let locParts = [];
+            if(event.lokasi_kegiatan) locParts.push(event.lokasi_kegiatan);
+            if(event.kecamatan?.name) locParts.push(event.kecamatan.name);
+            else if(event.nama_desa) locParts.push(event.nama_desa);
+            
+            let locStr = locParts.length > 0 ? locParts.join(', ') : 'Lokasi Belum di set';
+
+            let statusColor = '#3b82f6';
+            const statusText = event.status_label;
+            if (statusText === 'Berlangsung') statusColor = '#f59e0b';
+            else if (statusText === 'Selesai') statusColor = '#10b981';
+            else if (statusText === 'Dibatalkan') statusColor = '#ef4444';
+
+            const card = document.createElement('div');
+            card.className = 'drive-card';
+            card.innerHTML = `
+                <div class="card-dots" onclick="toggleContextMenu(event, ${event.id})">
+                    <i data-lucide="more-vertical" style="width:20px; height:20px;"></i>
+                </div>
+                
+                <div class="context-menu" id="ctx-${event.id}">
+                    <div class="menu-item" onclick="editEvent(${event.id})">
+                        <i data-lucide="edit-2" style="width:14px;"></i> Edit Jadwal
+                    </div>
+                    <div class="menu-item" onclick="handleLaporan(${event.id})">
+                        <i data-lucide="clipboard-list" style="width:14px;"></i> ${hasLaporan ? 'Lihat Hasil' : 'Input Laporan'}
+                    </div>
+                    <div class="menu-item danger" onclick="deleteEvent(${event.id})">
+                        <i data-lucide="trash-2" style="width:14px;"></i> Hapus Jadwal
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 mb-3">
+                    <div style="background: ${statusColor}15; color: ${statusColor}; padding: 10px; border-radius: 10px;">
+                        <i data-lucide="award" style="width:24px; height:24px;"></i>
+                    </div>
+                    <div style="flex: 1; padding-right: 20px;">
+                        <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 2px; line-height:1.2;">${event.judul}</div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">Penyuluhan PIL</div>
+                    </div>
+                </div>
+
+                <div style="background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="map-pin" style="width:14px; color: #94a3b8;"></i>
+                        <span style="font-size: 0.8rem; font-weight: 600; color: #475569;">${locStr}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="clock" style="width:14px; color: #94a3b8;"></i>
+                        <span style="font-size: 0.8rem; font-weight: 600; color: #475569;">
+                            ${new Date(event.tanggal).toLocaleDateString('id-ID', {day:'numeric', month:'short'})} 
+                            ${event.jam_mulai ? ' • ' + event.jam_mulai.slice(0,5) : ''}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <span style="background: ${statusColor}15; color: ${statusColor}; padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">
+                        ${statusText}
+                    </span>
+                    ${hasLaporan ? `
+                        <span style="font-size: 0.7rem; font-weight: 700; color: #10b981;">
+                            ${event.jumlah_peserta} Peserta
+                        </span>
+                    ` : ''}
+                </div>
+            `;
+            gridView.appendChild(card);
+        });
+
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    window.toggleContextMenu = (e, id) => {
+        e.stopPropagation();
+        const allMenus = document.querySelectorAll('.context-menu');
+        const targetMenu = document.getElementById(`ctx-${id}`);
+        
+        const isAlreadyOpen = targetMenu.style.display === 'block';
+        
+        allMenus.forEach(m => m.style.display = 'none');
+        if (!isAlreadyOpen) {
+            targetMenu.style.display = 'block';
+        }
+    };
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.context-menu').forEach(m => m.style.display = 'none');
+    });
+
+    // Initial View Mode
+    setViewMode(currentViewMode);
 
     // --- Modal Kegiatan ---
     if(btnAdd) {
         btnAdd.addEventListener('click', () => {
             if(pilForm) pilForm.reset();
             if(pilId) pilId.value = '';
-            komaSelectReset();
-            kecSelectReset();
+            
+            // Re-apply context loading to ensure locked fields are restored
+            loadProvinces(); 
+
             if(modalTitle) modalTitle.innerText = "Tambah Agenda Penyuluhan";
             if(pilModal) pilModal.style.display = 'flex';
         });
@@ -324,12 +563,30 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if(mainContentArea) mainContentArea.style.display = 'none';
         if(commandCenterUI) commandCenterUI.style.display = 'block';
+        
+        // Hide sidebar for focus mode
+        document.querySelector('.app-layout')?.classList.add('sidebar-hidden');
+
+        // Show back button at top, hide other title btns
+        if(document.getElementById('btn-back-top')) document.getElementById('btn-back-top').style.display = 'flex';
+        if(document.getElementById('btn-to-dashboard')) document.getElementById('btn-to-dashboard').style.display = 'none';
+        if(btnAdd) btnAdd.style.display = 'none';
+
         if(window.lucide) window.lucide.createIcons();
     };
 
     window.exitCommandCenter = () => {
         if(commandCenterUI) commandCenterUI.style.display = 'none';
         if(mainContentArea) mainContentArea.style.display = 'block';
+
+        // Show sidebar back
+        document.querySelector('.app-layout')?.classList.remove('sidebar-hidden');
+
+        // Restore title btns
+        if(document.getElementById('btn-back-top')) document.getElementById('btn-back-top').style.display = 'none';
+        if(document.getElementById('btn-to-dashboard')) document.getElementById('btn-to-dashboard').style.display = 'inline-flex';
+        if(btnAdd) btnAdd.style.display = 'inline-flex';
+
         loadData(); // Refresh table status
     };
 
@@ -348,10 +605,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if(filterPesertaInput) {
         filterPesertaInput.addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();
-            const filtered = currentParticipants.filter(p => 
-                p.nik.toLowerCase().includes(val) || 
-                p.segmen_peserta.toLowerCase().includes(val)
-            );
+            const filtered = currentParticipants.filter(p => {
+                const nikStr = p.nik ? String(p.nik).toLowerCase() : '';
+                const segStr = p.segmen_peserta ? String(p.segmen_peserta).toLowerCase() : '';
+                return nikStr.includes(val) || segStr.includes(val);
+            });
             renderParticipantsList(filtered);
         });
     }
@@ -365,13 +623,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         data.forEach(p => {
+            const nikDisplay = p.nik || 'NIK Tidak Tersedia';
+            const segmen = p.segmen_peserta || '-';
+            const jamMulai = p.jam_sosialisasi_mulai ? p.jam_sosialisasi_mulai.slice(0,5) : '--:--';
+            const jamSelesai = p.jam_sosialisasi_selesai ? p.jam_sosialisasi_selesai.slice(0,5) : '--:--';
+
             pesertaListWrap.innerHTML += `
-                <div style="border:1px solid var(--border); border-radius:6px; padding:10px; background:#fff; position: relative;">
-                    <div style="font-weight:700; font-size:0.85rem;">NIK: ${p.nik}</div>
-                    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom: 5px;">${p.segmen_peserta} | ${p.jam_sosialisasi_mulai} - ${p.jam_sosialisasi_selesai}</div>
-                    <div style="font-size:0.75rem; font-weight:600; color:var(--primary);">Pemahaman: ${p.nilai_pemahaman} | ${p.efektifitas_sosialisasi}</div>
-                    <div style="font-size:0.7rem; color:var(--success); margin-top:4px;">NPS: ${p.nps_ketertarikan} | ${p.nps_rekomendasi_program} | ${p.nps_rekomendasi_bpjs}</div>
-                    <button type="button" onclick="deleteParticipant(${p.id})" style="position: absolute; right: 10px; top: 10px; background:none; border:none; color:var(--danger); cursor:pointer;"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+                <div style="border:1.5px solid #e2e8f0; border-radius:12px; padding:12px; background:#fff; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                    <div style="font-weight:800; font-size:0.9rem; color: #0f172a; margin-bottom: 4px;">NIK: ${nikDisplay}</div>
+                    <div style="font-size:0.75rem; color: #64748b; font-weight: 600; margin-bottom: 8px;">
+                        <span style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${segmen}</span>
+                        <span style="margin-left: 5px;">${jamMulai} - ${jamSelesai}</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--primary); background: rgba(0, 74, 173, 0.05); padding: 4px 8px; border-radius: 6px;">
+                           Pemahaman: ${p.nilai_pemahaman}%
+                        </div>
+                    </div>
+                    <button type="button" onclick="deleteParticipant(${p.id})" style="position: absolute; right: 12px; top: 12px; background:#fff1f2; border:none; color:#e11d48; cursor:pointer; width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; transition: 0.2s;">
+                        <i data-lucide="trash-2" style="width:14px;height:14px"></i>
+                    </button>
                 </div>
             `;
         });
@@ -406,7 +677,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     loadParticipants(id);
                     loadData(); // Memperbarui daftar utama
                 })
-                .catch(err => window.showToast("Gagal simpan peserta. Cek form.", 'error'))
+                .catch(err => {
+                    let msg = "Gagal simpan peserta.";
+                    if (err.response && err.response.data) {
+                        if (err.response.data.errors) {
+                            msg = Object.values(err.response.data.errors).flat()[0];
+                        } else if (err.response.data.message) {
+                            msg = err.response.data.message;
+                        }
+                    }
+                    window.showToast(msg, 'error');
+                })
                 .finally(() => { 
                     if(btn) {
                         btn.disabled = false; 
@@ -527,6 +808,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(el) el.addEventListener('change', updateStatusAuto);
     });
 
-    loadProvinces();
+    initRegionContext();
     loadData();
 });

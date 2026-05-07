@@ -23,12 +23,40 @@ class MemberController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $user = $request->user();
         $filters = $request->only(['search', 'province_id', 'city_id', 'only_deleted']);
+
+        // Hierarchical Security Filter
+        // Hierarchical Security Filter
+        if ($user && !in_array($user->role, ['superadmin', 'administrator'])) {
+            $userKC = trim($user->kantor_cabang ?? '');
+            $userKW = trim($user->kedeputian_wilayah ?? '');
+
+            if ($user->role === 'admin_wilayah' && $userKW) {
+                $filters['kedeputian_wilayah'] = $userKW;
+            } else if ($userKC) {
+                $filters['kantor_cabang'] = $userKC;
+            } else if ($user instanceof \App\Models\Member && $user->role === 'pengurus') {
+                $user->load('kantorCabang');
+                if ($user->kantorCabang) {
+                    $filters['kantor_cabang'] = $user->kantorCabang->name;
+                }
+            }
+        }
+
         $members = $this->memberRepo->getFilteredList($filters);
+        
+        // Superadmin & Admin Wilayah can see full NIK
+        $canSeeFullNik = $user && in_array($user->role, ['superadmin', 'administrator', 'admin_wilayah']);
 
         // Security Masking
-        $members->getCollection()->transform(function ($member) {
-            $member->nik = substr($member->nik, 0, 8) . '********';
+        $members->getCollection()->transform(function ($member) use ($canSeeFullNik) {
+            if (!$canSeeFullNik && !empty($member->nik)) {
+                $nik = (string) $member->nik;
+                if (strlen($nik) >= 8) {
+                    $member->nik = substr($nik, 0, 8) . '********';
+                }
+            }
             return $member;
         });
 
@@ -83,6 +111,17 @@ class MemberController extends Controller
 
     public function verifyPengurus(Request $request, int $id): JsonResponse
     {
+        $user = $request->user();
+        $member = $this->memberRepo->findById($id);
+
+        // Region Security Check
+        if (optional($user)->role === 'admin_wilayah' && $user?->kedeputian_wilayah) {
+            $memberKW = $member->kantorCabang?->kedeputianWilayah?->name;
+            if ($memberKW !== $user->kedeputian_wilayah) {
+                return $this->errorResponse('Anda tidak memiliki wewenang untuk memverifikasi anggota di luar wilayah Anda.', 403);
+            }
+        }
+
         $request->validate([
             'status' => 'required|in:setujui,tolak',
             'note' => 'nullable|string'

@@ -68,6 +68,8 @@
                     <i data-lucide="megaphone" class="sb-link-icon"></i> <span>Informasi</span>
                 </a>
 
+                <!-- Pelayanan Lapangan (Hidden Sementara) -->
+                {{-- 
                 <div class="sb-nav-section-title" style="font-size: 0.65rem; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; padding: 24px 16px 10px;">Pelayanan Lapangan</div>
 
                 <a href="/pengurus/bpjs-keliling" class="sb-link @if(Request::is('pengurus/bpjs-keliling')) active @endif">
@@ -76,6 +78,7 @@
                 <a href="/pengurus/pil" class="sb-link @if(Request::is('pengurus/pil')) active @endif">
                     <i data-lucide="mic" class="sb-link-icon"></i> <span>Penyuluhan (PIL)</span>
                 </a>
+                --}}
 
                 <div style="margin-top: 40px; padding: 0 4px;">
                     <a href="/pengurus/settings" class="sb-link @if(Request::is('pengurus/settings')) active @endif">

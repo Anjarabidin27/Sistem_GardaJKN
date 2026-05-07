@@ -229,12 +229,14 @@ if (regForm) {
         
         const sameAsKtp = document.getElementById('same_as_ktp').checked;
         
-        const getValue = (id) => document.getElementById(id) ? document.getElementById(id).value : null;
-        const isChecked = (id) => document.getElementById(id) ? document.getElementById(id).checked : false;
+        const getValue = (id) => {
+            const el = document.getElementById(id);
+            return el ? el.value.trim() : '';
+        };
 
         const payload = {
             nik: getValue('nik'),
-            jkn_number: getValue('jkn_number') || null,
+            jkn_number: getValue('jkn_number'),
             name: getValue('name'),
             phone: getValue('phone'),
             birth_date: getValue('birth_date'),
@@ -253,6 +255,16 @@ if (regForm) {
             dom_address_detail: sameAsKtp ? getValue('address') : getValue('dom_address'),
         };
 
+        if (!payload.address_detail) {
+            window.showToast('Alamat KTP wajib diisi.', 'error');
+            return;
+        }
+
+        if (!payload.dom_address_detail) {
+            window.showToast('Alamat domisili wajib diisi.', 'error');
+            return;
+        }
+
         if (payload.password !== payload.password_confirmation) {
             window.showToast('Konfirmasi kata sandi tidak cocok.', 'error');
             return;
@@ -260,16 +272,36 @@ if (regForm) {
 
         const btn = document.getElementById('btn-register');
         const oldText = btn.innerHTML;
-        btn.disabled = true; btn.innerHTML = 'Memproses...';
+        btn.disabled = true; btn.innerHTML = 'Memproses... <span class="spinner-small"></span>';
+
+        // Set a timeout guard to reset button if server is too slow
+        const timeoutGuard = setTimeout(() => {
+            if (btn.disabled) {
+                btn.disabled = false;
+                btn.innerHTML = oldText;
+                window.showToast('Server merespon terlalu lama. Coba lagi.', 'warning');
+            }
+        }, 20000); // 20 Seconds
 
         try {
-            const res = await window.axios.post('member/register', payload);
-            if(res.data.success) {
+            const res = await window.axios.post('member/register', payload, {
+                timeout: 15000 // 15 Seconds axios timeout
+            });
+            clearTimeout(timeoutGuard);
+            
+            if(res.data.status === 'success') {
                 window.showToast('Pendaftaran Berhasil! Silakan Login.', 'success');
                 setTimeout(() => { window.location.href = '/login'; }, 2000);
             }
         } catch (error) {
+            clearTimeout(timeoutGuard);
             btn.disabled = false; btn.innerHTML = oldText;
+            
+            if (error.code === 'ECONNABORTED') {
+                window.showToast('Koneksi terputus atau server sibuk. Silakan coba lagi.', 'error');
+                return;
+            }
+
             console.error('Registration Error Details:', error.response?.data || error.message);
             
             let msg = 'Gagal mendaftar. Cek kembali data Anda.';

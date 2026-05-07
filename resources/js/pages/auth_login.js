@@ -2,9 +2,13 @@ let role = 'member';
 
     function switchRole(newRole) {
         role = newRole;
-        document.getElementById('btn-member').classList.toggle('active', role === 'member');
-        document.getElementById('btn-pengurus').classList.toggle('active', role === 'pengurus');
-        document.getElementById('btn-petugas').classList.toggle('active', role === 'petugas');
+        const btnMember = document.getElementById('btn-member');
+        const btnPengurus = document.getElementById('btn-pengurus');
+        const btnPetugas = document.getElementById('btn-petugas');
+
+        if (btnMember) btnMember.classList.toggle('active', role === 'member');
+        if (btnPengurus) btnPengurus.classList.toggle('active', role === 'pengurus');
+        if (btnPetugas) btnPetugas.classList.toggle('active', role === 'petugas');
         
         const label = document.getElementById('identityLabel');
         if (label) {
@@ -49,9 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let targetUrl = '/member/profile';
                 if (role === 'pengurus') targetUrl = '/pengurus/dashboard';
                 else if (role === 'petugas') {
-                    targetUrl = '/admin/dashboard';
-                    if (userData.role === 'petugas_pil') targetUrl = '/admin/pil/dashboard';
-                    else if (userData.role === 'petugas_keliling') targetUrl = '/admin/bpjs-keliling/dashboard';
+                    targetUrl = '/admin/bpjs-keliling/dashboard';
                 }
 
                 // Security check for Pengurus role

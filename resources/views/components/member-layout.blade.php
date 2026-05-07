@@ -75,23 +75,23 @@
             <nav class="sb-menu">
                 <div class="sb-section-label" style="font-size: 0.65rem; color: rgba(255,255,255,0.35); font-weight: 800; text-transform: uppercase; padding: 12px 20px; letter-spacing: 0.1em;">Menu</div>
                 
-                <a href="/member/profile" class="sb-link @if(Request::is('member/profile')) active @endif">
+                <a href="/member/profile" id="nav-profil" class="sb-link @if(Request::is('member/profile')) active @endif">
                     <i data-lucide="user-circle" class="sb-link-icon"></i> <span>Profil Saya</span>
                 </a>
                 
-                <a href="/member/profile#informasi" class="sb-link">
+                <a href="/member/profile#informasi" id="nav-informasi" class="sb-link">
                     <i data-lucide="megaphone" class="sb-link-icon"></i> <span>Informasi</span>
                 </a>
                 
-                <a href="/member/profile#pembayaran" class="sb-link">
+                <a href="/member/profile#pembayaran" id="nav-pembayaran" class="sb-link">
                     <i data-lucide="wallet" class="sb-link-icon"></i> <span>Pembayaran</span>
                 </a>
                 
-                <a href="/member/profile#laporan" class="sb-link">
+                <a href="/member/profile#laporan" id="nav-laporan" class="sb-link">
                     <i data-lucide="clipboard-list" class="sb-link-icon"></i> <span>Laporan Kegiatan</span>
                 </a>
                 
-                <a href="/member/profile#survey" class="sb-link">
+                <a href="/member/profile#survey" id="nav-survey" class="sb-link">
                     <i data-lucide="help-circle" class="sb-link-icon"></i> <span>Survey</span>
                 </a>
             </nav>

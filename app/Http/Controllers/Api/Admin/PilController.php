@@ -11,10 +11,12 @@ class PilController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth()->user() ?: auth('admin')->user();
+        $user = $request->user();
 
-        $query = Pil::with(['provinsi', 'kota'])
+        $query = Pil::with(['provinsi', 'kota', 'kecamatan'])
             ->when($request->status, fn($q) => $q->where('status', $request->status))
+            ->when($request->judul, fn($q) => $q->where('judul', 'LIKE', '%' . $request->judul . '%'))
+            ->when($request->jam_mulai, fn($q) => $q->whereTime('jam_mulai', '>=', $request->jam_mulai))
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
             ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai));
 
@@ -24,11 +26,13 @@ class PilController extends Controller
             $userKC   = trim($user->kantor_cabang);
             $userKW   = trim($user->kedeputian_wilayah);
 
-            if ($userRole === 'admin_wilayah' && $userKW) {
+            if ($userRole === 'superadmin') {
+                // Superadmin sees everything
+            } elseif ($userRole === 'admin_wilayah' && $userKW) {
                 $query->where('kedeputian_wilayah', 'LIKE', '%' . $userKW . '%');
-            } elseif (in_array($userRole, ['petugas_pil', 'administrator', 'admin']) && $userKC) {
-                // Aggressive fuzzy match: removes common prefixes like "KC "
+            } elseif (in_array($userRole, ['petugas', 'administrator', 'admin']) && $userKC) {
                 $cleanKC = str_ireplace('KC ', '', $userKC);
+                // Temporarily using LIKE for wider match to debug
                 $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
             }
         }
@@ -59,7 +63,7 @@ class PilController extends Controller
             'status' => 'required|in:scheduled,ongoing,completed,cancelled'
         ]);
 
-        $user = auth()->user() ?: auth('admin')->user();
+        $user = $request->user();
         if ($user) {
             $validated['created_by'] = $user->id;
             $validated['kedeputian_wilayah'] = $user->kedeputian_wilayah;
@@ -147,8 +151,18 @@ class PilController extends Controller
         }
 
         $validated = $request->validate([
-            'nik'                     => 'required|string|max:16',
-            'phone_number'            => 'nullable|string',
+            'nik' => [
+                'required', 'string', 'max:16',
+                \Illuminate\Validation\Rule::unique('pil_participants')->where(function ($query) use ($id) {
+                    return $query->where('pil_id', $id);
+                })
+            ],
+            'phone_number' => [
+                'nullable', 'string',
+                \Illuminate\Validation\Rule::unique('pil_participants')->where(function ($query) use ($id) {
+                    return $query->where('pil_id', $id);
+                })
+            ],
             'segmen_peserta'          => 'required|string',
             'jam_sosialisasi_mulai'   => 'nullable',
             'jam_sosialisasi_selesai' => 'nullable',
@@ -157,6 +171,9 @@ class PilController extends Controller
             'nps_ketertarikan'        => 'required|integer|min:1|max:10',
             'nps_rekomendasi_program' => 'required|integer|min:1|max:10',
             'nps_rekomendasi_bpjs'    => 'required|integer|min:1|max:10',
+        ], [
+            'nik.unique' => 'NIK ini sudah terdaftar dalam kegiatan ini.',
+            'phone_number.unique' => 'Nomor HP ini sudah terdaftar dalam kegiatan ini.',
         ]);
 
         if ($kegiatan->status === 'scheduled') {
@@ -203,6 +220,9 @@ class PilController extends Controller
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
             ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai))
             ->when($request->status, fn($q) => $q->where('status', $request->status))
+            ->when($request->judul, fn($q) => $q->where('judul', 'LIKE', '%' . $request->judul . '%'))
+            ->when($request->jam_mulai, fn($q) => $q->whereTime('jam_mulai', '>=', $request->jam_mulai))
+            ->when($request->lokasi_kegiatan, fn($q) => $q->where('lokasi_kegiatan', $request->lokasi_kegiatan))
             ->when($request->provinsi_id, fn($q) => $q->where('provinsi_id', $request->provinsi_id))
             ->when($request->kota_id, fn($q) => $q->where('kota_id', $request->kota_id));
 
@@ -280,7 +300,20 @@ class PilController extends Controller
                 ],
 
                 // Lokasi Kegiatan Breakdown
-                'lokasi_breakdown' => $kegiatan->groupBy('lokasi_kegiatan')->map->count(),
+                'lokasi_breakdown' => $kegiatan->groupBy('lokasi_kegiatan')->map(fn($g) => $g->count()),
+                
+                // Data List for Table
+                'kegiatan_list' => $kegiatan->take(10)->map(fn($k) => [
+                    'id' => $k->id,
+                    'judul' => $k->judul,
+                    'tanggal' => $k->tanggal->format('d M Y'),
+                    'jam' => $k->jam_mulai ? substr($k->jam_mulai, 0, 5) : '-',
+                    'lokasi' => $k->lokasi_kegiatan,
+                    'status' => $k->status_label
+                ]),
+                
+                // For Autocomplete
+                'available_titles' => Pil::pluck('judul')->unique()->filter()->values(),
 
                 // NPS averages
                 'rata_nps_ketertarikan'         => (float)$kegiatan->avg('rata_nps_ketertarikan') ?: 0,

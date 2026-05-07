@@ -11,13 +11,30 @@ use Carbon\Carbon;
 
 class BpjsKelilingController extends Controller
 {
+    public function generateSurveyToken(Request $request)
+    {
+        $request->validate([
+            'nik' => 'required',
+            'activity_id' => 'required'
+        ]);
+
+        // Token berisi NIK dan ID Kegiatan agar tidak bisa disalahgunakan untuk kegiatan lain
+        $token = \Illuminate\Support\Facades\Crypt::encryptString($request->nik . '|' . $request->activity_id);
+
+        return response()->json([
+            'status' => 'success',
+            'token' => $token
+        ]);
+    }
     public function index(Request $request)
     {
-        $user = auth()->user() ?: auth('admin')->user();
+        $user = $request->user();
 
         $query = BpjsKeliling::with(['provinsi', 'kota'])
             ->when($request->status, fn($q) => $q->where('status', $request->status))
             ->when($request->jenis, fn($q) => $q->where('jenis_kegiatan', $request->jenis))
+            ->when($request->judul, fn($q) => $q->where('judul', 'LIKE', '%' . $request->judul . '%'))
+            ->when($request->jam_mulai, fn($q) => $q->whereTime('jam_mulai', '>=', $request->jam_mulai))
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
             ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai));
 
@@ -29,7 +46,7 @@ class BpjsKelilingController extends Controller
 
             if ($userRole === 'admin_wilayah' && $userKW) {
                 $query->where('kedeputian_wilayah', 'LIKE', '%' . $userKW . '%');
-            } elseif (in_array($userRole, ['petugas_keliling', 'petugas_pil', 'administrator', 'admin']) && $userKC) {
+            } elseif (in_array($userRole, ['petugas', 'administrator', 'admin']) && $userKC) {
                 // Robust fuzzy match: removes common prefixes like "KC "
                 $cleanKC = str_ireplace('KC ', '', $userKC);
                 $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
@@ -65,7 +82,7 @@ class BpjsKelilingController extends Controller
             ], 422);
         }
 
-        $user = auth()->user() ?: auth('admin')->user();
+        $user = $request->user();
 
         // Query kegiatan dalam rentang
         $query = BpjsKeliling::with(['participants', 'provinsi', 'kota'])
@@ -80,7 +97,7 @@ class BpjsKelilingController extends Controller
 
             if ($userRole === 'admin_wilayah' && $userKW) {
                 $query->where('kedeputian_wilayah', 'LIKE', '%' . $userKW . '%');
-            } elseif (in_array($userRole, ['petugas_keliling', 'petugas_pil', 'administrator', 'admin']) && $userKC) {
+            } elseif (in_array($userRole, ['petugas', 'administrator', 'admin']) && $userKC) {
                 $cleanKC = str_ireplace('KC ', '', $userKC);
                 $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
             }
@@ -150,7 +167,7 @@ class BpjsKelilingController extends Controller
             'status' => 'required|in:scheduled,ongoing,completed,cancelled'
         ]);
 
-        $user = auth()->user() ?: auth('admin')->user();
+        $user = $request->user();
         if ($user) {
             $validated['created_by'] = $user->id;
             
@@ -282,10 +299,14 @@ class BpjsKelilingController extends Controller
         
         $kegiatan->recalculateSummaries();
 
+        // Check if participant is a registered member
+        $member = \App\Models\Member::where('nik', $validated['nik'])->first();
+
         return response()->json([
             'status'  => 'success',
-            'message' => 'Peserta berhasil disimpan!',
-            'data'    => $participant
+            'message' => 'Peserta berhasil disimpan.',
+            'data'    => $participant,
+            'member_id' => $member ? $member->id : null
         ]);
     }
     
@@ -315,13 +336,15 @@ class BpjsKelilingController extends Controller
     public function dashboard(Request $request)
     {
         // Use generic auth() which should point to the correct guard via sanctum or session
-        $user = auth()->user() ?: auth('admin')->user();
+        $user = $request->user();
         
         $query = BpjsKeliling::query()
             ->when($request->dari, fn($q) => $q->whereDate('tanggal', '>=', $request->dari))
             ->when($request->sampai, fn($q) => $q->whereDate('tanggal', '<=', $request->sampai))
             ->when($request->jenis_kegiatan, fn($q) => $q->where('jenis_kegiatan', $request->jenis_kegiatan))
             ->when($request->kuadran, fn($q) => $q->where('kuadran', $request->kuadran))
+            ->when($request->judul, fn($q) => $q->where('judul', 'LIKE', '%' . $request->judul . '%'))
+            ->when($request->jam_mulai, fn($q) => $q->whereTime('jam_mulai', '>=', $request->jam_mulai))
             ->when($request->status, fn($q) => $q->where('status', $request->status))
             ->when($request->provinsi_id, fn($q) => $q->where('provinsi_id', $request->provinsi_id))
             ->when($request->kota_id, fn($q) => $q->where('kota_id', $request->kota_id));
@@ -350,7 +373,7 @@ class BpjsKelilingController extends Controller
                 if ($request->kantor_cabang) {
                     $query->where('kantor_cabang', 'LIKE', '%' . $request->kantor_cabang . '%');
                 }
-            } elseif (in_array($userRole, ['petugas_keliling', 'administrator', 'admin']) && $userKC) {
+            } elseif (in_array($userRole, ['petugas', 'administrator', 'admin']) && $userKC) {
                 $contextLabel = $userKC;
                 $cleanKC = str_ireplace('KC ', '', $userKC);
                 $query->where('kantor_cabang', 'LIKE', '%' . $cleanKC . '%');
@@ -427,6 +450,16 @@ class BpjsKelilingController extends Controller
 
                 // 12: Lokasi Kegiatan
                 'per_lokasi' => $kegiatan->groupBy('lokasi_kegiatan')->map(fn($g) => $g->count()),
+
+                // Data List for Table
+                'kegiatan_list' => $kegiatan->take(10)->map(fn($k) => [
+                    'id' => $k->id,
+                    'judul' => $k->judul,
+                    'tanggal' => $k->tanggal->format('d M Y'),
+                    'jam' => $k->jam_mulai ? substr($k->jam_mulai, 0, 5) : '-',
+                    'lokasi' => $k->lokasi_kegiatan,
+                    'status' => $k->status_label
+                ])
             ]
         ]);
     }

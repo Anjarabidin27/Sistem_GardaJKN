@@ -7,7 +7,7 @@
         if (dateEl) dateEl.innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         
         // Handle URL hash navigation (e.g. /member/profile#survey from settings sidebar)
-        const hash = window.location.hash.replace('#', '');
+        const hash = window.location.hash.replace('#', '') || 'profil';
         const validSections = ['profil', 'informasi', 'pembayaran', 'laporan', 'survey'];
         if (hash && validSections.includes(hash)) {
             // Wait a tiny tick for DOM to be ready
@@ -38,7 +38,8 @@
     async function fetchInformations() {
         try {
             const res = await axios.get('member/informations');
-            renderInformations(res.data.data);
+            const data = res.data.data || [];
+            renderInformations(Array.isArray(data) ? data : []);
         } catch (e) {
             console.error(e);
             const infoCont = document.getElementById('infoList');
@@ -50,7 +51,7 @@
         const container = document.getElementById('infoList');
         if (!container) return;
         
-        if (items.length === 0) {
+        if (!items || !Array.isArray(items) || items.length === 0) {
             container.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 80px 40px; background: white; border-radius: 24px; border: 1px dashed #e2e8f0;">
                     <div style="margin-bottom: 20px; color: #cbd5e1;"><i data-lucide="info" style="width: 48px; height: 48px; margin: 0 auto;"></i></div>
@@ -64,55 +65,42 @@
         container.innerHTML = '';
         items.forEach(item => {
             let visual = '';
-            const dateStr = new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            const dateStr = new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
             
             if (item.type === 'image' && item.attachment_url) {
-                visual = `
-                    <div style="position: relative; height: 180px; overflow: hidden; border-radius: 14px; margin-bottom: 16px;">
-                        <img src="${item.attachment_url}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
-                        <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); color: white; padding: 4px 12px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">FOTO</div>
-                    </div>`;
+                visual = `<img src="${item.attachment_url}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 10px;">`;
             } else if (item.type === 'pdf') {
-                visual = `
-                    <div style="height: 180px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-radius: 14px; margin-bottom: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #b91c1c; gap: 12px;">
-                        <i data-lucide="file-text" style="width: 48px; height: 48px;"></i>
-                        <div style="background: white; color: #b91c1c; padding: 4px 12px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">DOKUMEN PDF</div>
-                    </div>`;
+                visual = `<div style="width: 44px; height: 44px; background: #fee2e2; color: #b91c1c; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i data-lucide="file-text" style="width: 20px; height: 20px;"></i></div>`;
             } else {
-                visual = `
-                    <div style="height: 180px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 14px; margin-bottom: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #1d4ed8; gap: 12px;">
-                        <i data-lucide="bell" style="width: 48px; height: 48px; opacity: 0.5;"></i>
-                        <div style="background: white; color: #1d4ed8; padding: 4px 12px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">PENGUMUMAN</div>
-                    </div>`;
+                visual = `<div style="width: 44px; height: 44px; background: #eff6ff; color: #1d4ed8; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i data-lucide="bell" style="width: 20px; height: 20px;"></i></div>`;
             }
 
             container.innerHTML += `
-                <div class="info-card-premium" onclick="showInfoDetail(${item.id})" style="background: white; border: 1px solid #f1f5f9; border-radius: 24px; padding: 20px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); height: 100%; display: flex; flex-direction: column;">
-                    ${visual}
-                    <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                        <i data-lucide="calendar" style="width: 14px; height: 14px;"></i> ${dateStr}
+                <div class="info-card-compact" onclick="showInfoDetail(${item.id})" style="background: white; border: 1px solid #f1f5f9; border-radius: 18px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                    <div style="flex-shrink: 0;">${visual}</div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 800; color: #1e293b; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em;">${item.title}</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 600; margin-top: 1px;">${dateStr} • ${item.type.toUpperCase()}</div>
                     </div>
-                    <div style="font-weight: 800; color: #1e293b; font-size: 1.1rem; margin-bottom: 10px; line-height: 1.3; letter-spacing: -0.01em;">${item.title}</div>
-                    <div style="font-size: 0.9rem; color: #64748b; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 20px; flex: 1;">${item.content || ''}</div>
-                    <div style="margin-top: auto; display: flex; align-items: center; color: var(--primary); font-size: 0.85rem; font-weight: 800; gap: 6px;">
-                        Selengkapnya <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
-                    </div>
+                    <i data-lucide="chevron-right" style="width: 14px; height: 14px; color: #cbd5e1; margin-right: 4px;"></i>
                 </div>
             `;
         });
 
-        // Add Hover styles to the document if not present
-        if (!document.getElementById('info-card-styles')) {
+        // Force Grid Layout
+        container.style.display = 'grid';
+        container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(250px, 1fr))';
+        container.style.gap = '10px';
+
+        if (!document.getElementById('info-compact-styles')) {
             const style = document.createElement('style');
-            style.id = 'info-card-styles';
+            style.id = 'info-compact-styles';
             style.innerHTML = `
-                .info-card-premium:hover {
-                    transform: translateY(-8px);
-                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-                    border-color: var(--primary-light, #e0e7ff);
-                }
-                .info-card-premium:hover img {
-                    transform: scale(1.05);
+                .info-card-compact:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+                    border-color: #e2e8f0;
+                    background: #f8fafc !important;
                 }
             `;
             document.head.appendChild(style);
@@ -326,6 +314,7 @@
         const psSection = document.getElementById('pengurus-status-section');
         const statusBadge = document.getElementById('statusPengurusBadge');
         const roleDisplay = document.getElementById('memberRoleDisplay');
+        const helpText = document.getElementById('statusHelpText');
 
         if (d.status_pengurus === 'tidak_mendaftar') {
             if (pSection) pSection.style.display = 'block';
@@ -333,17 +322,28 @@
         } else if(d.status_pengurus) {
             if (pSection) pSection.style.display = 'none';
             if (psSection) psSection.style.display = 'block';
-            if (roleDisplay) roleDisplay.innerText = d.role === 'pengurus' ? 'PENGURUS GARDA JKN' : 'ANGGOTA BIASA';
             
+            let roleName = 'ANGGOTA BIASA';
             let badgeHtml = '';
+            let helpMsg = '';
+
             if (d.status_pengurus === 'pendaftaran_diterima') {
-                badgeHtml = '<span class="status-badge" style="background:#fffbeb; color:#92400e; border:1px solid #fde68a; border-radius: 50px; padding: 4px 14px; font-weight: 700; font-size: 0.75rem;">MENUNGGU VERIFIKASI</span>';
+                roleName = 'CALON PENGURUS';
+                badgeHtml = '<div style="display:flex; align-items:center; gap:8px; background:#fffbeb; color:#92400e; border:1px solid #fde68a; border-radius: 50px; padding: 6px 16px; font-weight: 800; font-size: 0.75rem;"><span style="width:8px; height:8px; background:#f59e0b; border-radius:50%; animation: pulse 2s infinite;"></span> MENUNGGU VERIFIKASI</div>';
+                helpMsg = 'Pendaftaran Anda sedang ditinjau oleh Admin Wilayah. Mohon tunggu informasi selanjutnya.';
             } else if (d.status_pengurus === 'aktif') {
-                badgeHtml = '<span class="status-badge" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; border-radius: 50px; padding: 4px 14px; font-weight: 700; font-size: 0.75rem;">KEPENGURUSAN AKTIF</span>';
-            } else {
-                badgeHtml = `<span class="status-badge" style="border-radius: 50px; padding: 4px 14px; font-weight: 700; font-size: 0.75rem; background: #f1f5f9; color: #475569;">${d.status_pengurus.toString().toUpperCase()}</span>`;
+                roleName = 'PENGURUS AKTIF';
+                badgeHtml = '<div style="display:flex; align-items:center; gap:8px; background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; border-radius: 50px; padding: 6px 16px; font-weight: 800; font-size: 0.75rem;"><i data-lucide="check-circle-2" style="width:14px; height:14px;"></i> TERVERIFIKASI</div>';
+                helpMsg = 'Selamat! Anda sudah bisa mengakses sistem pelaporan lapangan melalui menu navigasi.';
+            } else if (d.status_pengurus === 'ditolak') {
+                roleName = 'ANGGOTA BIASA';
+                badgeHtml = '<div style="display:flex; align-items:center; gap:8px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; border-radius: 50px; padding: 6px 16px; font-weight: 800; font-size: 0.75rem;"><i data-lucide="x-circle" style="width:14px; height:14px;"></i> PENDAFTARAN DITOLAK</div>';
+                helpMsg = 'Mohon maaf, pendaftaran Anda belum disetujui. Silakan hubungi Admin Wilayah untuk informasi lebih lanjut.';
             }
+
+            if (roleDisplay) roleDisplay.innerText = roleName;
             if (statusBadge) statusBadge.innerHTML = badgeHtml;
+            if (helpText) helpText.innerText = helpMsg;
         }
     }
 

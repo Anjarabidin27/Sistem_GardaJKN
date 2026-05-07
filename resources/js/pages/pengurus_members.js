@@ -1,6 +1,6 @@
     const token = localStorage.getItem('auth_token');
     const role = localStorage.getItem('user_role');
-    const allowedRoles = ['admin', 'admin_wilayah', 'petugas_pil', 'petugas_keliling', 'pengurus'];
+    const allowedRoles = ['admin', 'admin_wilayah', 'petugas', 'pengurus'];
     
     if (!token || !allowedRoles.includes(role)) window.location.href = '/login';
 
@@ -22,8 +22,8 @@
 
     async function fetchMembers(page = 1) {
         try {
-            // Kita gunakan endpoint admin/members sementara
-            const res = await axios.get(`admin/members?page=${page}`);
+            // Gunakan endpoint bersama yang sudah diizinkan (dengan prefix member/)
+            const res = await axios.get(`member/members?page=${page}`);
             const data = res.data.data;
             renderTable(data.data);
             renderPagination(data);

@@ -12,4 +12,9 @@ class KantorCabang extends Model
     {
         return $this->belongsTo(KedeputianWilayah::class);
     }
+
+    public function members()
+    {
+        return $this->hasMany(Member::class);
+    }
 }

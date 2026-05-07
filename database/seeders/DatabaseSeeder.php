@@ -2,15 +2,7 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\AdminUser;
-use App\Models\City;
-use App\Models\District;
-use App\Models\Member;
-use App\Models\Province;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,9 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            RegionSeeder::class,
-            AdminSeeder::class,
-            MemberSeeder::class,
+            MasterDummySeeder::class,
         ]);
     }
 }

@@ -36,14 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Determine redirection Target based on role
                 let targetUrl = '/admin/dashboard';
-                
-                if (data.role === 'petugas_pil') {
-                    targetUrl = '/admin/pil/dashboard';
-                } else if (data.role === 'petugas_keliling') {
-                    targetUrl = '/admin/bpjs-keliling/dashboard';
-                }
-
-                submitBtn.innerHTML = 'Berhasil! Redirecting...';
+                if (response.data.data.role === 'petugas') targetUrl = '/admin/bpjs-keliling/dashboard';
                 window.location.href = targetUrl;
             }
         } catch (error) {

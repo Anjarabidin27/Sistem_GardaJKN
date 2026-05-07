@@ -164,13 +164,9 @@ class MemberService
             if ($status === 'setujui') {
                 $member->status_pengurus = 'aktif';
                 
-                // Smart Role Assignment based on registration interests
-                if ($member->interest_pil && $member->interest_keliling) {
-                    $member->role = 'admin_wilayah'; // Can do both
-                } elseif ($member->interest_pil) {
-                    $member->role = 'petugas_pil';
-                } elseif ($member->interest_keliling) {
-                    $member->role = 'petugas_keliling';
+                // Smart Role Assignment: Consolidated into 'petugas'
+                if ($member->interest_pil || $member->interest_keliling) {
+                    $member->role = 'petugas'; 
                 } else {
                     $member->role = 'pengurus'; // Fallback generic
                 }

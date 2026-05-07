@@ -55,33 +55,27 @@ Route::get('/settings', function () {
     </script>";
 });
 
-// Halaman Admin (Protected by JS Check / Token)
-Route::prefix('admin')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard'); // Nanti kita buat file ini
-    });
-    
-    Route::get('/members', function () {
-        return view('admin.members.index');
-    });
-
-    Route::get('/staff', function () {
-        return view('admin.staff.index');
+// Halaman Admin (Protected by Guard & Token)
+Route::prefix('admin')->middleware('auth:admin')->group(function () {
+    // 1. Routes for Superadmin & Admin Wilayah ONLY
+    Route::middleware('gate:superadmin,admin_wilayah')->group(function () {
+        Route::get('/dashboard', function () { return view('admin.dashboard'); });
+        Route::get('/members', function () { return view('admin.members.index'); });
+        Route::get('/staff', function () { return view('admin.staff.index'); });
+        Route::get('/audit-logs', function () { return view('admin.audit_logs.index'); });
     });
 
-    Route::get('/audit-logs', function () {
-        return view('admin.audit_logs.index'); // New Web Route
+    // 2. PIL Features (Allowed for Superadmin, Admin Wilayah, and Petugas)
+    Route::prefix('pil')->middleware('gate:superadmin,admin_wilayah,petugas,petugas_pil')->group(function () {
+        Route::get('/', function () { return view('admin.pil.index'); });
+        Route::get('/dashboard', function () { return view('admin.pil.dashboard'); });
     });
 
-    Route::prefix('bpjs-keliling')->group(function () {
+    // 3. BPJS Keliling Features (Allowed for Superadmin, Admin Wilayah, and Petugas)
+    Route::prefix('bpjs-keliling')->middleware('gate:superadmin,admin_wilayah,petugas,petugas_keliling')->group(function () {
         Route::get('/', function () { return view('admin.bpjs_keliling.index'); });
         Route::get('/laporan', function () { return view('admin.bpjs_keliling.laporan'); });
         Route::get('/dashboard', function () { return view('admin.bpjs_keliling.dashboard'); });
-    });
-
-    Route::prefix('pil')->group(function () {
-        Route::get('/', function () { return view('admin.pil.index'); });
-        Route::get('/dashboard', function () { return view('admin.pil.dashboard'); });
     });
 
     Route::get('/informations', function () {
