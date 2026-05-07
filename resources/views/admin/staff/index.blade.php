@@ -73,7 +73,9 @@
             
             <select id="filterRole" class="form-input" style="background: #fff; font-size: 0.75rem; font-weight: 700; padding: 8px 12px; border-radius: 6px; border: 1px solid #E2E8F0; width: 140px;" onchange="window.handleFilterChange()">
                 <option value="all">Semua Role</option>
-                <option value="superadmin">Super Admin</option>
+                @if(optional(auth('admin')->user())->role === 'superadmin')
+                    <option value="superadmin">Super Admin</option>
+                @endif
                 <option value="admin_wilayah">Admin Wilayah</option>
                 <option value="petugas">Petugas</option>
             </select>
@@ -155,7 +157,9 @@
                             <div>
                                 <label class="v-label" style="display:block; margin-bottom: 6px;">Role / Akses</label>
                                 <select id="staffRole" class="form-input" style="width:100%; border-radius: 6px; border: 1px solid #E2E8F0; padding: 8px 12px; font-size: 0.85rem;">
-                                    <option value="superadmin">Super Admin</option>
+                                    @if(optional(auth('admin')->user())->role === 'superadmin')
+                                        <option value="superadmin">Super Admin</option>
+                                    @endif
                                     <option value="admin_wilayah">Admin Wilayah</option>
                                     <option value="petugas">Petugas</option>
                                 </select>

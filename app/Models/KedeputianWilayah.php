@@ -12,4 +12,9 @@ class KedeputianWilayah extends Model
     {
         return $this->hasMany(KantorCabang::class);
     }
+
+    public function adminUsers()
+    {
+        return $this->hasManyThrough(AdminUser::class, KantorCabang::class);
+    }
 }

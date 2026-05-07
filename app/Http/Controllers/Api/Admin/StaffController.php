@@ -65,11 +65,19 @@ class StaffController extends Controller
 
     public function store(Request $request)
     {
+        $user = $request->user();
+        $allowedRoles = ['admin_wilayah', 'petugas'];
+        
+        // Only superadmin can create other superadmins
+        if ($user && $user->role === 'superadmin') {
+            $allowedRoles[] = 'superadmin';
+        }
+
         $request->validate([
             'username' => 'required|unique:admin_users,username',
             'password' => 'required|min:6',
             'name' => 'required',
-            'role' => 'required|in:superadmin,admin_wilayah,petugas',
+            'role' => ['required', Rule::in($allowedRoles)],
             'kantor_cabang_id' => 'required|exists:kantor_cabangs,id',
         ]);
 
@@ -90,6 +98,7 @@ class StaffController extends Controller
 
     public function update(Request $request, $id)
     {
+        $user = $request->user();
         $source = $request->input('source', 'asli');
         
         if ($source === 'member') {
@@ -101,10 +110,15 @@ class StaffController extends Controller
 
         $staff = AdminUser::findOrFail($id);
         
+        $allowedRoles = ['admin_wilayah', 'petugas'];
+        if ($user && $user->role === 'superadmin') {
+            $allowedRoles[] = 'superadmin';
+        }
+
         $request->validate([
             'username' => ['required', Rule::unique('admin_users')->ignore($staff->id)],
             'name' => 'required',
-            'role' => 'required|in:superadmin,admin_wilayah,petugas',
+            'role' => ['required', Rule::in($allowedRoles)],
             'kantor_cabang_id' => 'required|exists:kantor_cabangs,id',
             'password' => 'nullable|min:6',
         ]);

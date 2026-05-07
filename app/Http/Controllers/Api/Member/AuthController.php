@@ -37,6 +37,13 @@ class AuthController extends Controller
         return response()->json(['available' => !$exists]);
     }
 
+    public function checkPhone(Request $request)
+    {
+        $request->validate(['phone' => 'required|numeric|digits_between:10,15']);
+        $exists = \App\Models\Member::where('phone', $request->phone)->exists();
+        return response()->json(['available' => !$exists]);
+    }
+
     public function login(LoginRequest $request)
     {
         // Secara default Laravel SoftDeletes akan meng-exclude record yang dihapus

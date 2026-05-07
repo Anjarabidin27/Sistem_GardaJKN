@@ -306,7 +306,7 @@ class PilController extends Controller
                 'kegiatan_list' => $kegiatan->take(10)->map(fn($k) => [
                     'id' => $k->id,
                     'judul' => $k->judul,
-                    'tanggal' => $k->tanggal->format('d M Y'),
+                    'tanggal' => \Carbon\Carbon::parse($k->tanggal)->format('d M Y'),
                     'jam' => $k->jam_mulai ? substr($k->jam_mulai, 0, 5) : '-',
                     'lokasi' => $k->lokasi_kegiatan,
                     'status' => $k->status_label

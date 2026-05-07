@@ -33,15 +33,21 @@ class MemberRepository extends BaseRepository
         }
 
         // Region Filtering Logic (Forced Security Filter)
-        $user = auth()->user() ?? auth('admin')->user();
-        if ($user && $user->role !== 'superadmin') {
-            if ($user->role === 'admin_wilayah' && $user->kedeputian_wilayah) {
-                $query->whereHas('kantorCabang.kedeputianWilayah', function($q) use ($user) {
-                    $q->where('name', $user->kedeputian_wilayah);
+        $user = auth('admin')->user() ?? auth()->user();
+        
+        if ($user && !in_array($user->role, ['superadmin', 'administrator'])) {
+            $userKW = trim($user->kedeputian_wilayah ?? '');
+            $userKC = trim($user->kantor_cabang ?? '');
+            
+            if (($user->role === 'admin_wilayah' || $user->role === 'admin') && $userKW) {
+                $query->whereHas('kantorCabang.kedeputianWilayah', function($q) use ($userKW) {
+                    $q->whereRaw('TRIM(name) LIKE ?', ['%' . $userKW . '%']);
                 });
-            } elseif ($user->kantor_cabang) {
-                $query->whereHas('kantorCabang', function($q) use ($user) {
-                    $q->where('name', $user->kantor_cabang);
+            } elseif ($user->kantor_cabang_id) {
+                $query->where('kantor_cabang_id', $user->kantor_cabang_id);
+            } elseif ($userKC) {
+                $query->whereHas('kantorCabang', function($q) use ($userKC) {
+                    $q->whereRaw('TRIM(name) LIKE ?', ['%' . $userKC . '%']);
                 });
             }
         } else {
@@ -142,13 +148,21 @@ class MemberRepository extends BaseRepository
         // If viewing national data (no regional filter), group by Kedeputian Wilayah (Regional) for better summary
         if (empty($filters['kedeputian_wilayah'])) {
             return \App\Models\KedeputianWilayah::withCount(['kantorCabangs as total' => function($q) {
-                    $q->join('members', 'kantor_cabangs.id', '=', 'members.kantor_cabang_id');
+                    $q->whereHas('members', function($mq) {
+                        $mq->where('role', 'anggota'); // Pure Member Only
+                    });
                 }])
                 ->get()
                 ->map(function($item) {
+                    // Correctly count total pure members across all branches in this region
+                    $totalMembers = \App\Models\Member::where('role', 'anggota')
+                        ->whereHas('kantorCabang', function($q) use ($item) {
+                            $q->where('kedeputian_wilayah_id', $item->id);
+                        })->count();
+
                     return [
                         'branch_name' => $item->name,
-                        'total' => $item->total
+                        'total' => $totalMembers
                     ];
                 })
                 ->filter(fn($i) => $i['total'] > 0)
@@ -160,7 +174,9 @@ class MemberRepository extends BaseRepository
         return \App\Models\KantorCabang::whereHas('kedeputianWilayah', function($q) use ($filters) {
                 $q->where('name', $filters['kedeputian_wilayah']);
             })
-            ->withCount(['members as total'])
+            ->withCount(['members as total' => function($q) {
+                $q->where('role', 'anggota'); // Pure Member Only
+            }])
             ->get()
             ->map(function($item) {
                 return [

@@ -64,7 +64,7 @@
                 </div>
             </div>
 
-            <form id="registerForm">
+            <form id="registerForm" novalidate>
                 <!-- STEP 1: PROFIL & IDENTITAS -->
                 <div class="form-step active" id="step-1">
                     <div class="section-title"><i data-lucide="user"></i> Data Identitas Utama</div>
@@ -88,7 +88,8 @@
                     <div class="input-grid">
                         <div class="form-group">
                             <label class="form-label">WhatsApp (Aktif) <span style="color: red;">*</span></label>
-                            <input type="text" id="phone" class="form-control" placeholder="0812..." required>
+                            <input type="text" id="phone" class="form-control" placeholder="0812..." required oninput="document.getElementById('phone-error').style.display = 'none'; this.style.borderColor = '';">
+                            <div id="phone-error" style="color: #EF4444; font-size: 0.75rem; margin-top: 6px; display: none; font-weight: 600;"><i data-lucide="info" style="width: 12px; height: 12px; vertical-align: -2px; margin-right: 2px;"></i> <span id="phone-error-text">Nomor HP ini sudah terdaftar.</span></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Tanggal Lahir <span style="color: red;">*</span></label>
@@ -185,11 +186,27 @@
                     <div id="domisili_section">
                         <div class="section-title" style="border-color: #e2e8f0; color: #64748b;">Domisili Sekarang</div>
                         <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                            <div><select id="dom_province" class="form-control" onchange="window.loadCities(this.value, 'dom_city')"><option value="">Provinsi</option></select></div>
-                            <div><select id="dom_city" class="form-control" onchange="window.loadDistricts(this.value, 'dom_district')" disabled><option value="">Kota</option></select></div>
-                            <div><select id="dom_district" class="form-control" disabled><option value="">Kec</option></select></div>
+                            <div>
+                                <label class="form-label">Provinsi <span style="color: red;">*</span></label>
+                                <select id="dom_province" class="form-control" onchange="window.loadCities(this.value, 'dom_city')">
+                                    <option value="">Pilih...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Kota <span style="color: red;">*</span></label>
+                                <select id="dom_city" class="form-control" onchange="window.loadDistricts(this.value, 'dom_district')" disabled>
+                                    <option value="">Pilih...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Kec <span style="color: red;">*</span></label>
+                                <select id="dom_district" class="form-control" disabled>
+                                    <option value="">Pilih...</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Alamat Domisili Lengkap <span style="color: red;">*</span></label>
                             <textarea id="dom_address" class="form-control" rows="2" style="resize: none;" placeholder="Alamat tinggal sekarang..."></textarea>
                         </div>
                     </div>
@@ -230,7 +247,7 @@
                     </div>
 
                     <div style="margin-top: 24px;">
-                        <button type="submit" class="submit-btn" id="btn-register">
+                        <button type="button" class="submit-btn" id="btn-register" onclick="gasDaftarSekarang()" style="position: relative; z-index: 9999; cursor: pointer;">
                             <span>Selesaikan Pendaftaran</span> <i data-lucide="check-circle" style="width: 18px;"></i>
                         </button>
                     </div>
@@ -246,6 +263,7 @@
                 </div>
             </form>
         </div>
+    </div>
 </div>
 @endsection
 
@@ -270,42 +288,83 @@
 
 
 
-    // Fitur Auto-Save (Draft on Refresh)
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('registerForm');
-        if (!form) return;
 
-        // Restore data dari localStorage
-        const draft = JSON.parse(localStorage.getItem('reg_draft') || '{}');
-        Object.keys(draft).forEach(key => {
-            const el = document.getElementById(key);
-            if (el) {
-                el.value = draft[key];
-                // Trigger change event for selects to load children
-                if(el.tagName === 'SELECT' && el.value) {
-                    const event = new Event('change');
-                    el.dispatchEvent(event);
-                }
+    async function gasDaftarSekarang() {
+        try {
+            const getValue = (id) => {
+                const el = document.getElementById(id);
+                return el ? el.value.trim() : '';
+            };
+
+            const sameAsKtpEl = document.getElementById('same_as_ktp');
+            const sameAsKtp = sameAsKtpEl ? sameAsKtpEl.checked : false;
+            
+            const payload = {
+                nik: getValue('nik'),
+                jkn_number: getValue('jkn_number'),
+                name: getValue('name'),
+                phone: getValue('phone'),
+                birth_date: getValue('birth_date'),
+                password: getValue('password'),
+                password_confirmation: getValue('password_confirmation'),
+                gender: getValue('gender'),
+                education: getValue('education'),
+                occupation: getValue('occupation'),
+                province_id: getValue('province'),
+                city_id: getValue('city'),
+                district_id: getValue('district'),
+                address_detail: getValue('address'),
+                dom_province_id: sameAsKtp ? getValue('province') : getValue('dom_province'),
+                dom_city_id: sameAsKtp ? getValue('city') : getValue('dom_city'),
+                dom_district_id: sameAsKtp ? getValue('district') : getValue('dom_district'),
+                dom_address_detail: sameAsKtp ? getValue('address') : getValue('dom_address'),
+            };
+
+            // Validation
+            if (!payload.name || !payload.nik || !payload.phone || !payload.password) {
+                window.showToast('Mohon lengkapi Nama, NIK, No HP, dan Password di Langkah 1.', 'error');
+                return;
             }
-        });
 
-        // Simpan setiap kali ada perubahan input
-        form.addEventListener('input', () => {
-            const currentData = {};
-            form.querySelectorAll('input, select, textarea').forEach(el => {
-                if(el.id && el.type !== 'password' && el.type !== 'file') {
-                    currentData[el.id] = el.value;
+            if (!payload.address_detail) {
+                window.showToast('Alamat KTP wajib diisi (Langkah 2).', 'error');
+                return;
+            }
+
+            if (!payload.dom_address_detail) {
+                window.showToast('Alamat domisili wajib diisi (Langkah 2).', 'error');
+                return;
+            }
+
+            if (payload.password !== payload.password_confirmation) {
+                window.showToast('Konfirmasi kata sandi tidak cocok.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-register');
+            const oldText = btn.innerHTML;
+            btn.disabled = true; 
+            btn.innerHTML = 'Memproses...';
+
+            try {
+                const res = await window.axios.post('member/register', payload);
+                if(res.data.status === 'success' || res.status === 201) {
+                    window.showToast('Pendaftaran Berhasil!', 'success');
+                    if (typeof window.clearRegDraft === 'function') window.clearRegDraft();
+                    setTimeout(() => { window.location.href = '/login'; }, 1500);
                 }
-            });
-            localStorage.setItem('reg_draft', JSON.stringify(currentData));
-        });
+            } catch (err) {
+                btn.disabled = false; 
+                btn.innerHTML = oldText;
+                const serverMsg = err.response?.data?.message || err.message;
+                window.showToast(serverMsg, 'error');
+            }
 
-        // Hapus draft saat pendaftaran berhasil
-        window.clearRegDraft = () => {
-            localStorage.removeItem('reg_draft');
-            showToast('Draft berhasil dibersihkan.', 'info');
-            setTimeout(() => window.location.reload(), 1000);
-        };
-    });
+        } catch (e) {
+            console.error('JS Error:', e);
+        }
+    }
+
+    window.gasDaftarSekarang = gasDaftarSekarang;
 </script>
 @endpush

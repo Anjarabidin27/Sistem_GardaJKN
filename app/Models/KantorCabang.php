@@ -17,4 +17,9 @@ class KantorCabang extends Model
     {
         return $this->hasMany(Member::class);
     }
+
+    public function adminUsers()
+    {
+        return $this->hasMany(AdminUser::class, 'kantor_cabang_id');
+    }
 }

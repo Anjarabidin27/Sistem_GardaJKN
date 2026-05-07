@@ -25,11 +25,13 @@ class DashboardController extends Controller
         $filters = [];
 
         // Hierarchical Security Filter
-        if ($user && !in_array($user->role, ['superadmin', 'admin', 'administrator'])) {
+        if ($user && $user->role !== 'superadmin') {
             if ($user instanceof \App\Models\AdminUser) {
-                if ($user->role === 'admin_wilayah' && $user->kedeputian_wilayah) {
+                if ($user->kedeputian_wilayah) {
                     $filters['kedeputian_wilayah'] = $user->kedeputian_wilayah;
-                } elseif ($user->kantor_cabang) {
+                }
+                
+                if ($user->kantor_cabang && $user->role !== 'admin_wilayah') {
                     $filters['kantor_cabang'] = $user->kantor_cabang;
                 }
             } elseif ($user instanceof \App\Models\Member && $user->role === 'pengurus') {
@@ -45,6 +47,40 @@ class DashboardController extends Controller
         }
 
         $data = $this->dashboardService->getStats($range, $filters);
+
+        // Add Staff Distribution for National/Regional View
+        $regionName = $filters['kedeputian_wilayah'] ?? null;
+        
+        if ($regionName) {
+            // Detailed View: Staff per Branch in this Region
+            $data['staff_distribution'] = \App\Models\KantorCabang::whereHas('kedeputianWilayah', function($q) use ($regionName) {
+                    $q->where('name', $regionName);
+                })
+                ->withCount(['adminUsers as total'])
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'region_name' => $item->name, // Using branch name here for consistency
+                        'total' => $item->total
+                    ];
+                })
+                ->sortByDesc('total')
+                ->values()
+                ->toArray();
+        } else {
+            // Summary View: Staff per Regional (National)
+            $data['staff_distribution'] = \App\Models\KedeputianWilayah::withCount(['adminUsers as total'])
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'region_name' => $item->name,
+                        'total' => $item->total
+                    ];
+                })
+                ->filter(fn($i) => $i['total'] > 0)
+                ->values()
+                ->toArray();
+        }
 
         return $this->successResponse('Data Dashboard', $data);
     }

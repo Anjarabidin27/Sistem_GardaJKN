@@ -1,5 +1,8 @@
 <x-admin-layout title="Manajemen Anggota - Garda JKN">
-    <div class="table-card">
+    <div class="table-card" 
+         id="memberContext" 
+         data-role="{{ auth('admin')->user()->role }}" 
+         data-region="{{ auth('admin')->user()->kedeputian_wilayah }}">
         <div class="table-header">
             <div>
                 <h2 class="modal-title">Daftar Anggota Sistem</h2>

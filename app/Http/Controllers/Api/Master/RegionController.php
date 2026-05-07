@@ -13,13 +13,14 @@ class RegionController extends Controller
 {
     use ApiResponse;
 
-    public function provinces()
+    public function provinces(Request $request)
     {
-        $user = request()->user('sanctum');
+        $user = $request->user('admin') ?? $request->user('sanctum') ?? $request->user();
+        $reqRegion = $request->kedeputian_wilayah;
         
-        $scope = $this->getUserRegionScope($user);
+        $scope = $this->getUserRegionScope($user, $reqRegion);
         if ($scope) {
-            $data = Province::whereIn('id', $scope['province_ids'])->get(['id', 'code', 'name']);
+            $data = Province::whereIn('id', $scope['province_ids'])->orderBy('name')->get(['id', 'code', 'name']);
             return $this->successResponse('Data Provinsi (Filtered)', $data);
         }
 
@@ -51,16 +52,17 @@ class RegionController extends Controller
 
     public function cities(Request $request)
     {
-        $user = $request->user('sanctum');
+        $user = $request->user('admin') ?? $request->user('sanctum') ?? $request->user();
         $provinceId = $request->province_id;
+        $reqRegion = $request->kedeputian_wilayah;
 
-        $scope = $this->getUserRegionScope($user);
+        $scope = $this->getUserRegionScope($user, $reqRegion);
         if ($scope) {
             $query = City::whereIn('id', $scope['city_ids']);
             if ($provinceId) {
                 $query->where('province_id', $provinceId);
             }
-            $data = $query->get(['id', 'province_id', 'code', 'name', 'type']);
+            $data = $query->orderBy('name')->get(['id', 'province_id', 'code', 'name', 'type']);
             return $this->successResponse('Data Kota (Filtered)', $data);
         }
 
@@ -181,31 +183,18 @@ class RegionController extends Controller
         ]);
     }
 
-    private function getUserRegionScope($user)
+    private function getUserRegionScope($user, $requestedRegion = null)
     {
-        if (!$user || $user->role === 'superadmin' || $user->role === 'anggota') {
-            return null;
+        // 1. Forced Region from Parameter (Only if user has permission to see it)
+        $regionName = $requestedRegion;
+        
+        // If not superadmin, they are locked to their own region regardless of parameter
+        if ($user && $user->role !== 'superadmin' && $user->kedeputian_wilayah) {
+            $regionName = $user->kedeputian_wilayah;
         }
 
-        // 1. Branch Scope (via ID or Name fallback)
-        $kc = null;
-        if ($user->kantor_cabang_id) {
-            $kc = $user->kantorCabang;
-        } elseif ($user->kantor_cabang) {
-            $kc = \App\Models\KantorCabang::where('name', 'LIKE', '%' . $user->kantor_cabang . '%')->first();
-        }
-
-        if ($kc) {
-            return [
-                'type' => 'branch',
-                'province_ids' => [$kc->province_id],
-                'city_ids' => [$kc->city_id]
-            ];
-        }
-
-        // 2. Kenwil Scope
-        if ($user->kedeputian_wilayah) {
-            $kenwil = \App\Models\KedeputianWilayah::where('name', 'LIKE', '%' . $user->kedeputian_wilayah . '%')->first();
+        if ($regionName) {
+            $kenwil = \App\Models\KedeputianWilayah::where('name', 'LIKE', '%' . trim($regionName) . '%')->first();
             if ($kenwil) {
                 $kcs = $kenwil->kantorCabangs;
                 return [
@@ -214,6 +203,26 @@ class RegionController extends Controller
                     'city_ids' => $kcs->pluck('city_id')->unique()->toArray()
                 ];
             }
+        }
+
+        if (!$user || $user->role === 'superadmin' || $user->role === 'anggota') {
+            return null;
+        }
+
+        // 2. Branch Scope (via ID or Name fallback)
+        $kc = null;
+        if ($user->kantor_cabang_id) {
+            $kc = $user->kantorCabang;
+        } elseif ($user->kantor_cabang) {
+            $kc = \App\Models\KantorCabang::where('name', 'LIKE', '%' . trim($user->kantor_cabang) . '%')->first();
+        }
+
+        if ($kc) {
+            return [
+                'type' => 'branch',
+                'province_ids' => [$kc->province_id],
+                'city_ids' => [$kc->city_id]
+            ];
         }
 
         return null;

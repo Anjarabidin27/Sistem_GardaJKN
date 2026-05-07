@@ -426,28 +426,82 @@ window.openAddModal = async function() {
         modal.style.display = 'flex';
         modal.classList.remove('hide');
     }
-    window.loadAddProvinces();
+    
+    // Get user info from DOM to apply regional lock
+    const ctx = document.getElementById('memberContext');
+    const userRole = ctx ? ctx.dataset.role : '';
+    const userRegion = ctx ? ctx.dataset.region : '';
+
+    window.loadAddProvinces(userRole, userRegion);
 }
 
-window.loadAddProvinces = async function() {
-    const res = await window.axios.get('master/provinces');
-    const sel = document.getElementById('addProvince');
-    if (!sel) return;
-    sel.innerHTML = '<option value="">Pilih...</option>';
-    res.data.data.forEach(p => { sel.innerHTML += `<option value="${p.id}">${p.name}</option>`; });
+window.loadAddProvinces = async function(role = '', region = '') {
+    let url = 'master/provinces';
+    if (role === 'admin_wilayah' && region) {
+        url += `?kedeputian_wilayah=${encodeURIComponent(region)}`;
+    }
+
+    try {
+        const res = await window.axios.get(url);
+        const sel = document.getElementById('addProvince');
+        if (!sel) return;
+        
+        sel.innerHTML = '<option value="">Pilih...</option>';
+        const provinces = res.data.data;
+        provinces.forEach(p => { sel.innerHTML += `<option value="${p.id}">${p.name}</option>`; });
+
+        // Auto-select if only 1 province (Common for Regional Admins)
+        if (provinces.length === 1) {
+            sel.value = provinces[0].id;
+            window.loadAddCities(provinces[0].id, role, region);
+        }
+    } catch (e) {
+        console.error('Load Add Provinces Error:', e);
+    }
 }
 
-window.loadAddCities = async function(provId) {
+window.loadAddCities = async function(provId, role = '', region = '') {
     const sel = document.getElementById('addCity');
     const distSel = document.getElementById('addDistrict');
     if (!sel || !distSel) return;
+    
     sel.innerHTML = '<option value="">Pilih...</option>';
     distSel.innerHTML = '<option value="">Pilih...</option>';
+    
     if(!provId) return;
-    const res = await window.axios.get(`master/cities?province_id=${provId}`);
-    res.data.data.forEach(c => { 
-        sel.innerHTML += `<option value="${c.id}">${c.type === 'KOTA' ? 'KOTA ' : 'KAB. '}${c.name}</option>`; 
-    });
+
+    // Get context from DOM if not passed
+    let userRole = role;
+    let userRegion = region;
+    
+    if (!userRole || !userRegion) {
+        const ctx = document.getElementById('memberContext');
+        if (ctx) {
+            userRole = userRole || ctx.dataset.role;
+            userRegion = userRegion || ctx.dataset.region;
+        }
+    }
+
+    let url = `master/cities?province_id=${provId}`;
+    if (userRole === 'admin_wilayah' && userRegion) {
+        url += `&kedeputian_wilayah=${encodeURIComponent(userRegion)}`;
+    }
+
+    try {
+        const res = await window.axios.get(url);
+        const cities = res.data.data;
+        cities.forEach(c => { 
+            sel.innerHTML += `<option value="${c.id}">${c.type === 'KOTA' ? 'KOTA ' : 'KAB. '}${c.name}</option>`; 
+        });
+
+        // Auto-select if only 1 city
+        if (cities.length === 1) {
+            sel.value = cities[0].id;
+            window.loadAddDistricts(cities[0].id);
+        }
+    } catch (e) {
+        console.error('Load Add Cities Error:', e);
+    }
 }
 
 window.loadAddDistricts = async function(cityId) {

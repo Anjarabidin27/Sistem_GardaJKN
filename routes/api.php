@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->prefix('master')->group(function () {
 // --- Member Portal ---
 Route::prefix('member')->group(function () {
     Route::post('check-nik', [MemberAuthController::class, 'checkNik']);
+    Route::post('check-phone', [MemberAuthController::class, 'checkPhone']);
     Route::post('register', [MemberAuthController::class, 'register']);
     Route::post('login', [MemberAuthController::class, 'login']);
 

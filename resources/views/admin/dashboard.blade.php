@@ -17,6 +17,8 @@
         .v-flex { display: flex; }
         .v-items-center { align-items: center; }
         .v-justify-between { justify-content: space-between; }
+        .v-gap-6 { gap: 1.5rem; }
+        .v-gap-2 { gap: 0.5rem; }
         
         .v-grid { display: grid; }
         .v-grid-4 { grid-template-columns: repeat(4, 1fr); }
@@ -29,6 +31,7 @@
             .v-card-nav .v-card-icon { width: 32px !important; height: 32px !important; }
             .v-card-nav .v-card-icon i { width: 14px !important; height: 14px !important; }
             .v-card-nav .v-card-title { font-size: 0.8rem !important; }
+            .v-gap-6 { gap: 0.75rem !important; }
         }
 
         .v-card-nav {
@@ -174,13 +177,19 @@
                     Command Hub
                 @endif
             </h1>
-            <p style="font-size: 0.875rem; color: var(--v-gray-500); margin-top: 2px;">
-                @if(optional(auth('admin')->user())->role === 'admin_wilayah')
-                    Wilayah: <span style="color: var(--v-emerald-500); font-weight: 800;">{{ optional(auth('admin')->user())->kedeputian_wilayah }}</span>
-                @else
-                    Selamat datang, <span style="color: var(--v-black); font-weight: 700;">{{ optional(auth('admin')->user())->name }}</span>.
-                @endif
-            </p>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                <p style="font-size: 0.875rem; color: var(--v-gray-500); margin: 0;">
+                    @if(optional(auth('admin')->user())->role === 'admin_wilayah')
+                        Wilayah: <span style="color: var(--v-emerald-500); font-weight: 800;">{{ optional(auth('admin')->user())->kedeputian_wilayah }}</span>
+                    @else
+                        Selamat datang, <span style="color: var(--v-black); font-weight: 700;">{{ optional(auth('admin')->user())->name }}</span>.
+                    @endif
+                </p>
+                <!-- Debug Badge -->
+                <span style="font-size: 10px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #64748b; font-weight: 700; text-transform: uppercase;">
+                    Role: {{ auth('admin')->user()->role }}
+                </span>
+            </div>
         </div>
         <div class="v-flex v-gap-2 header-actions">
             <a href="/admin/audit-logs" class="btn-compact" style="background: white; color: black; border: 1px solid var(--v-gray-200);">
@@ -233,11 +242,12 @@
     </div>
 
     @if(in_array(optional(auth('admin')->user())->role, ['superadmin', 'admin_wilayah']))
-    <div class="v-flex v-flex-desktop v-gap-6" style="margin-bottom: 4rem;">
+    <div class="v-flex v-flex-desktop v-gap-6" style="margin-bottom: 2.5rem;">
+        <!-- Member Distribution -->
         <div style="flex: 1; background: white; padding: 2rem; border-radius: 1.25rem; border: 1px solid var(--v-gray-200); width: 100%; box-sizing: border-box;">
             <div class="v-flex v-flex-desktop v-justify-between v-items-center" style="margin-bottom: 1.5rem;">
                 <div>
-                    <h3 style="font-weight: 900; letter-spacing: -0.01em; margin: 0;" id="regional-title">National Overview</h3>
+                    <h3 style="font-weight: 900; letter-spacing: -0.01em; margin: 0;" id="regional-title">National Members</h3>
                     <p style="font-size: 0.75rem; color: var(--v-gray-400); margin: 0; font-weight: 700;" id="regional-subtitle">SEBARAN ANGGOTA PER REGIONAL</p>
                 </div>
                 
@@ -254,10 +264,38 @@
                 <div style="padding: 2rem; text-align: center; color: var(--v-gray-400);">Memuat data regional...</div>
             </div>
         </div>
-        <div class="v-sidebar-action" style="width: 320px; background: var(--v-black); color: white; padding: 2rem; border-radius: 1.25rem; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box;">
-            <h3 style="font-weight: 800; font-size: 1.1rem; margin-bottom: 0.75rem;">Quick Action</h3>
-            <p style="font-size: 0.875rem; color: #888; margin-bottom: 1.5rem; line-height: 1.5;">Periksa pendaftaran pengurus baru di wilayah Anda.</p>
-            <a href="/admin/members?status=pending" class="btn-compact" style="width: 100%; justify-content: center; background: white; color: black; padding: 0.875rem; border-radius: 0.75rem;">
+
+        <!-- Staff Distribution -->
+        <div style="flex: 1; background: white; padding: 2rem; border-radius: 1.25rem; border: 1px solid var(--v-gray-200); width: 100%; box-sizing: border-box;">
+            <div class="v-flex v-flex-desktop v-justify-between v-items-center" style="margin-bottom: 1.5rem;">
+                <div>
+                    <h3 style="font-weight: 900; letter-spacing: -0.01em; margin: 0;" id="staff-title">Staff Deployment</h3>
+                    <p style="font-size: 0.75rem; color: var(--v-gray-400); margin: 0; font-weight: 700;" id="staff-subtitle">SEBARAN PETUGAS LAPANGAN</p>
+                </div>
+                
+                @if(optional(auth('admin')->user())->role === 'superadmin')
+                <select id="filter-staff-kw" class="form-select" style="font-size: 0.75rem; font-weight: 800; border-radius: 0.5rem; padding: 0.4rem 2rem 0.4rem 0.75rem; border-color: var(--v-gray-200); max-width: 100%;">
+                    <option value="">Nasional</option>
+                    @foreach(\App\Models\KedeputianWilayah::orderBy('id')->get() as $kw)
+                        <option value="{{ $kw->name }}">{{ $kw->name }}</option>
+                    @endforeach
+                </select>
+                @endif
+            </div>
+            <div id="staff-distribution-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <div style="padding: 2rem; text-align: center; color: var(--v-gray-400);">Memuat data petugas...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Actions -->
+    <div class="v-flex v-flex-desktop v-gap-6" style="margin-bottom: 4rem;">
+        <div class="v-sidebar-action" style="flex: 1; background: var(--v-black); color: white; padding: 2rem; border-radius: 1.25rem; display: flex; flex-direction: row; align-items: center; justify-content: space-between; box-sizing: border-box;">
+            <div>
+                <h3 style="font-weight: 800; font-size: 1.1rem; margin-bottom: 0.25rem;">Quick Verification</h3>
+                <p style="font-size: 0.875rem; color: #888; margin: 0;">Periksa pendaftaran pengurus baru di wilayah Anda.</p>
+            </div>
+            <a href="/admin/members?status=pending" class="btn-compact" style="background: white; color: black; padding: 0.875rem 1.5rem; border-radius: 0.75rem;">
                 Buka Verifikasi
             </a>
         </div>
@@ -299,33 +337,68 @@
 
                 window.axios.get(`admin/dashboard?range=1&kedeputian_wilayah=${kw}`)
                     .then(res => {
-                        const branches = res.data.data.distribution.branches || [];
+                        const d = res.data.data;
+                        const branches = d.distribution.branches || [];
                         
                         if (branches.length === 0) {
-                            container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--v-gray-400);">Belum ada data cabang di wilayah ini.</div>';
-                            return;
+                            container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--v-gray-400);">Belum ada data anggota di wilayah ini.</div>';
+                        } else {
+                            let html = '';
+                            const max = Math.max(...branches.map(b => b.total), 1);
+                            branches.forEach(b => {
+                                const percent = (b.total / max) * 100;
+                                html += `
+                                    <div style="margin-bottom: 1.25rem;">
+                                        <div class="v-flex v-justify-between v-items-center" style="margin-bottom: 0.5rem;">
+                                            <span style="font-size: 0.875rem; font-weight: 700;">${b.branch_name}</span>
+                                            <span style="font-size: 0.875rem; font-weight: 800; color: var(--v-emerald-500);">${b.total.toLocaleString()}</span>
+                                        </div>
+                                        <div style="height: 6px; background: var(--v-gray-100); border-radius: 10px; overflow: hidden;">
+                                            <div style="width: ${percent}%; height: 100%; background: var(--v-black); border-radius: 10px;"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            container.innerHTML = html;
                         }
-
-                        let html = '';
-                        const max = Math.max(...branches.map(b => b.total), 1);
-
-                        branches.forEach(b => {
-                            const percent = (b.total / max) * 100;
-                            html += `
-                                <div style="margin-bottom: 1.25rem;">
-                                    <div class="v-flex v-justify-between v-items-center" style="margin-bottom: 0.5rem;">
-                                        <span style="font-size: 0.875rem; font-weight: 700;">KC ${b.branch_name}</span>
-                                        <span style="font-size: 0.875rem; font-weight: 800; color: var(--v-blue-600);">${b.total.toLocaleString()}</span>
-                                    </div>
-                                    <div style="height: 6px; background: var(--v-gray-100); border-radius: 10px; overflow: hidden;">
-                                        <div style="width: ${percent}%; height: 100%; background: var(--v-black); border-radius: 10px;"></div>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        container.innerHTML = html;
                     })
                     .catch(err => console.error("Regional stats fail:", err));
+            }
+
+            function fetchStaffStats(kw = '') {
+                const staffContainer = document.getElementById('staff-distribution-list');
+                if (!staffContainer) return;
+
+                staffContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--v-gray-400);">Memperbarui data...</div>';
+
+                window.axios.get(`admin/dashboard?range=1&kedeputian_wilayah=${kw}`)
+                    .then(res => {
+                        const d = res.data.data;
+                        const staffDist = d.staff_distribution || [];
+
+                        if (staffDist.length === 0) {
+                            staffContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--v-gray-400);">Belum ada data petugas.</div>';
+                        } else {
+                            let sHtml = '';
+                            const sMax = Math.max(...staffDist.map(s => s.total), 1);
+                            staffDist.forEach(s => {
+                                const sPercent = (s.total / sMax) * 100;
+                                sHtml += `
+                                    <div style="margin-bottom: 1.25rem;">
+                                        <div class="v-flex v-justify-between v-items-center" style="margin-bottom: 0.5rem;">
+                                            <span style="font-size: 0.875rem; font-weight: 700;">${s.region_name}</span>
+                                            <span style="font-size: 0.875rem; font-weight: 800; color: var(--v-blue-600);">${s.total.toLocaleString()}</span>
+                                        </div>
+                                        <div style="height: 6px; background: var(--v-gray-100); border-radius: 10px; overflow: hidden;">
+                                            <div style="width: ${sPercent}%; height: 100%; background: var(--v-blue-600); border-radius: 10px;"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            staffContainer.innerHTML = sHtml;
+                        }
+                    })
+                    .catch(err => console.error("Staff stats fail:", err));
             }
 
             if (filterKW) {
@@ -335,10 +408,10 @@
                     const subtitle = document.getElementById('regional-subtitle');
 
                     if (kw) {
-                        title.innerText = 'Regional Performance';
+                        title.innerText = 'Regional Members';
                         subtitle.innerText = 'STATISTIK PER KANTOR CABANG';
                     } else {
-                        title.innerText = 'National Overview';
+                        title.innerText = 'National Members';
                         subtitle.innerText = 'SEBARAN ANGGOTA PER REGIONAL';
                     }
 
@@ -347,10 +420,29 @@
                 });
             }
 
+            const filterStaffKW = document.getElementById('filter-staff-kw');
+            if (filterStaffKW) {
+                filterStaffKW.addEventListener('change', (e) => {
+                    const kw = e.target.value;
+                    const sTitle = document.getElementById('staff-title');
+                    const sSubtitle = document.getElementById('staff-subtitle');
+
+                    if (kw) {
+                        if (sTitle) sTitle.innerText = 'Branch Deployment';
+                        if (sSubtitle) sSubtitle.innerText = 'SEBARAN PETUGAS PER CABANG';
+                    } else {
+                        if (sTitle) sTitle.innerText = 'Staff Deployment';
+                        if (sSubtitle) sSubtitle.innerText = 'SEBARAN PETUGAS LAPANGAN';
+                    }
+                    fetchStaffStats(kw);
+                });
+            }
+
             // Initial Load
             fetchHubData();
             @if(in_array(optional(auth('admin')->user())->role, ['superadmin', 'admin_wilayah']))
                 fetchRegionalStats();
+                fetchStaffStats();
             @endif
             
             if(window.lucide) window.lucide.createIcons();

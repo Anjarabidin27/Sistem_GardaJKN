@@ -87,8 +87,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        </div>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="document.getElementById('addModal').style.display='none'">Batal</button>
             <button class="btn btn-primary" id="btnSubmitAdd" onclick="window.submitAdd()">Simpan Anggota</button>

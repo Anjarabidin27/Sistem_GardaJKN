@@ -20,7 +20,7 @@ class RegisterRequest extends FormRequest
             'nik' => 'required|numeric|digits:16|unique:members,nik',
             'jkn_number' => 'nullable|string|min:10|max:16',
             'name' => 'required|string|max:255',
-            'phone' => ['required', 'numeric', 'digits_between:10,15'],
+            'phone' => ['required', 'numeric', 'digits_between:10,15', 'unique:members,phone'],
             'birth_date' => 'required|date',
             'gender' => 'required|in:L,P',
             'education' => 'required|in:SD,SMP,SMA,Diploma,S1/D4,S2,S3',
