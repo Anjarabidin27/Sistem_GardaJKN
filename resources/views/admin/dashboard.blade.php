@@ -186,8 +186,8 @@
                     @endif
                 </p>
                 <!-- Debug Badge -->
-                <span style="font-size: 10px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #64748b; font-weight: 700; text-transform: uppercase;">
-                    Role: {{ auth('admin')->user()->role }}
+                <span style="font-size: 10px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #64748b; font-weight: 600;">
+                    Role: {{ optional(auth('admin')->user())->role }}
                 </span>
             </div>
         </div>
