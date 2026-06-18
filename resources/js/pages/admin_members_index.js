@@ -127,15 +127,15 @@ function renderTable(members) {
         if (isTrash) {
             actionButtons = `
                 <div class="btn-actions-group">
-                    <button class="btn-icon-square btn-restore" title="Pulihkan Data" onclick="window.restoreMember(${m.id})"><i data-lucide="rotate-ccw"></i></button>
-                    <button class="btn-icon-square btn-delete" title="Hapus Permanen" onclick="window.permanentlyDeleteMember(${m.id})"><i data-lucide="x-circle"></i></button>
+                    <button type="button" class="btn-icon-square btn-restore" title="Pulihkan Data" onclick="window.restoreMember(${m.id})"><i data-lucide="rotate-ccw"></i></button>
+                    <button type="button" class="btn-icon-square btn-delete" title="Hapus Permanen" onclick="window.permanentlyDeleteMember(${m.id})"><i data-lucide="x-circle"></i></button>
                 </div>
             `;
         } else {
             actionButtons = `
                 <div class="btn-actions-group">
-                    <button class="btn-icon-square btn-edit" title="Detail/Edit" onclick="window.openEdit(${m.id})"><i data-lucide="edit-3"></i></button>
-                    <button class="btn-icon-square btn-delete" title="Hapus" onclick="window.deleteMember(${m.id})"><i data-lucide="trash-2"></i></button>
+                    <button type="button" class="btn-icon-square btn-edit" title="Detail/Edit" onclick="event.preventDefault();event.stopPropagation();if(typeof window.openEdit==='function'){window.openEdit(${m.id})}else{alert('openEdit tidak terdefinisi!')}"><i data-lucide="edit-3"></i></button>
+                    <button type="button" class="btn-icon-square btn-delete" title="Hapus" onclick="event.preventDefault();event.stopPropagation();window.deleteMember(${m.id})"><i data-lucide="trash-2"></i></button>
                 </div>
             `;
         }
@@ -160,7 +160,7 @@ function renderTable(members) {
                 <td>
                     ${m.status_pengurus === 'pendaftaran_diterima' 
                         ? `<div class="badge-pending" style="color:#c2410c; background:#fff7ed; padding:4px 8px; border-radius:6px; font-size:0.65rem; font-weight:800; border:1px solid #fdba74; display:block; text-align:center;">BUTUH PERSETUJUAN</div>` 
-                        : `<span style="font-size:0.75rem; color:#64748b; font-weight:600; display:block; text-align:center;">${m.role.toUpperCase()}</span>`}
+                        : `<span style="font-size:0.75rem; color:#64748b; font-weight:600; display:block; text-align:center;">${(m.role || 'anggota').toUpperCase()}</span>`}
                 </td>
                 <td style="text-align: right;">${actionButtons}</td>
             </tr>
@@ -216,6 +216,16 @@ window.permanentlyDeleteMember = async function(id) {
 
 window.openEdit = async function(id) {
     editingId = id;
+
+    // Tampilkan modal dulu sebelum API call
+    const modal = document.getElementById('editModal');
+    if (!modal) {
+        document.body.insertAdjacentHTML('beforeend', '<div style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:red;color:white;padding:16px 24px;z-index:99999;border-radius:8px;font-weight:bold;">ERROR: editModal tidak ditemukan di DOM!</div>');
+        return;
+    }
+    modal.style.display = 'flex';
+    modal.classList.remove('hide');
+
     try {
         const res = await window.axios.get(`admin/members/${id}`);
         const m = res.data.data;
@@ -252,13 +262,14 @@ window.openEdit = async function(id) {
         } else if (approvalSection) {
             approvalSection.style.display = 'none';
         }
-
-        const modal = document.getElementById('editModal');
-        if (modal) {
-            modal.style.display = 'flex';
-            modal.classList.remove('hide');
-        }
     } catch (e) {
+        const status = e.response?.status || 'no response';
+        const msg = e.response?.data?.message || e.message || 'unknown';
+        // Tampilkan error di DOM bukan alert (Chrome blokir alert async)
+        modal.innerHTML += `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:red;color:white;padding:20px;border-radius:8px;z-index:9999;text-align:center;">
+            <b>Gagal load data!</b><br>Status: ${status}<br>${msg}
+            <br><button onclick="this.parentElement.remove()" style="margin-top:8px;padding:4px 12px;">OK</button>
+        </div>`;
         console.error('Open Edit Error:', e);
     }
 }

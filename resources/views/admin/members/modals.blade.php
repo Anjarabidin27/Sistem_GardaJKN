@@ -87,6 +87,7 @@
                     </div>
                 </div>
             </div>
+        </div> <!-- Close modal-body -->
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="document.getElementById('addModal').style.display='none'">Batal</button>
             <button class="btn btn-primary" id="btnSubmitAdd" onclick="window.submitAdd()">Simpan Anggota</button>
@@ -129,7 +130,7 @@
                     </select>
                 </div>
             </div>
-            <div class="grid-2">
+            <div class="grid-3" style="grid-template-columns: 1fr 1fr 1.5fr;">
                 <div class="form-group">
                     <label class="form-label">Tanggal Lahir</label>
                     <input type="date" id="editBirthDate" class="form-input">
@@ -145,27 +146,27 @@
                         <option value="S2">S2</option>
                     </select>
                 </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Jenis Pekerjaan</label>
-                <select id="editOccupation" class="form-input">
-                    <option value="BELUM/TIDAK BEKERJA">BELUM/TIDAK BEKERJA</option>
-                    <option value="MENGURUS RUMAH TANGGA">MENGURUS RUMAH TANGGA</option>
-                    <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
-                    <option value="PENSIUNAN">PENSIUNAN</option>
-                    <option value="PEGAWAI NEGERI SIPIL">PEGAWAI NEGERI SIPIL</option>
-                    <option value="TNI/POLRI">TNI / POLRI</option>
-                    <option value="KARYAWAN SWASTA">KARYAWAN SWASTA</option>
-                    <option value="KARYAWAN BUMN/BUMD">KARYAWAN BUMN/BUMD</option>
-                    <option value="WIRASWASTA">WIRASWASTA</option>
-                    <option value="PETANI/PEKEBUN">PETANI/PEKEBUN</option>
-                    <option value="NELAYAN/PERIKANAN">NELAYAN/PERIKANAN</option>
-                    <option value="BURUH HARIAN LEPAS">BURUH HARIAN LEPAS</option>
-                    <option value="PEDAGANG">PEDAGANG</option>
-                    <option value="PERANGKAT DESA">PERANGKAT DESA</option>
-                    <option value="TENAGA MEDIS">TENAGA MEDIS (DOKTER/PERAWAT)</option>
-                    <option value="LAINNYA">LAINNYA</option>
-                </select>
+                <div class="form-group">
+                    <label class="form-label">Jenis Pekerjaan</label>
+                    <select id="editOccupation" class="form-input">
+                        <option value="BELUM/TIDAK BEKERJA">BELUM/TIDAK BEKERJA</option>
+                        <option value="MENGURUS RUMAH TANGGA">MENGURUS RUMAH TANGGA</option>
+                        <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
+                        <option value="PENSIUNAN">PENSIUNAN</option>
+                        <option value="PEGAWAI NEGERI SIPIL">PEGAWAI NEGERI SIPIL</option>
+                        <option value="TNI/POLRI">TNI / POLRI</option>
+                        <option value="KARYAWAN SWASTA">KARYAWAN SWASTA</option>
+                        <option value="KARYAWAN BUMN/BUMD">KARYAWAN BUMN/BUMD</option>
+                        <option value="WIRASWASTA">WIRASWASTA</option>
+                        <option value="PETANI/PEKEBUN">PETANI/PEKEBUN</option>
+                        <option value="NELAYAN/PERIKANAN">NELAYAN/PERIKANAN</option>
+                        <option value="BURUH HARIAN LEPAS">BURUH HARIAN LEPAS</option>
+                        <option value="PEDAGANG">PEDAGANG</option>
+                        <option value="PERANGKAT DESA">PERANGKAT DESA</option>
+                        <option value="TENAGA MEDIS">TENAGA MEDIS (DOKTER/PERAWAT)</option>
+                        <option value="LAINNYA">LAINNYA</option>
+                    </select>
+                </div>
             </div>
             <div class="grid-3">
                 <div class="form-group">
@@ -189,7 +190,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Alamat Lengkap</label>
-                <textarea id="editAddress" class="form-input" rows="2" style="resize: none;"></textarea>
+                <textarea id="editAddress" class="form-input" rows="1" style="resize: none;"></textarea>
             </div>
 
             <!-- Approval Section (Dynamic) -->
