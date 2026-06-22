@@ -76,10 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     provSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
                 });
 
-                // If only 1 province (Filtered by backend for KC staff)
-                if (provRes.data.data.length === 1) {
+                const scopeType = userContext?.scope_type;
+                // Lock province for Admin Wilayah (kenwil) and Admin Cabang (branch)
+                if ((scopeType === 'kenwil' || scopeType === 'branch') && provRes.data.data.length >= 1) {
                     provSelect.value = provRes.data.data[0].id;
-                    if (userContext?.scope_type === 'branch') provSelect.disabled = true;
+                    provSelect.disabled = true;
                     await loadCities(provSelect.value);
                 }
             }
@@ -98,10 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             kotaSelect.disabled = false;
 
-            // If only 1 city (Filtered by backend)
+            // If only 1 city — lock (Admin Cabang)
             if (res.data.data.length === 1) {
                 kotaSelect.value = res.data.data[0].id;
-                if (userContext?.scope_type === 'branch') kotaSelect.disabled = true;
+                kotaSelect.disabled = true;
                 await loadDistricts(kotaSelect.value);
             }
         } catch (err) {
@@ -836,10 +837,109 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (accuracy > 100) window.showToast("Lokasi didapat, namun akurasi rendah.", "warning");
             else window.showToast("Lokasi presisi berhasil dikunci!", "success");
+
+            // Auto-detect Province and City using Reverse Geocoding
+            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=id`)
+                .then(res => res.json())
+                .then(async data => {
+                    let provName = "";
+                    let cityName = "";
+                    let kecName = "";
+
+                    if (data.localityInfo && data.localityInfo.administrative) {
+                        const p = data.localityInfo.administrative.find(a => a.adminLevel === 4);
+                        if (p) provName = p.name;
+                        const c = data.localityInfo.administrative.find(a => a.adminLevel === 5);
+                        if (c) cityName = c.name;
+                        const k = data.localityInfo.administrative.find(a => a.adminLevel === 6);
+                        if (k) kecName = k.name;
+                    }
+                    if (!provName && data.principalSubdivision) provName = data.principalSubdivision;
+                    if (!cityName && data.city) cityName = data.city;
+                    if (!kecName && data.locality) kecName = data.locality;
+
+                    const normalizeName = (n) => n ? n.toUpperCase().replace(/PROVINSI |KOTA |KABUPATEN |KECAMATAN /g, '').trim() : "";
+                    provName = normalizeName(provName);
+                    cityName = normalizeName(cityName);
+                    kecName = normalizeName(kecName);
+
+                    if (provName) {
+                        const provSelect = document.getElementById('provinsi_id');
+                        if (provSelect) {
+                            const normProv = normalizeName(provSelect.options[provSelect.selectedIndex]?.text || '');
+                            
+                            // If province is already locked/selected, check if it matches GPS
+                            if (provSelect.disabled && provSelect.value) {
+                                if (normProv === provName) {
+                                    // Province already correct, go straight to city matching
+                                    window.showToast(`Wilayah terdeteksi: ${provName}`, "info");
+                                    await loadCities(provSelect.value);
+                                    await matchCity(cityName, kecName);
+                                } else {
+                                    window.showToast(`Anda berada di ${provName}, namun akun Anda terkunci di ${normProv}.`, "warning");
+                                }
+                            } else {
+                                // Province is free to select
+                                let provMatched = false;
+                                for (let i = 0; i < provSelect.options.length; i++) {
+                                    const optName = normalizeName(provSelect.options[i].text);
+                                    if (optName === provName) {
+                                        provSelect.value = provSelect.options[i].value;
+                                        provMatched = true;
+                                        window.showToast(`Wilayah terdeteksi: ${provName}`, "info");
+                                        await loadCities(provSelect.value);
+                                        await matchCity(cityName, kecName);
+                                        break;
+                                    }
+                                }
+                                if (!provMatched) {
+                                    window.showToast(`Anda berada di ${provName}, namun wilayah ini tidak tersedia di pilihan Anda.`, "warning");
+                                }
+                            }
+                        }
+                    }
+                })
+                .catch(err => console.error("Gagal reverse geocoding:", err));
+                
         }, (err) => {
             window.showToast("Gagal mengambil GPS.", "error");
         }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
     };
+
+    async function matchCity(cityName, kecName) {
+        const normalizeName = (n) => n ? n.toUpperCase().replace(/PROVINSI |KOTA |KABUPATEN |KECAMATAN /g, '').trim() : "";
+        const kotaSelect = document.getElementById('kota_id');
+        if (!cityName || !kotaSelect) return;
+        
+        // If city is locked (branch), skip to kecamatan matching
+        if (kotaSelect.disabled && kotaSelect.value) {
+            await loadDistricts(kotaSelect.value);
+            await matchKecamatan(kecName);
+            return;
+        }
+        
+        for (let j = 0; j < kotaSelect.options.length; j++) {
+            if (normalizeName(kotaSelect.options[j].text) === cityName) {
+                kotaSelect.value = kotaSelect.options[j].value;
+                await loadDistricts(kotaSelect.value);
+                await matchKecamatan(kecName);
+                break;
+            }
+        }
+    }
+
+    async function matchKecamatan(kecName) {
+        const normalizeName = (n) => n ? n.toUpperCase().replace(/PROVINSI |KOTA |KABUPATEN |KECAMATAN /g, '').trim() : "";
+        if (!kecName) return;
+        const kecSelect = document.getElementById('kecamatan_id');
+        if (!kecSelect) return;
+        for (let k = 0; k < kecSelect.options.length; k++) {
+            if (normalizeName(kecSelect.options[k].text) === kecName) {
+                kecSelect.value = kecSelect.options[k].value;
+                break;
+            }
+        }
+    }
 
     window.setParticipantTime = (type) => {
         const now = new Date();

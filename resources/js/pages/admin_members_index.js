@@ -36,10 +36,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter) {
-        statusFilter.addEventListener('change', () => {
-            currentPage = 1;
-            window.fetchData();
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    if (tabBtns.length > 0) {
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.style.background = 'transparent';
+                    b.style.boxShadow = 'none';
+                    b.style.color = '#64748b';
+                });
+                btn.classList.add('active');
+                btn.style.background = 'white';
+                btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                btn.style.color = '#0f172a';
+                
+                if (statusFilter) {
+                    statusFilter.value = btn.getAttribute('data-val');
+                    currentPage = 1;
+                    window.fetchData();
+                }
+            });
         });
     }
 
@@ -169,22 +186,54 @@ function renderTable(members) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-window.deleteMember = async function(id) {
-    if (typeof showConfirm === 'undefined') {
-        if (!confirm('Arsip Anggota?')) return;
-    } else {
-        const ok = await showConfirm('Arsip Anggota?', 'Data anggota ini akan dipindahkan ke arsip.', { type: 'danger', confirmText: 'Ya, Arsipkan', icon: 'trash-2' });
-        if (!ok) return;
+let currentDeleteId = null;
+
+window.deleteMember = function(id) {
+    currentDeleteId = id;
+    const modal = document.getElementById('deleteOptionsModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.remove('hide');
     }
+};
+
+window.closeDeleteOptionsModal = function() {
+    const modal = document.getElementById('deleteOptionsModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    currentDeleteId = null;
+};
+
+window.executeDeleteOption = async function(type) {
+    if (!currentDeleteId) return;
     
-    try {
-        await window.axios.delete(`admin/members/${id}`);
-        window.fetchData();
-        if (typeof showToast !== 'undefined') showToast('Data berhasil diarsipkan', 'success');
-    } catch(e) { 
-        if (typeof showToast !== 'undefined') showToast('Gagal menghapus data.', 'error'); 
+    const id = currentDeleteId;
+    window.closeDeleteOptionsModal();
+    
+    if (type === 'arsip') {
+        try {
+            await window.axios.delete(`admin/members/${id}`);
+            window.fetchData();
+            if(typeof showToast !== 'undefined') showToast('Data berhasil diarsipkan', 'success');
+        } catch (e) {
+            if(typeof showToast !== 'undefined') showToast('Gagal mengarsipkan data.', 'error');
+        }
+    } else if (type === 'permanen') {
+        if (typeof showConfirm !== 'undefined') {
+            const ok = await showConfirm('Hapus Permanen?', 'Data ini akan dihapus secara permanen dan TIDAK DAPAT dipulihkan. Lanjutkan?', { type: 'danger', confirmText: 'Ya, Hapus Permanen', icon: 'x-circle' });
+            if (!ok) return;
+        }
+        
+        try {
+            await window.axios.delete(`admin/members/${id}/permanently-delete`);
+            window.fetchData();
+            if(typeof showToast !== 'undefined') showToast('Data berhasil dihapus permanen', 'success');
+        } catch (e) {
+            if(typeof showToast !== 'undefined') showToast('Gagal menghapus data secara permanen.', 'error');
+        }
     }
-}
+};
 
 window.restoreMember = async function(id) {
     if (typeof showConfirm !== 'undefined') {

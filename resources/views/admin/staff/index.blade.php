@@ -156,7 +156,7 @@
                             </div>
                             <div>
                                 <label class="v-label" style="display:block; margin-bottom: 6px;">Role / Akses</label>
-                                <select id="staffRole" class="form-input" style="width:100%; border-radius: 6px; border: 1px solid #E2E8F0; padding: 8px 12px; font-size: 0.85rem;">
+                                <select id="staffRole" name="staffRole" autocomplete="off" class="form-input" style="width:100%; border-radius: 6px; border: 1px solid #E2E8F0; padding: 8px 12px; font-size: 0.85rem;">
                                     @if(optional(auth('admin')->user())->role === 'superadmin')
                                         <option value="superadmin">Super Admin</option>
                                     @endif

@@ -305,9 +305,22 @@
         }
 
         // 6. Global Logout
-        function logout() {
-            localStorage.clear();
-            window.location.href = '/login';
+        async function logout() {
+            let confirmLogout = true;
+            if (typeof showConfirm !== 'undefined') {
+                confirmLogout = await showConfirm(
+                    'Konfirmasi Keluar', 
+                    'Apakah Anda yakin ingin keluar dari sesi ini?', 
+                    { type: 'warning', confirmText: 'Ya, Keluar', icon: 'log-out' }
+                );
+            } else {
+                confirmLogout = confirm('Apakah Anda yakin ingin keluar dari sesi ini?');
+            }
+
+            if (confirmLogout) {
+                localStorage.clear();
+                window.location.href = '/login';
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

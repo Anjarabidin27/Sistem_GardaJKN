@@ -138,7 +138,7 @@ class MemberService
     public function forceDeleteMember(int $id): bool
     {
         return DB::transaction(function () use ($id) {
-            $member = \App\Models\Member::onlyTrashed()->findOrFail($id);
+            $member = \App\Models\Member::withTrashed()->findOrFail($id);
             
             // Delete photo if exists
             if ($member->photo_path) {

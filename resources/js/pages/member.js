@@ -556,4 +556,20 @@
         }
     }
 
-    window.logout = function() { localStorage.clear(); window.location.href = '/login'; }
+    window.logout = async function() {
+        let confirmLogout = true;
+        if (typeof showConfirm !== 'undefined') {
+            confirmLogout = await showConfirm(
+                'Konfirmasi Keluar', 
+                'Apakah Anda yakin ingin keluar dari sesi ini?', 
+                { type: 'warning', confirmText: 'Ya, Keluar', icon: 'log-out' }
+            );
+        } else {
+            confirmLogout = confirm('Apakah Anda yakin ingin keluar dari sesi ini?');
+        }
+
+        if (confirmLogout) {
+            localStorage.clear();
+            window.location.href = '/login';
+        }
+    }

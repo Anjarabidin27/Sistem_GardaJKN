@@ -19,8 +19,13 @@ class RegionController extends Controller
         $reqRegion = $request->kedeputian_wilayah;
         
         $scope = $this->getUserRegionScope($user, $reqRegion);
-        if ($scope) {
-            $data = Province::whereIn('id', $scope['province_ids'])->orderBy('name')->get(['id', 'code', 'name']);
+        
+        // Only apply filter if the scope actually yielded valid province IDs
+        // This prevents the dropdown from breaking if the database is missing province_id mappings
+        $validProvIds = $scope ? array_filter($scope['province_ids']) : [];
+        
+        if ($scope && !empty($validProvIds)) {
+            $data = Province::whereIn('id', $validProvIds)->orderBy('name')->get(['id', 'code', 'name']);
             return $this->successResponse('Data Provinsi (Filtered)', $data);
         }
 
@@ -58,10 +63,22 @@ class RegionController extends Controller
 
         $scope = $this->getUserRegionScope($user, $reqRegion);
         if ($scope) {
-            $query = City::whereIn('id', $scope['city_ids']);
+            $query = City::query();
+            
+            // If they are Admin Cabang, lock to their specific cities
+            if ($scope['type'] === 'branch' && !empty($scope['city_ids'])) {
+                $query->whereIn('id', $scope['city_ids']);
+            }
+            
+            // For both Admin Wilayah and Admin Cabang, lock to their specific provinces
+            if (!empty($scope['province_ids'])) {
+                $query->whereIn('province_id', $scope['province_ids']);
+            }
+            
             if ($provinceId) {
                 $query->where('province_id', $provinceId);
             }
+            
             $data = $query->orderBy('name')->get(['id', 'province_id', 'code', 'name', 'type']);
             return $this->successResponse('Data Kota (Filtered)', $data);
         }
@@ -176,10 +193,10 @@ class RegionController extends Controller
             'kantor_cabang' => [
                 'id' => $kc?->id,
                 'name' => $kc?->name,
-                'province_id' => $kc?->province_id ?? $user->province_id,
-                'city_id' => $kc?->city_id ?? $user->city_id,
+                'province_id' => $kc?->province_id ?? ($user instanceof \App\Models\Member ? $user->province_id : null),
+                'city_id' => $kc?->city_id ?? ($user instanceof \App\Models\Member ? $user->city_id : null),
             ],
-            'auto_fill' => (bool)(($kc?->province_id && $kc?->city_id) || ($user->province_id && $user->city_id))
+            'auto_fill' => (bool)(($kc?->province_id && $kc?->city_id) || ($user instanceof \App\Models\Member && $user->province_id && $user->city_id))
         ]);
     }
 
@@ -194,13 +211,31 @@ class RegionController extends Controller
         }
 
         if ($regionName) {
-            $kenwil = \App\Models\KedeputianWilayah::where('name', 'LIKE', '%' . trim($regionName) . '%')->first();
+            // First try to get Kenwil from the User's KC relationship (most accurate)
+            $kenwil = null;
+            if ($user && $user->kantor_cabang_id && $user->kantorCabang) {
+                $kenwil = $user->kantorCabang->kedeputianWilayah;
+            }
+            
+            // Fallback to string matching
+            if (!$kenwil) {
+                $kenwil = \App\Models\KedeputianWilayah::where('name', 'LIKE', '%' . trim($regionName) . '%')->first();
+            }
+
             if ($kenwil) {
                 $kcs = $kenwil->kantorCabangs;
+                $cityIds = array_values(array_filter($kcs->pluck('city_id')->unique()->toArray()));
+                $provIds = array_values(array_filter($kcs->pluck('province_id')->unique()->toArray()));
+                
+                // If province_ids are null (old data), derive from City records based on city_ids
+                if (empty($provIds) && !empty($cityIds)) {
+                    $provIds = City::whereIn('id', $cityIds)->distinct()->pluck('province_id')->filter()->values()->toArray();
+                }
+                
                 return [
                     'type' => 'kenwil',
-                    'province_ids' => $kcs->pluck('province_id')->unique()->toArray(),
-                    'city_ids' => $kcs->pluck('city_id')->unique()->toArray()
+                    'province_ids' => $provIds,
+                    'city_ids' => $cityIds
                 ];
             }
         }
@@ -218,10 +253,15 @@ class RegionController extends Controller
         }
 
         if ($kc) {
+            $kcProvinceId = $kc->province_id;
+            // Derive province_id from City if missing (old data)
+            if (!$kcProvinceId && $kc->city_id) {
+                $kcProvinceId = City::find($kc->city_id)?->province_id;
+            }
             return [
                 'type' => 'branch',
-                'province_ids' => [$kc->province_id],
-                'city_ids' => [$kc->city_id]
+                'province_ids' => array_filter([$kcProvinceId]),
+                'city_ids' => array_filter([$kc->city_id])
             ];
         }
 

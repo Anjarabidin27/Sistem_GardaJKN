@@ -86,8 +86,8 @@
                         <div class="form-group">
                             <div class="flex justify-between items-center mb-1">
                                 <label class="form-label mb-0">Wilayah (Master Data)</label>
-                                <button type="button" onclick="window.detectGPS()" class="btn btn-secondary" style="font-size: 10px; padding: 2px 8px; height: auto; display: flex; align-items: center; gap: 4px; background: #fff; border-color: #000; color: #000;">
-                                    <i data-lucide="map-pin" style="width: 10px; height: 10px;"></i> Deteksi Lokasi (GPS)
+                                <button type="button" onclick="window.detectGPS()" class="btn btn-primary" style="font-size: 11px; padding: 4px 10px; height: auto; display: flex; align-items: center; gap: 4px; border-radius: 6px;">
+                                    <i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> Deteksi Otomatis (GPS)
                                 </button>
                             </div>
                             <div class="flex-col" style="gap: 8px;">

@@ -10,11 +10,12 @@
             </div>
             <div class="header-actions flex gap-2">
                 <input type="text" id="searchInput" placeholder="Cari Nama/NIK...." class="form-input" style="width: 200px;">
-                <select id="statusFilter" class="form-input" style="width: auto;">
-                    <option value="false">Data Aktif</option>
-                    <option value="pending">Menunggu Persetujuan</option>
-                    <option value="true">Arsip Dihapus</option>
-                </select>
+                <div class="status-tabs" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; gap: 4px;">
+                    <button class="tab-btn active" data-val="false" style="padding: 6px 12px; border: none; background: white; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: #0f172a;">Data Aktif</button>
+                    <button class="tab-btn" data-val="pending" style="padding: 6px 12px; border: none; background: transparent; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #64748b;">Menunggu Persetujuan</button>
+                    <button class="tab-btn" data-val="true" style="padding: 6px 12px; border: none; background: transparent; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #64748b;">Data Arsip</button>
+                </div>
+                <input type="hidden" id="statusFilter" value="false">
                 <select id="provinceFilter" class="form-input" style="width: auto;">
                     <option value="">Seluruh Wilayah</option>
                 </select>

@@ -220,3 +220,45 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Options Modal -->
+<div id="deleteOptionsModal" class="modal-overlay" style="display:none; backdrop-filter: blur(8px); background: rgba(15, 23, 42, 0.6); z-index: 9999;">
+    <div class="modal-content" style="max-width: 500px; padding: 32px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+        <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+            <h3 class="modal-title" style="font-weight: 800; font-size: 1.5rem; color: #0f172a;">Opsi Hapus Anggota</h3>
+            <button class="modal-close" onclick="window.closeDeleteOptionsModal()" style="background: #f1f5f9; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #64748b; border: none; cursor: pointer;">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="color: #475569; margin-bottom: 24px; line-height: 1.5;">Pilih metode penghapusan yang Anda inginkan untuk data anggota ini.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- Arsip Sementara -->
+                <div style="border: 2px solid #cbd5e1; border-radius: 16px; padding: 16px; cursor: pointer; transition: all 0.2s;" onclick="window.executeDeleteOption('arsip')" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='#cbd5e1'">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i data-lucide="archive" style="width: 24px; height: 24px; color: #3b82f6;"></i>
+                        <h4 style="font-weight: 700; color: #0f172a; margin: 0; font-size: 1.1rem;">Arsip Sementara</h4>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #64748b; margin: 0; line-height: 1.5;">
+                        Data dipindahkan ke kotak sampah dan dapat dipulihkan sewaktu-waktu. 
+                        <br><span style="color: #ea580c; font-weight: 600;">Risiko:</span> NIK tetap terdaftar di sistem. Jika anggota ingin daftar ulang, data ini harus dihapus permanen terlebih dahulu.
+                    </p>
+                </div>
+
+                <!-- Hapus Permanen -->
+                <div style="border: 2px solid #cbd5e1; border-radius: 16px; padding: 16px; cursor: pointer; transition: all 0.2s;" onclick="window.executeDeleteOption('permanen')" onmouseover="this.style.borderColor='#ef4444'" onmouseout="this.style.borderColor='#cbd5e1'">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i data-lucide="trash-2" style="width: 24px; height: 24px; color: #ef4444;"></i>
+                        <h4 style="font-weight: 700; color: #0f172a; margin: 0; font-size: 1.1rem;">Hapus Permanen</h4>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #64748b; margin: 0; line-height: 1.5;">
+                        Data akan dihapus secara fisik dari sistem.
+                        <br><span style="color: #ef4444; font-weight: 600;">Risiko:</span> Data <strong>tidak dapat dipulihkan</strong> kembali. NIK tersebut menjadi bebas dan bisa langsung dipakai daftar ulang.
+                    </p>
+                </div>
+            </div>
+            <div style="margin-top: 24px;">
+                <button class="btn btn-secondary" onclick="window.closeDeleteOptionsModal()" style="width: 100%; border-radius: 12px; padding: 12px; background: #f8fafc; color: #64748b; border-color: #e2e8f0;">Batalkan Penghapusan</button>
+            </div>
+        </div>
+    </div>
+</div>

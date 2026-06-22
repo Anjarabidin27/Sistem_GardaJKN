@@ -302,59 +302,62 @@
     </div>
 
     <!-- Registration Pengurus Modal -->
-    <div id="pengurusModal" class="modal-overlay" style="display:none;">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">
-                <h3 class="modal-title">Pendaftaran Pengurus</h3>
-                <button class="modal-close" onclick="window.closePengurusModal()">&times;</button>
-            </div>
-            <div class="modal-body">
+    <div id="pengurusModal" class="modal-overlay" style="display:none; backdrop-filter: blur(8px); background: rgba(15, 23, 42, 0.6);">
+        <div class="modal-content" style="max-width: 480px; padding: 40px 32px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+            <button class="modal-close" onclick="window.closePengurusModal()" style="position: absolute; top: 20px; right: 24px; background: #f1f5f9; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: #64748b; transition: all 0.3s ease; border: none; cursor: pointer;">&times;</button>
+            <div class="modal-body" style="padding: 0;">
                 <!-- Step 1: Interest Inquiry -->
-                <div id="pengurusStep1">
-                    <div class="text-center py-6">
-                        <i data-lucide="award" style="width: 64px; height: 64px; color: var(--primary); margin-bottom: 20px;"></i>
-                        <h4 class="font-bold text-dark mb-4">Ingin berkontribusi sebagai Pengurus?</h4>
-                        <p class="text-muted mb-8">Sebagai pengurus, Anda akan memiliki peran aktif dalam mengkoordinasikan program Garda JKN di wilayah Anda.</p>
-                        <div class="flex gap-4">
-                            <button class="btn btn-primary flex-1" onclick="window.showPengurusStep(2)">Ya, Saya Tertarik</button>
-                            <button class="btn btn-secondary flex-1" onclick="window.submitPengurusInterest(false)">Belum Saatnya</button>
+                <div id="pengurusStep1" style="animation: slideUp 0.4s ease-out;">
+                    <div class="text-center">
+                        <div style="width: 96px; height: 96px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: inset 0 4px 6px rgba(255,255,255,0.5), 0 10px 15px -3px rgba(37, 99, 235, 0.1);">
+                            <i data-lucide="award" style="width: 48px; height: 48px; color: #2563eb;"></i>
+                        </div>
+                        <h3 style="font-weight: 800; font-size: 1.5rem; color: #0f172a; margin-bottom: 12px; letter-spacing: -0.02em;">Pendaftaran Pengurus</h3>
+                        <p style="color: #475569; margin-bottom: 32px; line-height: 1.6; font-size: 0.95rem;">Sebagai pengurus, Anda akan memiliki peran aktif dan eksklusif dalam mengkoordinasikan program Garda JKN di wilayah Anda.</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <button class="btn btn-primary" onclick="window.showPengurusStep(2)" style="width: 100%; padding: 14px; font-size: 1rem; border-radius: 14px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);">Ya, Saya Tertarik Bergabung</button>
+                            <button class="btn btn-secondary" onclick="window.submitPengurusInterest(false)" style="width: 100%; padding: 14px; font-size: 1rem; border-radius: 14px; background: #f8fafc; border-color: #e2e8f0; color: #64748b;">Mungkin Nanti Saja</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Step 2: Experience Inquiry -->
-                <div id="pengurusStep2" style="display:none;">
-                    <div class="text-center py-6">
-                        <i data-lucide="briefcase" style="width: 48px; height: 48px; color: #64748b; margin-bottom: 16px;"></i>
-                        <h4 class="font-bold text-dark mb-4">Pengalaman Organisasi</h4>
-                        <p class="text-muted mb-8">Apakah Anda pernah aktif dalam organisasi atau lembaga sebelumnya?</p>
-                        <div class="flex gap-4">
-                            <button class="btn btn-primary flex-1" onclick="window.showPengurusStep(3)">Punya Pengalaman</button>
-                            <button class="btn btn-secondary flex-1" onclick="window.submitPengurusInterest(true, false)">Tidak Punya</button>
+                <div id="pengurusStep2" style="display:none; animation: slideUp 0.4s ease-out;">
+                    <div class="text-center">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                            <i data-lucide="briefcase" style="width: 36px; height: 36px; color: #64748b;"></i>
                         </div>
-                        <button class="btn mt-6" style="background:none; border:none; color:#94a3b8; font-size:0.75rem;" onclick="window.showPengurusStep(1)">Kembali</button>
+                        <h3 style="font-weight: 800; font-size: 1.35rem; color: #0f172a; margin-bottom: 12px; letter-spacing: -0.02em;">Pengalaman Organisasi</h3>
+                        <p style="color: #475569; margin-bottom: 32px; line-height: 1.6; font-size: 0.95rem;">Apakah Anda memiliki riwayat aktif dalam organisasi, komunitas, atau lembaga sebelumnya?</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <button class="btn btn-primary" onclick="window.showPengurusStep(3)" style="width: 100%; padding: 14px; font-size: 1rem; border-radius: 14px;">Ya, Saya Punya Pengalaman</button>
+                            <button class="btn btn-secondary" onclick="window.submitPengurusInterest(true, false)" style="width: 100%; padding: 14px; font-size: 1rem; border-radius: 14px; background: #f8fafc; border-color: #e2e8f0; color: #64748b;">Belum Ada Pengalaman</button>
+                        </div>
+                        <button style="margin-top: 24px; background: none; border: none; color: #94a3b8; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: color 0.2s;" onclick="window.showPengurusStep(1)" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">← Kembali ke awal</button>
                     </div>
                 </div>
 
                 <!-- Step 3: Detailed Experience -->
-                <div id="pengurusStep3" style="display:none;">
-                    <h4 class="font-bold text-dark mb-6">Detail Portfolio</h4>
-                    <div class="form-group">
-                        <label class="form-label">Nama Lembaga (Max 3 Organisasi)</label>
-                        <input type="text" id="appOrgName" class="form-input" placeholder="Contoh: BEM Univ, Karang Taruna, dsb">
+                <div id="pengurusStep3" style="display:none; animation: slideUp 0.4s ease-out;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                        <button style="background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; flex-shrink: 0;" onclick="window.showPengurusStep(2)"><i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i></button>
+                        <h3 style="font-weight: 800; font-size: 1.25rem; color: #0f172a; margin: 0;">Detail Pengalaman</h3>
                     </div>
-                    <div class="form-group mt-4">
-                        <label class="form-label">Berapa total tahun aktif?</label>
-                        <input type="number" id="appOrgCount" class="form-input" placeholder="Misal: 2">
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label" style="color: #475569; font-weight: 600;">Nama Organisasi / Lembaga</label>
+                        <input type="text" id="appOrgName" class="form-input" placeholder="Contoh: Karang Taruna, dsb" style="padding: 14px; border-radius: 12px; border: 1px solid #cbd5e1; background: #f8fafc;">
                     </div>
-                    <div class="form-group mt-4">
-                        <label class="form-label">Alasan ingin bergabung?</label>
-                        <textarea id="appReason" class="form-input" rows="3" style="resize:none;" placeholder="Berikan deskripsi singkat ketertarikan Anda..."></textarea>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label" style="color: #475569; font-weight: 600;">Lama Aktif (Tahun)</label>
+                        <input type="number" id="appOrgCount" class="form-input" placeholder="Berapa lama Anda aktif?" style="padding: 14px; border-radius: 12px; border: 1px solid #cbd5e1; background: #f8fafc;">
                     </div>
-                    <div class="flex gap-4 mt-8">
-                        <button class="btn btn-secondary flex-1" onclick="window.showPengurusStep(2)">Kembali</button>
-                        <button class="btn btn-primary flex-1" onclick="window.submitPengurusInterest(true, true)">Kirim Pendaftaran</button>
+                    <div class="form-group" style="margin-bottom: 32px;">
+                        <label class="form-label" style="color: #475569; font-weight: 600;">Motivasi Bergabung</label>
+                        <textarea id="appReason" class="form-input" rows="3" style="resize:none; padding: 14px; border-radius: 12px; border: 1px solid #cbd5e1; background: #f8fafc;" placeholder="Ceritakan motivasi Anda secara singkat..."></textarea>
                     </div>
+                    
+                    <button class="btn btn-primary" onclick="window.submitPengurusInterest(true, true)" style="width: 100%; padding: 14px; font-size: 1rem; border-radius: 14px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);">Kirim Pendaftaran Pengurus</button>
                 </div>
             </div>
         </div>
